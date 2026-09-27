@@ -29,7 +29,7 @@ import net.seapanda.bunnyhop.debugger.model.Debugger;
 import net.seapanda.bunnyhop.debugger.model.thread.ThreadContext;
 import net.seapanda.bunnyhop.debugger.model.variable.VariableInfo;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
-import net.seapanda.bunnyhop.ui.control.SearchBox;
+import net.seapanda.bunnyhop.ui.control.SharedSearchBox;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
 
@@ -42,7 +42,7 @@ public class DebugViewFactoryImpl implements DebugViewFactory {
   
   private final Path callStackViewFilePath;
   private final Path varInspectionViewFilePath;
-  private final SearchBox searchBox;
+  private final SharedSearchBox searchBox;
   private final Debugger debugger;
   private final WorkspaceSet wss;
   private final VisualEffectManager effectManager;
@@ -54,7 +54,7 @@ public class DebugViewFactoryImpl implements DebugViewFactory {
   public DebugViewFactoryImpl(
       Path callStackViewFilePath,
       Path varInspectionViewFilePath,
-      SearchBox searchBox,
+      SharedSearchBox searchBox,
       Debugger debugger,
       WorkspaceSet wss,
       VisualEffectManager visualEffectManager) {

@@ -20,7 +20,7 @@
          styleClass="flatCheckBox"
          selected="true"
          text="$jump.text"/>
-      <fx:include fx:id="nsSearchBox" source="NodeSearchBox.fxml"/>
+      <fx:include fx:id="searchBox" source="SearchBox.fxml"/>
     </HBox>
 
     <HBox>

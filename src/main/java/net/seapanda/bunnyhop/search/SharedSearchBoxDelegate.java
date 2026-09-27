@@ -17,11 +17,11 @@
 package net.seapanda.bunnyhop.search;
 
 /**
- * 検索ボックスが検索イベントを委譲する相手を規定するインタフェース.
+ * 共有検索ボックスが検索イベントを委譲する相手を規定するインタフェース.
  *
  * @author K.Koike
  */
-public interface SearchBoxDelegate {
+public interface SharedSearchBoxDelegate {
 
   /**
    * 検索がリクエストされたときに呼ばれる.
@@ -33,6 +33,17 @@ public interface SearchBoxDelegate {
     return null;
   }
 
-  /** 検索結果がクリアされたときに呼ばれる. */
-  default void onSearchResultCleared() {}
+  /** この検索ボックスが閉じられたときに呼ばれる. */
+  default void onClosed() {}
+
+  /**
+   * この検索ボックスの利用者を表すオブジェクトを返す.
+   *
+   * <p>検索ボックスはこのメソッドの戻り値を使って, 検索ボックスを共有する複数の利用者を区別する.
+   *
+   * @return この検索ボックスの利用者を表すオブジェクト
+   */
+  default Object getUser() {
+    return this;
+  }
 }

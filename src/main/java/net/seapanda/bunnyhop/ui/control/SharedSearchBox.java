@@ -16,18 +16,21 @@
 
 package net.seapanda.bunnyhop.ui.control;
 
-import net.seapanda.bunnyhop.search.SearchBoxDelegate;
 import net.seapanda.bunnyhop.search.SearchQueryResult;
+import net.seapanda.bunnyhop.search.SharedSearchBoxDelegate;
 
 /**
  * 検索クエリを受け取る UI コンポーネントのインタフェース.
  *
  * @author K.Koike
  */
-public interface SearchBox {
+public interface SharedSearchBox {
 
-  /** 検索イベントの処理の移譲先を設定する. */
-  void setSearchBoxDelegate(SearchBoxDelegate delegate);
+  /** 検索クエリの入力を有効化する. */
+  void open(SharedSearchBoxDelegate delegate);
+
+  /** 検索クエリの入力を無効化する. */
+  void close();
 
   /**
    * 同じユーザが同じ検索ハンドラと検索クエリ (次 or 前は除く) で連続して検索された回数を取得する.
@@ -45,4 +48,7 @@ public interface SearchBox {
    *               null を指定した場合は, 検索結果の表示をクリアする.
    */
   void setSearchResult(SearchQueryResult result);
+
+  /** 検索ボックスの現在の利用者を表すオブジェクトを返す. */
+  Object getUser();
 }

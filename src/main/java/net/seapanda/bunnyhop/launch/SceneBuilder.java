@@ -68,9 +68,9 @@ import net.seapanda.bunnyhop.ui.control.FoundationController;
 import net.seapanda.bunnyhop.ui.control.MenuBarController;
 import net.seapanda.bunnyhop.ui.control.MenuViewController;
 import net.seapanda.bunnyhop.ui.control.MessageViewController;
-import net.seapanda.bunnyhop.ui.control.NodeSearchBoxController;
 import net.seapanda.bunnyhop.ui.control.NodeSearchViewController;
 import net.seapanda.bunnyhop.ui.control.SearchBoxController;
+import net.seapanda.bunnyhop.ui.control.SharedSearchBoxController;
 import net.seapanda.bunnyhop.ui.service.window.WindowManager;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.utility.Utility;
@@ -114,7 +114,7 @@ public class SceneBuilder {
   private final CompileErrorNodeCache compileErrorNodeCache;
   private final Debugger debugger;
   private final SourceNodeCollector executableNodeCollector;
-  private final SearchBoxController searchBoxCtrl;
+  private final SharedSearchBoxController sharedSearchBoxCtrl;
   private final TrashCanController trashCanCtrl;
   private final WindowManager windowManager;
   private final VisualEffectManager effectManager;
@@ -151,7 +151,7 @@ public class SceneBuilder {
       Debugger debugger,
       SourceNodeCollector executableNodeCollector,
       WorkspaceSetController wssCtrl,
-      SearchBoxController searchBoxCtrl,
+      SharedSearchBoxController sharedSearchBoxCtrl,
       TrashCanController trashCanCtrl,
       WindowManager windowManager,
       VisualEffectManager visualEffectManager,
@@ -174,7 +174,7 @@ public class SceneBuilder {
     this.compileErrorNodeCache = compileErrorNodeCache;
     this.debugger = debugger;
     this.executableNodeCollector = executableNodeCollector;
-    this.searchBoxCtrl = searchBoxCtrl;
+    this.sharedSearchBoxCtrl = sharedSearchBoxCtrl;
     this.trashCanCtrl = trashCanCtrl;
     this.windowManager = windowManager;
     this.effectManager = visualEffectManager;
@@ -183,7 +183,7 @@ public class SceneBuilder {
     this.debugWindowCtrl = new DebugWindowController(debugger);
     this.menuBarCtrl = new MenuBarController(
         wss, notifService, undoRedoAgent, importer, exporter, msgService);
-    this.msgViewCtrl = new MessageViewController(searchBoxCtrl);
+    this.msgViewCtrl = new MessageViewController();
 
     VBox root;
     try {
@@ -223,10 +223,10 @@ public class SceneBuilder {
       return new WorkspaceSelectorController(wss);
     }
     if (type == BreakpointListController.class) {
-      return new BreakpointListController(wss, breakpointCache, searchBoxCtrl, effectManager);
+      return new BreakpointListController(wss, breakpointCache, effectManager);
     }
     if (type == ErrorNodeListController.class) {
-      return new ErrorNodeListController(wss, compileErrorNodeCache, searchBoxCtrl, effectManager);
+      return new ErrorNodeListController(wss, compileErrorNodeCache, effectManager);
     }
     if (type == DebugViewController.class) {
       return new DebugViewController(debugger, debugViewFactory);
@@ -238,10 +238,10 @@ public class SceneBuilder {
       return new BhNodeCategoryListController(nodeCategoryRoot, nodeSelProxy, nodeFactory);
     }
     if (type == SearchBoxController.class) {
-      return searchBoxCtrl;
+      return new SearchBoxController();
     }
-    if (type == NodeSearchBoxController.class) {
-      return new NodeSearchBoxController();
+    if (type == SharedSearchBoxController.class) {
+      return sharedSearchBoxCtrl;
     }
     if (type == TrashCanController.class) {
       return trashCanCtrl;

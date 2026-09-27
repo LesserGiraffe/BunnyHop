@@ -29,7 +29,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
 import net.seapanda.bunnyhop.common.text.TextDefs;
-import net.seapanda.bunnyhop.search.NullSearchBoxDelegate;
 import net.seapanda.bunnyhop.search.SearchBoxDelegate;
 import net.seapanda.bunnyhop.search.SearchQuery;
 import net.seapanda.bunnyhop.search.SearchQueryResult;
@@ -41,19 +40,19 @@ import net.seapanda.bunnyhop.ui.view.ViewUtil;
  * @author K.Koike
  */
 public class SearchBoxController implements SearchBox {
-  
-  @FXML HBox searchBoxViewBase;
-  @FXML TextField searchWordField;
-  @FXML ToggleButton regexButton;
-  @FXML ToggleButton caseSensitiveButton;
-  @FXML Button searchBoxCloseButton;
-  @FXML Button findPrevButton;
-  @FXML Button findNextButton;
-  @FXML Label searchResultLabel;
+
+  @FXML private HBox searchBoxViewBase;
+  @FXML private TextField searchWordField;
+  @FXML private ToggleButton regexButton;
+  @FXML private ToggleButton caseSensitiveButton;
+  @FXML private Button findPrevButton;
+  @FXML private Button findNextButton;
+  @FXML private Button clearButton;
+  @FXML private Label searchResultLabel;
   /** 同じ検索クエリと検索ハンドラで検索された回数. */
   private long countConsecutiveSameRequests = 0;
   private SearchQuery previousQuery;
-  private SearchBoxDelegate delegate = new NullSearchBoxDelegate();
+  private SearchBoxDelegate delegate = new SearchBoxDelegate() {};
 
   /** このコントローラの UI 要素を初期化する. */
   @FXML
@@ -68,9 +67,9 @@ public class SearchBoxController implements SearchBox {
     searchWordField.textProperty().addListener(
         (obs, oldVal, newVal) -> updateSearchWordFieldLength());
     searchWordField.setOnKeyPressed(this::onKeyPressed);
-    searchBoxCloseButton.setOnAction(event -> close());
     findPrevButton.setOnAction(event -> onSearchRequested(false));
     findNextButton.setOnAction(event -> onSearchRequested(true));
+    clearButton.setOnAction(event -> onClearRequested());
   }
 
   /** 検索ワード入力フィールドの幅をテキストの長さに応じて帰る. */
@@ -106,7 +105,6 @@ public class SearchBoxController implements SearchBox {
 
   /** 検索をリクエストされたときの処理. */
   private void onSearchRequested(boolean findNext) {
-    clearSearchResult();
     var currentQuery = createQuery(findNext);
     if (!currentQuery.isEqualTo(previousQuery)) {
       countConsecutiveSameRequests = 0;
@@ -117,23 +115,16 @@ public class SearchBoxController implements SearchBox {
     previousQuery = currentQuery;
   }
 
-  @Override
-  public void open(SearchBoxDelegate delegate) {
-    Objects.requireNonNull(delegate);
-    if (this.delegate.getUser() != delegate.getUser()) {
-      close();
-      this.delegate = delegate;
-    }
-    searchBoxViewBase.visibleProperty().set(true);
+  private void onClearRequested() {
+    searchResultLabel.setText("");
+    delegate.onSearchResultCleared();
   }
 
   @Override
-  public void close() {
-    searchBoxViewBase.visibleProperty().set(false);
-    countConsecutiveSameRequests = 0;
-    clearSearchResult();
-    delegate.onClosed();
-    delegate = new NullSearchBoxDelegate();
+  public void setSearchBoxDelegate(SearchBoxDelegate delegate) {
+    Objects.requireNonNull(delegate);
+    this.delegate = delegate;
+    searchBoxViewBase.visibleProperty().set(true);
   }
 
   @Override
@@ -144,7 +135,7 @@ public class SearchBoxController implements SearchBox {
   @Override
   public void setSearchResult(SearchQueryResult result) {
     if (result == null) {
-      clearSearchResult();
+      searchResultLabel.setText("");
       return;
     }
     if (result.isRegexInvalid()) {
@@ -158,16 +149,5 @@ public class SearchBoxController implements SearchBox {
     String plus = result.truncated() ? "+" : "";
     String text = "%s / %s%s".formatted(result.currentIdx() + 1, result.numFound(), plus);
     searchResultLabel.setText(TextDefs.SearchBox.result.get(text));
-  }
-
-  @Override
-  public void clearSearchResult() {
-    searchResultLabel.setText("");
-    delegate.onCleared();
-  }
-
-  @Override
-  public Object getUser() {
-    return delegate.getUser();
   }
 }

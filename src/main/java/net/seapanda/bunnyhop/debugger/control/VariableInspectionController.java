@@ -65,10 +65,10 @@ import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
 import net.seapanda.bunnyhop.search.CyclicSublistFinder;
 import net.seapanda.bunnyhop.search.ItemSearcher;
-import net.seapanda.bunnyhop.search.SearchBoxDelegate;
 import net.seapanda.bunnyhop.search.SearchQuery;
 import net.seapanda.bunnyhop.search.SearchQueryResult;
-import net.seapanda.bunnyhop.ui.control.SearchBox;
+import net.seapanda.bunnyhop.search.SharedSearchBoxDelegate;
+import net.seapanda.bunnyhop.ui.control.SharedSearchBox;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet.NodeSelectionEvent;
@@ -89,7 +89,7 @@ public class VariableInspectionController {
   @FXML private Button viReloadBtn;
 
   private final VariableInfo varInfo;
-  private final SearchBox searchBox;
+  private final SharedSearchBox searchBox;
   private final Debugger debugger;
   private final WorkspaceSet wss;
   private final VisualEffectManager effectManager;
@@ -119,7 +119,7 @@ public class VariableInspectionController {
   public VariableInspectionController(
       VariableInfo varInfo,
       String viewName,
-      SearchBox searchBox,
+      SharedSearchBox searchBox,
       Debugger debugger,
       WorkspaceSet wss,
       VisualEffectManager visualEffectManager,
@@ -219,14 +219,6 @@ public class VariableInspectionController {
     registry.getOnValueChanged().add(event -> clearSearchResult());
   }
 
-  /** {@link VariableListCell} に割り当てられるアイテムが変わったときの処理. */
-  private void onCellItemChanged(ItemChangeEvent event) {
-    cellRegistry.updateItemToCellsMap(event);
-    cellRegistry.updateNodeToCellsMap(event);
-    updateCellDecoration(event);
-    updateSearchResultHighlight(event);
-  }
-
   /** 変数が選択されたときの処理. */
   private void onVariableSelected(
       TreeItem<VariableListItem> deselected, TreeItem<VariableListItem> selected) {
@@ -311,34 +303,6 @@ public class VariableInspectionController {
     cellRegistry.getCells(node).forEach(cell -> cell.decorateText(node.isSelected()));
   }
 
-  /**
-   * {@link VariableListCell} に新しく割り当てられたアイテムの {@link BhNode} の選択状態に応じて,
-   * セルの装飾を更新する.
-   */
-  private static void updateCellDecoration(ItemChangeEvent event) {
-    boolean shouldDecorate =
-        !event.empty()
-        && event.newVal() != null
-        && event.newVal().variable.getNode()
-          .map(BhNode::isSelected)
-          .orElse(false);
-    event.cell().decorateText(shouldDecorate);
-  }
-
-  /** {@link VariableListCell} に新しく割り当てられたアイテムに応じて, セルの強調表示を更新する. */
-  private void updateSearchResultHighlight(ItemChangeEvent event) {
-    boolean shouldHighlight =
-        !event.empty()
-        && event.newVal() != null
-        && searchResult != null
-        && searchResult.listItems.contains(event.newVal());
-    if (shouldHighlight) {
-      event.cell().enableHighlighting(searchResult.query.getPattern(), DEFAULT_TEXT_HIGHLIGHT);
-    } else {
-      event.cell().disableHighlighting();
-    }
-  }
-
   /** 変数情報を再取得する. */
   private void reloadVarInfo() {
     varInfo.clearVariables();
@@ -362,70 +326,10 @@ public class VariableInspectionController {
     searchBox.open(searchBoxDelegate);
   }
 
-  /** 変数一覧から {@code query} に一致する要素を探して選択する. */
-  private SearchQueryResult selectItem(SearchQuery query) {
-    if (isDiscarded || query.isEmpty()) {
-      return new SearchQueryResult(0, 0);
-    }
-    try {
-      if (searchBox.getNumConsecutiveSameRequests() <= 1 || searchResult == null) {
-        searchResult = search(query);
-        highlightSearchResult(searchResult);
-      }
-
-      VariableTreeItem selectedItem =
-          (VariableTreeItem) variableTreeView.getSelectionModel().getSelectedItem();
-      Optional<CyclicSublistFinder.Found<VariableTreeItem>> foundOpt = query.isForward()
-          ? searchResult.finder.getItemAfter(selectedItem)
-          : searchResult.finder.getItemBefore(selectedItem);
-
-      foundOpt.ifPresent(found -> {
-        expandAncestorsOf(found.getItem());
-        int idx = variableTreeView.getRow(found.getItem());
-        variableTreeView.getSelectionModel().select(idx);
-        variableTreeView.scrollTo(Math.max(0, idx - 1));
-      });
-
-      int numResults = searchResult.treeItems.size();
-      boolean truncated = numResults == maxResultsInVariableInspection;
-      int idxInResults = foundOpt.map(CyclicSublistFinder.Found::getIdxInSublist).orElse(-1);
-      return new SearchQueryResult(idxInResults, numResults, truncated);
-    } catch (PatternSyntaxException e) {
-      clearSearchResult();
-      return new SearchQueryResult(true);
-    }
-  }
-
-  /** {@code query} で変数一覧を検索する. */
-  private SearchResult search(SearchQuery query) {
-    List<VariableTreeItem> allVarItems = rootVarItem.collectDescendants();
-    List<VariableTreeItem> results = ItemSearcher.search(
-        query,
-        allVarItems,
-        treeItem -> VariableListCell.getText(treeItem.getValue()),
-        maxResultsInVariableInspection);
-    return new SearchResult(results, allVarItems, query);
-  }
-
-  private void highlightSearchResult(SearchResult result) throws PatternSyntaxException {
-    Pattern pattern = result.query.getPattern();
-    cellRegistry.getCells()
-        .forEach(cell -> cell.enableHighlighting(pattern, DEFAULT_TEXT_HIGHLIGHT));
-  }
-
   /** 現在の検索結果を破棄し, それに伴う強調表示を全て解除する. */
   private void clearSearchResult() {
     searchResult = null;
     cellRegistry.getCells().forEach(VariableListCell::disableHighlighting);
-  }
-
-  /** {@code item} の先祖要素を全て展開する. */
-  private static void expandAncestorsOf(TreeItem<?> item) {
-    var parent = item.getParent();
-    while (parent != null) {
-      parent.setExpanded(true);
-      parent = parent.getParent();
-    }
   }
 
   /** 変数情報を表示する {@link TreeView} の各要素のモデル. */
@@ -524,12 +428,68 @@ public class VariableInspectionController {
     }
   }
 
-  /** {@link SearchBox} を使った変数一覧の検索を担当するクラス. */
-  private class SearchBoxDelegateImpl implements SearchBoxDelegate {
+  /** {@link SharedSearchBox} を使った変数一覧の検索を担当するクラス. */
+  private class SearchBoxDelegateImpl implements SharedSearchBoxDelegate {
 
     @Override
     public SearchQueryResult onSearchRequested(SearchQuery query) {
-      return selectItem(query);
+      if (isDiscarded || query.isEmpty()) {
+        clearSearchResult();
+        return new SearchQueryResult(0, 0);
+      }
+      try {
+        if (searchBox.getNumConsecutiveSameRequests() <= 1 || searchResult == null) {
+          searchResult = search(query);
+          highlightSearchResult(searchResult);
+        }
+
+        VariableTreeItem selectedItem =
+            (VariableTreeItem) variableTreeView.getSelectionModel().getSelectedItem();
+        Optional<CyclicSublistFinder.Found<VariableTreeItem>> foundOpt = query.isForward()
+            ? searchResult.finder.getItemAfter(selectedItem)
+            : searchResult.finder.getItemBefore(selectedItem);
+
+        foundOpt.ifPresent(found -> {
+          expandAncestorsOf(found.getItem());
+          int idx = variableTreeView.getRow(found.getItem());
+          variableTreeView.getSelectionModel().select(idx);
+          variableTreeView.scrollTo(Math.max(idx - 1, 0));
+        });
+
+        int numResults = searchResult.treeItems.size();
+        boolean truncated = numResults == maxResultsInVariableInspection;
+        int idxInResults = foundOpt.map(CyclicSublistFinder.Found::getIdxInSublist).orElse(-1);
+        return new SearchQueryResult(idxInResults, numResults, truncated);
+      } catch (PatternSyntaxException e) {
+        clearSearchResult();
+        return new SearchQueryResult(true);
+      }
+    }
+
+    /** {@code query} で変数一覧を検索する. */
+    private SearchResult search(SearchQuery query) {
+      List<VariableTreeItem> allVarItems = rootVarItem.collectDescendants();
+      List<VariableTreeItem> results = ItemSearcher.search(
+          query,
+          allVarItems,
+          treeItem -> VariableListCell.getText(treeItem.getValue()),
+          maxResultsInVariableInspection);
+      return new SearchResult(results, allVarItems, query);
+    }
+
+    private void highlightSearchResult(SearchResult result) throws PatternSyntaxException {
+      Pattern pattern = result.query.getPattern();
+      cellRegistry.getCells()
+          .forEach(cell -> cell.enableHighlighting(pattern, DEFAULT_TEXT_HIGHLIGHT));
+    }
+
+    /** {@code item} の先祖要素を全て展開する. */
+    private static void expandAncestorsOf(TreeItem<?> item) {
+      var parent = item.getParent();
+      while (parent != null) {
+        parent.setExpanded(true);
+        parent = parent.getParent();
+      }
     }
 
     @Override
@@ -537,9 +497,6 @@ public class VariableInspectionController {
       clearSearchResult();
       viSearchButton.pseudoClassStateChanged(getPseudoClass(BhConstants.Css.Pseudo.ON), false);
     }
-
-    @Override
-    public void onCleared() {}
 
     @Override
     public Object getUser() {
@@ -618,9 +575,45 @@ public class VariableInspectionController {
      */
     VariableListCell createCell() {
       var cell = new VariableListCell();
-      cell.setOnItemChanged(VariableInspectionController.this::onCellItemChanged);
+      cell.setOnItemChanged(this::onCellItemChanged);
       cells.add(cell);
       return cell;
+    }
+
+    /** {@link VariableListCell} に割り当てられるアイテムが変わったときの処理. */
+    private void onCellItemChanged(ItemChangeEvent event) {
+      cellRegistry.updateItemToCellsMap(event);
+      cellRegistry.updateNodeToCellsMap(event);
+      updateCellDecoration(event);
+      updateSearchResultHighlight(event);
+    }
+
+    /**
+     * {@link VariableListCell} に新しく割り当てられたアイテムの {@link BhNode} の選択状態に応じて,
+     * セルの装飾を更新する.
+     */
+    private static void updateCellDecoration(ItemChangeEvent event) {
+      boolean shouldDecorate =
+          !event.empty()
+          && event.newVal() != null
+          && event.newVal().variable.getNode()
+            .map(BhNode::isSelected)
+            .orElse(false);
+      event.cell().decorateText(shouldDecorate);
+    }
+
+    /** {@link VariableListCell} に新しく割り当てられたアイテムに応じて, セルの強調表示を更新する. */
+    private void updateSearchResultHighlight(ItemChangeEvent event) {
+      boolean shouldHighlight =
+          !event.empty()
+          && event.newVal() != null
+          && searchResult != null
+          && searchResult.listItems.contains(event.newVal());
+      if (shouldHighlight) {
+        event.cell().enableHighlighting(searchResult.query.getPattern(), DEFAULT_TEXT_HIGHLIGHT);
+      } else {
+        event.cell().disableHighlighting();
+      }
     }
   }
 

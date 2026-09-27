@@ -147,6 +147,7 @@
       "result": "結果: %s",
       "result-count": "結果 %s 件",
       "regex-is-invalid": "不正なパターン",
+      "prompt-text": "検索",
       "tooltip": {
         "close": "閉じる",
         "regex": "正規表現を使う",
@@ -154,7 +155,7 @@
         "find-prev": "前を検索する",
         "find-next": "次を検索する",
         "request": "検索する",
-        "clear": "検索結果を消去する"
+        "clear": "検索結果を消す"
       }
     }
   },

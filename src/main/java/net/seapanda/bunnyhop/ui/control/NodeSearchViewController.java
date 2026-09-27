@@ -41,7 +41,7 @@ public class NodeSearchViewController {
   @FXML private CheckBox nsJumpCheckBox;
   @FXML private ListView<NodeSearchListItem> nsListView;
   @FXML private WorkspaceSelectorController nsWsSelectorController;
-  @FXML private SearchBox nsSearchBoxController;
+  @FXML private SearchBox searchBoxController;
 
   private final WorkspaceSetViewCallBackRegistry cbRegistry;
   private final VisualEffectManager effectManager;
@@ -59,7 +59,7 @@ public class NodeSearchViewController {
   /** このコントローラの UI 要素を初期化する. */
   @FXML
   public void initialize() {
-    nsSearchBoxController.open(new SearchBoxDelegateImpl());
+    searchBoxController.setSearchBoxDelegate(new SearchBoxDelegateImpl());
     setEventHandlers();
   }
 
@@ -102,20 +102,6 @@ public class NodeSearchViewController {
     BhNodeView view = selected.getNodeView();
     if (view.getWorkspaceView() != null) {
       ViewUtil.jump(view);
-    }
-  }
-
-  private SearchQueryResult search(SearchQuery query) {
-    clearSearchResult();
-    searchResult = new SearchResult(new LinkedHashSet<>(), query);
-    try {
-      for (BhNodeView nodeView : nodeViews) {
-        collectMatchesFromView(nodeView, searchResult);
-      }
-      refreshResultListView(searchResult);
-      return toSearchQueryResult(searchResult);
-    } catch (PatternSyntaxException e) {
-      return new SearchQueryResult(true);
     }
   }
 
@@ -172,11 +158,6 @@ public class NodeSearchViewController {
 
   }
 
-  private static SearchQueryResult toSearchQueryResult(SearchResult searchResult) {
-    boolean truncated = searchResult.items().size() == maxItemsInNodeSearchResult;
-    return new SearchQueryResult(0, searchResult.items().size(), truncated);
-  }
-
   /**
    * {@code view} に対応する検索結果を更新する.
    * 既存の {@link NodeSearchListItem} を取り除いた後, {@code view} から一致する文字列を探し直し,
@@ -192,7 +173,7 @@ public class NodeSearchViewController {
     searchResult.items().removeAll(items);
     collectMatchesFromView(view, searchResult);
     refreshResultListView(searchResult);
-    nsSearchBoxController.setSearchResult(toSearchQueryResult(searchResult));
+    searchBoxController.setSearchResult(null);
   }
 
   /**
@@ -207,23 +188,7 @@ public class NodeSearchViewController {
     Set<NodeSearchListItem> items = listItemRegistry.removeMapping(view);
     searchResult.items().removeAll(items);
     refreshResultListView(searchResult);
-    nsSearchBoxController.setSearchResult(toSearchQueryResult(searchResult));
-  }
-
-  /** 現在の検索結果を破棄する. */
-  private void clearSearchResult() {
-    searchResult = null;
-    listItemRegistry.getListItems()
-        .forEach(NodeSearchViewController::disableTextHighlightingOnNodeView);
-    listItemRegistry.clear();
-    nsListView.getItems().clear();
-  }
-
-  /** {@code item} に対応する {@link BhNodeView} のテキストの強調表示を無効化する. */
-  private static void disableTextHighlightingOnNodeView(NodeSearchListItem item) {
-    if (item.getNodeView() instanceof TextNodeView textNodeView) {
-      textNodeView.getVisual().disableTextHighlighting();
-    }
+    searchBoxController.setSearchResult(null);
   }
 
   /** {@link SearchBox} を使ったブレークポイント一覧の検索を担当するクラス. */
@@ -231,20 +196,71 @@ public class NodeSearchViewController {
 
     @Override
     public SearchQueryResult onSearchRequested(SearchQuery query) {
-      return search(query);
+      if (query.isEmpty()) {
+        clearSearchResult();
+        return new SearchQueryResult(0, 0);
+      }
+      try {
+        if (searchBoxController.getNumConsecutiveSameRequests() <= 1 || searchResult == null) {
+          searchResult = new SearchResult(new LinkedHashSet<>(), query);
+          for (BhNodeView nodeView : nodeViews) {
+            collectMatchesFromView(nodeView, searchResult);
+          }
+          refreshResultListView(searchResult);
+        }
+        int idx = selectItem(query.isForward());
+        boolean truncated = searchResult.items().size() == maxItemsInNodeSearchResult;
+        return new SearchQueryResult(idx, searchResult.items().size(), truncated);
+      } catch (PatternSyntaxException e) {
+        clearSearchResult();
+        return new SearchQueryResult(true);
+      }
+    }
+
+    /**
+     * {@link #nsListView} の選択項目を次または前の項目に変更する.
+     * 何も選択されていない場合, {@code next} が true なら先頭の項目を, false なら末尾の項目を選択する.
+     * 先頭または末尾の項目が選択されている場合, 循環して反対側の項目を選択する.
+     *
+     * @param next true の場合, 次の項目を選択する. false の場合, 前の項目を選択する.
+     * @return 選択した項目のインデックス. {@link #nsListView} に項目がない場合は -1.
+     */
+    private int selectItem(boolean next) {
+      int numItems = nsListView.getItems().size();
+      if (numItems == 0) {
+        return -1;
+      }
+      int idx = nsListView.getSelectionModel().getSelectedIndex();
+      if (idx < 0) {
+        idx = next ? 0 : nsListView.getItems().size() - 1;
+      } else {
+        idx = next ? (idx + 1) : (idx - 1 + nsListView.getItems().size());
+        idx = idx % nsListView.getItems().size();
+      }
+      nsListView.getSelectionModel().select(idx);
+      nsListView.scrollTo(Math.max(idx - 1, 0));
+      return idx;
+    }
+
+    /** 現在の検索結果を破棄する. */
+    private void clearSearchResult() {
+      searchResult = null;
+      listItemRegistry.getListItems()
+          .forEach(SearchBoxDelegateImpl::disableTextHighlightingOnNodeView);
+      listItemRegistry.clear();
+      nsListView.getItems().clear();
+    }
+
+    /** {@code item} に対応する {@link BhNodeView} のテキストの強調表示を無効化する. */
+    private static void disableTextHighlightingOnNodeView(NodeSearchListItem item) {
+      if (item.getNodeView() instanceof TextNodeView textNodeView) {
+        textNodeView.getVisual().disableTextHighlighting();
+      }
     }
 
     @Override
-    public void onClosed() {}
-
-    @Override
-    public void onCleared() {
+    public void onSearchResultCleared() {
       clearSearchResult();
-    }
-
-    @Override
-    public Object getUser() {
-      return NodeSearchViewController.this;
     }
   }
 

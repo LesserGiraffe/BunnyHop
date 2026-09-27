@@ -16,7 +16,6 @@
 
 package net.seapanda.bunnyhop.linter.control;
 
-import static javafx.css.PseudoClass.getPseudoClass;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Css.Class.DEFAULT_TEXT_HIGHLIGHT;
 import static net.seapanda.bunnyhop.common.configuration.BhSettings.Search.maxResultsInVariableInspection;
 import static net.seapanda.bunnyhop.node.view.effect.VisualEffectType.JUMP_TARGET;
@@ -37,13 +36,10 @@ import java.util.WeakHashMap;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
-import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.debugger.view.VariableListCell;
 import net.seapanda.bunnyhop.linter.model.CompileErrorNodeCache;
 import net.seapanda.bunnyhop.linter.model.ErrorNodeListItem;
@@ -73,13 +69,12 @@ public class ErrorNodeListController {
 
   @FXML private WorkspaceSelectorController enWsSelectorController;
   @FXML private TreeView<ErrorNodeListItem> enTreeView;
-  @FXML private Button enSearchButton;
   @FXML private CheckBox enJumpCheckBox;
+  @FXML private SearchBox searchBoxController;
 
   private final WorkspaceSet wss;
   private final CompileErrorNodeCache compileErrorNodeCache;
   private final VisualEffectManager effectManager;
-  private final SearchBox searchBox;
   private final ErrorNodeTreeItem rootErrorNodeItem;
   private final CellRegistry cellRegistry;
   private final TreeItemRegistry treeItemRegistry;
@@ -89,11 +84,9 @@ public class ErrorNodeListController {
   public ErrorNodeListController(
       WorkspaceSet wss,
       CompileErrorNodeCache compileErrorNodeCache,
-      SearchBox searchBox,
       VisualEffectManager visualEffectManager) {
     this.wss = wss;
     this.compileErrorNodeCache = compileErrorNodeCache;
-    this.searchBox = searchBox;
     effectManager = visualEffectManager;
     rootErrorNodeItem = new ErrorNodeTreeItem();
     rootErrorNodeItem.setExpanded(false);
@@ -107,6 +100,7 @@ public class ErrorNodeListController {
     setEventHandlers();
     enTreeView.setShowRoot(false);
     enTreeView.setRoot(rootErrorNodeItem);
+    searchBoxController.setSearchBoxDelegate(new SearchBoxDelegateImpl());
   }
 
   /** イベントハンドラを設定する. */
@@ -114,9 +108,6 @@ public class ErrorNodeListController {
     enTreeView.setCellFactory(view -> cellRegistry.createCell());
     enTreeView.getSelectionModel().selectedItemProperty().addListener(
         (obs, oldVal, newVal) -> onItemSelected(oldVal, newVal));
-    rootErrorNodeItem.getChildren().addListener(
-        (ListChangeListener<? super TreeItem<ErrorNodeListItem>>) change -> clearSearchResult());
-    enSearchButton.setOnAction(action -> onSearchButtonClicked());
     enWsSelectorController.setOnWorkspaceSelected(
         event -> refreshErrorNodeList(event.newWs(), event.isAllSelected()));
 
@@ -141,6 +132,8 @@ public class ErrorNodeListController {
     if (treeItem.getParent() == null) {
       rootErrorNodeItem.getChildren().add(treeItem);
     }
+    // エラーメッセージだけ変更された場合にも検索結果が無効になるので, 検索結果をクリアする必要がある.
+    clearSearchResult();
   }
 
   /** エラーノード情報を一覧から削除する. */
@@ -157,6 +150,7 @@ public class ErrorNodeListController {
     if (treeItem != null) {
       rootErrorNodeItem.getChildren().remove(treeItem);
     }
+    clearSearchResult();
   }
 
   /**
@@ -196,76 +190,6 @@ public class ErrorNodeListController {
         .ifPresent(this::jumpTo);
   }
 
-  /** 検索ボタンが押されたときの処理. */
-  private void onSearchButtonClicked() {
-    if (searchBox.getUser() == this) {
-      searchBox.close();
-      return;
-    }
-    enSearchButton.pseudoClassStateChanged(getPseudoClass(BhConstants.Css.Pseudo.ON), true);
-    searchBox.open(new SearchBoxDelegateImpl());
-  }
-
-  /** エラーノード一覧から {@code query} に一致する要素を探して選択する. */
-  private SearchQueryResult selectItem(SearchQuery query) {
-    if (query.isEmpty()) {
-      return new SearchQueryResult(0, 0);
-    }
-    try {
-      if (searchBox.getNumConsecutiveSameRequests() <= 1 || searchResult == null) {
-        searchResult = search(query);
-        highlightSearchResult(searchResult);
-      }
-
-      ErrorNodeTreeItem selectedItem =
-          (ErrorNodeTreeItem) enTreeView.getSelectionModel().getSelectedItem();
-      Optional<CyclicSublistFinder.Found<ErrorNodeTreeItem>> foundOpt = query.isForward()
-          ? searchResult.finder.getItemAfter(selectedItem)
-          : searchResult.finder.getItemBefore(selectedItem);
-
-      foundOpt.ifPresent(found -> {
-        expandAncestorsOf(found.getItem());
-        int idx = enTreeView.getRow(found.getItem());
-        enTreeView.getSelectionModel().select(idx);
-        enTreeView.scrollTo(Math.max(0, idx - 1));
-      });
-
-      int numResults = searchResult.treeItems.size();
-      boolean truncated = numResults == maxResultsInVariableInspection;
-      int idxInResults = foundOpt.map(CyclicSublistFinder.Found::getIdxInSublist).orElse(-1);
-      return new SearchQueryResult(idxInResults, numResults, truncated);
-    } catch (PatternSyntaxException e) {
-      clearSearchResult();
-      return new SearchQueryResult(true);
-    }
-  }
-
-  /** {@code query} でエラーノード一覧を検索する. */
-  private SearchResult search(SearchQuery query) {
-    List<ErrorNodeTreeItem> allVarItems = rootErrorNodeItem.collectDescendants();
-    List<ErrorNodeTreeItem> results = ItemSearcher.search(
-        query,
-        allVarItems,
-        treeItem -> ErrorNodeListCell.getText(treeItem.getValue()),
-        maxResultsInVariableInspection);
-    return new SearchResult(results, allVarItems, query);
-  }
-
-  private void highlightSearchResult(SearchResult result) throws PatternSyntaxException {
-    Pattern pattern = result.query.getPattern();
-    cellRegistry.getCells()
-        .forEach(cell -> cell.enableHighlighting(pattern, DEFAULT_TEXT_HIGHLIGHT));
-  }
-
-  /** {@code item} の先祖要素を全て展開する. */
-  private static void expandAncestorsOf(TreeItem<?> item) {
-    var parent = item.getParent();
-    while (parent != null) {
-      parent.setExpanded(true);
-      parent = parent.getParent();
-    }
-  }
-
   /** 現在表示されている {@link ErrorNodeListCell} の内容を更新する. */
   private void updateCellValues() {
     for (TreeItem<ErrorNodeListItem> item : rootErrorNodeItem.getChildren()) {
@@ -277,41 +201,6 @@ public class ErrorNodeListController {
   /** {@code node} に対応する {@link ErrorNodeListCell} の装飾を変更する. */
   private void updateCellDecoration(BhNode node) {
     cellRegistry.getCells(node).forEach(cell -> cell.decorateText(node.isSelected()));
-  }
-
-  /**
-   * {@link ErrorNodeListCell} に新しく割り当てられたアイテムの {@link BhNode} の選択状態に応じて,
-   * セルの装飾を更新する.
-   */
-  private static void updateCellDecoration(ItemChangeEvent event) {
-    boolean shouldDecorate =
-        !event.empty()
-        && Optional.ofNullable(event.newVal())
-            .map(ErrorNodeListItem::node)
-            .map(BhNode::isSelected)
-            .orElse(false);
-    event.cell().decorateText(shouldDecorate);
-  }
-
-  /** {@link ErrorNodeListCell} に新しく割り当てられたアイテムに応じて, セルの強調表示を更新する. */
-  private void updateSearchResultHighlight(ItemChangeEvent event) {
-    boolean shouldHighlight =
-        !event.empty()
-        && event.newVal() != null
-        && searchResult != null
-        && searchResult.listItems.contains(event.newVal());
-    if (shouldHighlight) {
-      event.cell().enableHighlighting(searchResult.query.getPattern(), DEFAULT_TEXT_HIGHLIGHT);
-    } else {
-      event.cell().disableHighlighting();
-    }
-  }
-
-  /** {@link ErrorNodeListCell} に割り当てられるアイテムが変わったときの処理. */
-  private void onCellItemChanged(ItemChangeEvent event) {
-    cellRegistry.updateNodeToCellsMap(event);
-    updateCellDecoration(event);
-    updateSearchResultHighlight(event);
   }
 
   /** {@code view} にジャンプし, ジャンプ先となった際の視覚効果をつける. */
@@ -371,21 +260,68 @@ public class ErrorNodeListController {
 
     @Override
     public SearchQueryResult onSearchRequested(SearchQuery query) {
-      return selectItem(query);
+      if (query.isEmpty()) {
+        clearSearchResult();
+        return new SearchQueryResult(0, 0);
+      }
+      try {
+        if (searchBoxController.getNumConsecutiveSameRequests() <= 1 || searchResult == null) {
+          searchResult = search(query);
+          highlightSearchResult(searchResult);
+        }
+
+        ErrorNodeTreeItem selectedItem =
+            (ErrorNodeTreeItem) enTreeView.getSelectionModel().getSelectedItem();
+        Optional<CyclicSublistFinder.Found<ErrorNodeTreeItem>> foundOpt = query.isForward()
+            ? searchResult.finder.getItemAfter(selectedItem)
+            : searchResult.finder.getItemBefore(selectedItem);
+
+        foundOpt.ifPresent(found -> {
+          expandAncestorsOf(found.getItem());
+          int idx = enTreeView.getRow(found.getItem());
+          enTreeView.getSelectionModel().select(idx);
+          enTreeView.scrollTo(Math.max(idx - 1, 0));
+        });
+
+        int numResults = searchResult.treeItems.size();
+        boolean truncated = numResults == maxResultsInVariableInspection;
+        int idxInResults = foundOpt.map(CyclicSublistFinder.Found::getIdxInSublist).orElse(-1);
+        return new SearchQueryResult(idxInResults, numResults, truncated);
+      } catch (PatternSyntaxException e) {
+        clearSearchResult();
+        return new SearchQueryResult(true);
+      }
+    }
+
+    /** {@code query} でエラーノード一覧を検索する. */
+    private SearchResult search(SearchQuery query) {
+      List<ErrorNodeTreeItem> allVarItems = rootErrorNodeItem.collectDescendants();
+      List<ErrorNodeTreeItem> results = ItemSearcher.search(
+          query,
+          allVarItems,
+          treeItem -> ErrorNodeListCell.getText(treeItem.getValue()),
+          maxResultsInVariableInspection);
+      return new SearchResult(results, allVarItems, query);
+    }
+
+    private void highlightSearchResult(SearchResult result) throws PatternSyntaxException {
+      Pattern pattern = result.query.getPattern();
+      cellRegistry.getCells()
+          .forEach(cell -> cell.enableHighlighting(pattern, DEFAULT_TEXT_HIGHLIGHT));
+    }
+
+    /** {@code item} の先祖要素を全て展開する. */
+    private static void expandAncestorsOf(TreeItem<?> item) {
+      var parent = item.getParent();
+      while (parent != null) {
+        parent.setExpanded(true);
+        parent = parent.getParent();
+      }
     }
 
     @Override
-    public void onClosed() {
+    public void onSearchResultCleared() {
       clearSearchResult();
-      enSearchButton.pseudoClassStateChanged(getPseudoClass(BhConstants.Css.Pseudo.ON), false);
-    }
-
-    @Override
-    public void onCleared() {}
-
-    @Override
-    public Object getUser() {
-      return ErrorNodeListController.this;
     }
   }
 
@@ -437,9 +373,44 @@ public class ErrorNodeListController {
      */
     ErrorNodeListCell createCell() {
       var cell = new ErrorNodeListCell();
-      cell.setOnItemChanged(ErrorNodeListController.this::onCellItemChanged);
+      cell.setOnItemChanged(this::onCellItemChanged);
       cells.add(cell);
       return cell;
+    }
+
+    /** {@link ErrorNodeListCell} に割り当てられるアイテムが変わったときの処理. */
+    private void onCellItemChanged(ItemChangeEvent event) {
+      cellRegistry.updateNodeToCellsMap(event);
+      updateCellDecoration(event);
+      updateSearchResultHighlight(event);
+    }
+
+    /**
+     * {@link ErrorNodeListCell} に新しく割り当てられたアイテムの {@link BhNode} の選択状態に応じて,
+     * セルの装飾を更新する.
+     */
+    private static void updateCellDecoration(ItemChangeEvent event) {
+      boolean shouldDecorate =
+          !event.empty()
+          && Optional.ofNullable(event.newVal())
+              .map(ErrorNodeListItem::node)
+              .map(BhNode::isSelected)
+              .orElse(false);
+      event.cell().decorateText(shouldDecorate);
+    }
+
+    /** {@link ErrorNodeListCell} に新しく割り当てられたアイテムに応じて, セルの強調表示を更新する. */
+    private void updateSearchResultHighlight(ItemChangeEvent event) {
+      boolean shouldHighlight =
+          !event.empty()
+          && event.newVal() != null
+          && searchResult != null
+          && searchResult.listItems.contains(event.newVal());
+      if (shouldHighlight) {
+        event.cell().enableHighlighting(searchResult.query.getPattern(), DEFAULT_TEXT_HIGHLIGHT);
+      } else {
+        event.cell().disableHighlighting();
+      }
     }
   }
 

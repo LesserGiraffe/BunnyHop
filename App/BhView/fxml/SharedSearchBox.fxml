@@ -8,28 +8,36 @@
 
 <HBox
   xmlns:fx="http://javafx.com/fxml"
-  fx:id="searchBoxViewBase"
-  fx:controller="net.seapanda.bunnyhop.ui.control.SearchBoxController">
+  fx:id="sharedSearchBoxViewBase"
+  fx:controller="net.seapanda.bunnyhop.ui.control.SharedSearchBoxController">
   <fx:define>
     <Rem fx:id="searchWordFieldMargin" rem="0.3"/> 
     <Rem fx:id="regexSwitchMargin" rem="0.2"/>
     <Rem fx:id="caseSensitiveSwitchMargin" rem="0.2"/>
     <Rem fx:id="findPrevButtonMargin" rem="0.5"/>
     <Rem fx:id="findNextButtonMargin" rem="0.2"/>
-
     <Rem fx:id="searchResultLabelMargin" rem="0.5"/>
+    <TextFetcher fx:id="close" textId="gui,search-box,close"/>
     <TextFetcher fx:id="regex" textId="gui,search-box,regex"/>
     <TextFetcher fx:id="caseSensitive" textId="gui,search-box,case-sensitive"/>
     <TextFetcher fx:id="findPrev" textId="gui,search-box,find-prev"/>
     <TextFetcher fx:id="findNext" textId="gui,search-box,find-next"/>
-    <TextFetcher fx:id="clearResult" textId="gui,search-box,clear"/>
     <TextFetcher fx:id="promptText" textId="gui,search-box,prompt-text"/>
+    <TextFetcher fx:id="closeTooltip" textId="gui,search-box,tooltip,close"/>
     <TextFetcher fx:id="regexTooltip" textId="gui,search-box,tooltip,regex"/>
     <TextFetcher fx:id="caseSensitiveTooltip" textId="gui,search-box,tooltip,case-sensitive"/>
     <TextFetcher fx:id="findPrevTooltip" textId="gui,search-box,tooltip,find-prev"/>
     <TextFetcher fx:id="findNextTooltip" textId="gui,search-box,tooltip,find-next"/>
-    <TextFetcher fx:id="clearResultTooltip" textId="gui,search-box,tooltip,clear"/>
   </fx:define>
+
+  <Button
+    fx:id="searchBoxCloseButton"
+    text="$close.text"
+    styleClass="flatButton">
+    <tooltip>
+      <Tooltip text="$closeTooltip.text" styleClass="uiFunctionTooltip"/>
+    </tooltip>
+  </Button>
 
   <TextField fx:id="searchWordField" promptText="$promptText.text">
     <HBox.margin>
@@ -76,12 +84,6 @@
     </HBox.margin>
     <tooltip>
       <Tooltip text="$findNextTooltip.text" styleClass="uiFunctionTooltip"/>
-    </tooltip>
-  </Button>
-
-  <Button fx:id="clearButton" text="$clearResult.text" styleClass="flatButton">
-    <tooltip>
-      <Tooltip text="$clearResultTooltip.text" styleClass="uiFunctionTooltip"/>
     </tooltip>
   </Button>
 

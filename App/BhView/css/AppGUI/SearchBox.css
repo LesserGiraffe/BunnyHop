@@ -1,12 +1,14 @@
 #searchBoxViewBase {
-  -fx-padding: 0.4em 0.4em 0.4em 0.4em;
+  -fx-padding: 0.1em 0.4em 0.1em 0.4em;
   -fx-background-color: #bdbdbd;
   -fx-font-size: 1.1em;
   -fx-font-family: "Meiryo UI";
   -fx-alignment: center-left;
 }
 
-#nodeSearchBoxViewBase {
+#sharedSearchBoxViewBase {
+  -fx-padding: 0.4em 0.4em 0.4em 0.4em;
+  -fx-background-color: #bdbdbd;
   -fx-font-size: 1.1em;
   -fx-font-family: "Meiryo UI";
   -fx-alignment: center-left;
@@ -33,4 +35,3 @@
   -fx-font-size: 1.1em;
   -fx-font-family: "Meiryo UI";
 }
-

@@ -17,7 +17,6 @@
 package net.seapanda.bunnyhop.debugger.control;
 
 
-import static javafx.css.PseudoClass.getPseudoClass;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Css.Class.DEFAULT_TEXT_HIGHLIGHT;
 import static net.seapanda.bunnyhop.common.configuration.BhSettings.Search.maxResultsInBreakpointList;
 import static net.seapanda.bunnyhop.node.view.effect.VisualEffectType.JUMP_TARGET;
@@ -36,10 +35,8 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ListView;
-import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.debugger.model.breakpoint.BreakpointCache;
 import net.seapanda.bunnyhop.debugger.view.BreakpointListCell;
 import net.seapanda.bunnyhop.debugger.view.BreakpointListCell.ItemChangeEvent;
@@ -67,13 +64,12 @@ public class BreakpointListController {
 
   @FXML private WorkspaceSelectorController bpWsSelectorController;
   @FXML private ListView<BhNode> bpListView;
-  @FXML private Button bpSearchButton;
   @FXML private CheckBox bpJumpCheckBox;
+  @FXML private SearchBox searchBoxController;
 
   private final WorkspaceSet wss;
   private final BreakpointCache breakpointCache;
   private final VisualEffectManager effectManager;
-  private final SearchBox searchBox;
   private final CellRegistry cellRegistry;
   private SearchResult searchResult;
 
@@ -81,11 +77,9 @@ public class BreakpointListController {
   public BreakpointListController(
       WorkspaceSet wss,
       BreakpointCache breakpointCache,
-      SearchBox searchBox,
       VisualEffectManager visualEffectManager) {
     this.wss = wss;
     this.breakpointCache = breakpointCache;
-    this.searchBox = searchBox;
     effectManager = visualEffectManager;
     cellRegistry = new CellRegistry();
   }
@@ -94,6 +88,7 @@ public class BreakpointListController {
   @FXML
   public void initialize() {
     setEventHandlers();
+    searchBoxController.setSearchBoxDelegate(new SearchBoxDelegateImpl());
   }
 
   /** イベントハンドラを設定する. */
@@ -108,7 +103,6 @@ public class BreakpointListController {
     bpListView.getItems().addListener(
         (ListChangeListener<? super BhNode>) event -> clearSearchResult());
 
-    bpSearchButton.setOnAction(action -> onSearchButtonClicked());
     bpWsSelectorController.setOnWorkspaceSelected(
         event -> refreshBreakpointList(event.newWs(), event.isAllSelected()));
 
@@ -133,62 +127,6 @@ public class BreakpointListController {
         .filter(BhNode::isInWorkspace)
         .flatMap(BhNode::getView)
         .ifPresent(this::jumpTo);
-  }
-
-  /** 検索ボタンが押されたときの処理. */
-  private void onSearchButtonClicked() {
-    if (searchBox.getUser() == this) {
-      searchBox.close();
-      return;
-    }
-    bpSearchButton.pseudoClassStateChanged(getPseudoClass(BhConstants.Css.Pseudo.ON), true);
-    searchBox.open(new SearchBoxDelegateImpl());
-  }
-
-  /** ブレークポイント一覧から {@code query} で指定された文字列に一致する要素を探して選択する. */
-  private SearchQueryResult selectItem(SearchQuery query) {
-    if (query.isEmpty()) {
-      return new SearchQueryResult(0, 0);
-    }
-    try {
-      if (searchBox.getNumConsecutiveSameRequests() <= 1 || searchResult == null) {
-        searchResult = search(query);
-        highlightSearchResult(searchResult);
-      }
-      int selectedIdx = bpListView.getSelectionModel().getSelectedIndex();
-      Optional<CyclicSublistFinder.Found<BhNode>> foundOpt = query.isForward()
-          ? searchResult.finder.getItemAfter(selectedIdx)
-          : searchResult.finder.getItemBefore(selectedIdx);
-
-      foundOpt.ifPresent(found -> {
-        bpListView.getSelectionModel().select(found.getIdxInSrcList());
-        bpListView.scrollTo(Math.max(0, found.getIdxInSrcList() - 1));
-      });
-
-      int numResults = searchResult.items.size();
-      boolean truncated = numResults == maxResultsInBreakpointList;
-      int idxInResults = foundOpt.map(CyclicSublistFinder.Found::getIdxInSublist).orElse(-1);
-      return new SearchQueryResult(idxInResults, numResults, truncated);
-    } catch (PatternSyntaxException e) {
-      clearSearchResult();
-      return new SearchQueryResult(true);
-    }
-  }
-
-  /** {@code query} でコールスタック全体を検索する. */
-  private SearchResult search(SearchQuery query) throws PatternSyntaxException {
-    List<BhNode> results = ItemSearcher.search(
-        query,
-        bpListView.getItems(),
-        BreakpointListCell::getText,
-        maxResultsInBreakpointList);
-    return new SearchResult(results, query);
-  }
-
-  private void highlightSearchResult(SearchResult searchResult) throws PatternSyntaxException {
-    Pattern pattern = searchResult.query.getPattern();
-    cellRegistry.getCells()
-        .forEach(cell -> cell.enableHighlighting(pattern, DEFAULT_TEXT_HIGHLIGHT));
   }
 
   /** {@code nodes} をブレークポイント一覧に加える. */
@@ -233,40 +171,6 @@ public class BreakpointListController {
     cellRegistry.getCells(node).forEach(cell -> cell.decorateText(node.isSelected()));
   }
 
-  /**
-   * {@link BreakpointListCell} に新しく割り当てられたアイテムの {@link BhNode} の選択状態に応じて,
-   * セルの装飾を更新する.
-   */
-  private static void updateCellDecoration(ItemChangeEvent event) {
-    boolean shouldDecorate =
-        !event.empty()
-        && Optional.ofNullable(event.newVal())
-            .map(BhNode::isSelected)
-            .orElse(false);
-    event.cell().decorateText(shouldDecorate);
-  }
-
-  /** {@link BreakpointListCell} に新しく割り当てられたアイテムに応じて, セルの強調表示を更新する. */
-  private void updateSearchResultHighlight(ItemChangeEvent event) {
-    boolean shouldHighlight =
-        !event.empty()
-        && event.newVal() != null
-        && searchResult != null
-        && searchResult.items.contains(event.newVal());
-    if (shouldHighlight) {
-      event.cell().enableHighlighting(searchResult.query.getPattern(), DEFAULT_TEXT_HIGHLIGHT);
-    } else {
-      event.cell().disableHighlighting();
-    }
-  }
-
-  /** {@link BreakpointListCell} に割り当てられるアイテムが変わったときの処理. */
-  private void onCellItemChanged(ItemChangeEvent event) {
-    cellRegistry.updateNodeToCellsMap(event);
-    updateCellDecoration(event);
-    updateSearchResultHighlight(event);
-  }
-
   /** {@code view} にジャンプし, ジャンプ先となった際の視覚効果をつける. */
   private void jumpTo(BhNodeView view) {
     ViewUtil.jump(view);
@@ -285,21 +189,54 @@ public class BreakpointListController {
 
     @Override
     public SearchQueryResult onSearchRequested(SearchQuery query) {
-      return selectItem(query);
+      if (query.isEmpty()) {
+        clearSearchResult();
+        return new SearchQueryResult(0, 0);
+      }
+      try {
+        if (searchBoxController.getNumConsecutiveSameRequests() <= 1 || searchResult == null) {
+          searchResult = search(query);
+          highlightSearchResult(searchResult);
+        }
+        int selectedIdx = bpListView.getSelectionModel().getSelectedIndex();
+        Optional<CyclicSublistFinder.Found<BhNode>> foundOpt = query.isForward()
+            ? searchResult.finder.getItemAfter(selectedIdx)
+            : searchResult.finder.getItemBefore(selectedIdx);
+
+        foundOpt.ifPresent(found -> {
+          bpListView.getSelectionModel().select(found.getIdxInSrcList());
+          bpListView.scrollTo(Math.max(0, found.getIdxInSrcList() - 1));
+        });
+
+        int numResults = searchResult.items.size();
+        boolean truncated = numResults == maxResultsInBreakpointList;
+        int idxInResults = foundOpt.map(CyclicSublistFinder.Found::getIdxInSublist).orElse(-1);
+        return new SearchQueryResult(idxInResults, numResults, truncated);
+      } catch (PatternSyntaxException e) {
+        clearSearchResult();
+        return new SearchQueryResult(true);
+      }
+    }
+
+    /** {@code query} でコールスタック全体を検索する. */
+    private SearchResult search(SearchQuery query) throws PatternSyntaxException {
+      List<BhNode> results = ItemSearcher.search(
+          query,
+          bpListView.getItems(),
+          BreakpointListCell::getText,
+          maxResultsInBreakpointList);
+      return new SearchResult(results, query);
+    }
+
+    private void highlightSearchResult(SearchResult searchResult) throws PatternSyntaxException {
+      Pattern pattern = searchResult.query.getPattern();
+      cellRegistry.getCells()
+          .forEach(cell -> cell.enableHighlighting(pattern, DEFAULT_TEXT_HIGHLIGHT));
     }
 
     @Override
-    public void onClosed() {
-      bpSearchButton.pseudoClassStateChanged(getPseudoClass(BhConstants.Css.Pseudo.ON), false);
+    public void onSearchResultCleared() {
       clearSearchResult();
-    }
-
-    @Override
-    public void onCleared() {}
-
-    @Override
-    public Object getUser() {
-      return BreakpointListController.this;
     }
   }
 
@@ -343,9 +280,43 @@ public class BreakpointListController {
      */
     BreakpointListCell createCell() {
       var cell = new BreakpointListCell();
-      cell.setOnItemChanged(BreakpointListController.this::onCellItemChanged);
+      cell.setOnItemChanged(this::onCellItemChanged);
       cells.add(cell);
       return cell;
+    }
+
+    /** {@link BreakpointListCell} に割り当てられるアイテムが変わったときの処理. */
+    private void onCellItemChanged(ItemChangeEvent event) {
+      cellRegistry.updateNodeToCellsMap(event);
+      updateCellDecoration(event);
+      updateSearchResultHighlight(event);
+    }
+
+    /**
+     * {@link BreakpointListCell} に新しく割り当てられたアイテムの {@link BhNode} の選択状態に応じて,
+     * セルの装飾を更新する.
+     */
+    private static void updateCellDecoration(ItemChangeEvent event) {
+      boolean shouldDecorate =
+          !event.empty()
+          && Optional.ofNullable(event.newVal())
+              .map(BhNode::isSelected)
+              .orElse(false);
+      event.cell().decorateText(shouldDecorate);
+    }
+
+    /** {@link BreakpointListCell} に新しく割り当てられたアイテムに応じて, セルの強調表示を更新する. */
+    private void updateSearchResultHighlight(ItemChangeEvent event) {
+      boolean shouldHighlight =
+          !event.empty()
+          && event.newVal() != null
+          && searchResult != null
+          && searchResult.items.contains(event.newVal());
+      if (shouldHighlight) {
+        event.cell().enableHighlighting(searchResult.query.getPattern(), DEFAULT_TEXT_HIGHLIGHT);
+      } else {
+        event.cell().disableHighlighting();
+      }
     }
 
     /** 引数で指定した {@link BhNode} と {@link BreakpointListCell} の対応関係を取り除く. */

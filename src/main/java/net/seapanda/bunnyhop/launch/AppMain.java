@@ -131,7 +131,7 @@ import net.seapanda.bunnyhop.service.script.BhScriptRepositoryImpl;
 import net.seapanda.bunnyhop.service.undo.UndoRedoAgent;
 import net.seapanda.bunnyhop.simulator.BhSimulator;
 import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
-import net.seapanda.bunnyhop.ui.control.SearchBoxController;
+import net.seapanda.bunnyhop.ui.control.SharedSearchBoxController;
 import net.seapanda.bunnyhop.ui.model.ExclusiveSelection;
 import net.seapanda.bunnyhop.ui.service.window.BhWindowManager;
 import net.seapanda.bunnyhop.ui.service.window.WindowManager;
@@ -264,13 +264,13 @@ public class AppMain extends Application {
           new RmiRemoteBhRuntimeController(msgService, scriptRepository);
       final var remoteBhProgramCtrl =
           new RemoteBhProgramControllerImpl(remoteCompiler, remoteRuntimeCtrl, msgService);
-      final var searchBoxCtrl = new SearchBoxController();
+      final var sharedSearchBoxCtrl = new SharedSearchBoxController();
       final var breakpointCache = new BreakpointCache(wss);
       final var debugger = new BhDebugger(localRuntimeCtrl, remoteRuntimeCtrl, breakpointCache);
       final var debugViewFactory = new DebugViewFactoryImpl(
           callStackViewFile,
           varInspectionViewFile,
-          searchBoxCtrl,
+          sharedSearchBoxCtrl,
           debugger,
           wss,
           nodeViewSuperVisor);
@@ -317,7 +317,7 @@ public class AppMain extends Application {
           debugger,
           executableNodeCollector,
           wssCtrl,
-          searchBoxCtrl,
+          sharedSearchBoxCtrl,
           trashCanCtrl,
           windowManager,
           nodeViewSuperVisor,

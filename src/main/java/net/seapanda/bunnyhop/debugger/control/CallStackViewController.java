@@ -63,10 +63,10 @@ import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
 import net.seapanda.bunnyhop.search.CyclicSublistFinder;
 import net.seapanda.bunnyhop.search.ItemSearcher;
-import net.seapanda.bunnyhop.search.SearchBoxDelegate;
 import net.seapanda.bunnyhop.search.SearchQuery;
 import net.seapanda.bunnyhop.search.SearchQueryResult;
-import net.seapanda.bunnyhop.ui.control.SearchBox;
+import net.seapanda.bunnyhop.search.SharedSearchBoxDelegate;
+import net.seapanda.bunnyhop.ui.control.SharedSearchBox;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
 
@@ -84,7 +84,7 @@ public class CallStackViewController {
   @FXML private CheckBox csJumpCheckBox;
 
   private final ThreadContext threadContext;
-  private final SearchBox searchBox;
+  private final SharedSearchBox searchBox;
   private final Debugger debugger;
   private final WorkspaceSet wss;
   private final BooleanProperty sharedJumpFlag;
@@ -109,7 +109,7 @@ public class CallStackViewController {
    */
   public CallStackViewController(
       ThreadContext threadContext,
-      SearchBox searchBox,
+      SharedSearchBox searchBox,
       Debugger debugger,
       WorkspaceSet wss,
       BooleanProperty sharedJumpFlag,
@@ -296,52 +296,6 @@ public class CallStackViewController {
     debugger.selectCurrentStackFrame(stackFrameSel);
   }
 
-  /** コールスタックから {@code query} に一致する要素を探して選択する. */
-  private SearchQueryResult selectItem(SearchQuery query) {
-    if (isDiscarded || query.isEmpty()) {
-      return new SearchQueryResult(0, 0);
-    }
-    try {
-      if (searchBox.getNumConsecutiveSameRequests() <= 1 || searchResult == null) {
-        searchResult = search(query);
-        highlightSearchResult(searchResult);
-      }
-      int selectedIdx = callStackListView.getSelectionModel().getSelectedIndex();
-      Optional<CyclicSublistFinder.Found<CallStackItem>> foundOpt = query.isForward()
-          ? searchResult.finder.getItemAfter(selectedIdx)
-          : searchResult.finder.getItemBefore(selectedIdx);
-
-      foundOpt.ifPresent(found -> {
-        callStackListView.getSelectionModel().select(found.getIdxInSrcList());
-        callStackListView.scrollTo(Math.max(0, found.getIdxInSrcList() - 1));
-      });
-
-      int numResults = searchResult.items.size();
-      boolean truncated = numResults == maxResultsInCallStack;
-      int idxInResults = foundOpt.map(CyclicSublistFinder.Found::getIdxInSublist).orElse(-1);
-      return new SearchQueryResult(idxInResults, numResults, truncated);
-    } catch (PatternSyntaxException e) {
-      clearSearchResult();
-      return new SearchQueryResult(true);
-    }
-  }
-
-  /** {@code query} でコールスタック全体を検索する. */
-  private SearchResult search(SearchQuery query) {
-    List<CallStackItem> results = ItemSearcher.search(
-        query,
-        callStackListView.getItems(),
-        CallStackCell::getText,
-        maxResultsInCallStack);
-    return new SearchResult(results, query);
-  }
-
-  private void highlightSearchResult(SearchResult searchResult) throws PatternSyntaxException {
-    Pattern pattern = searchResult.query.getPattern();
-    cellRegistry.getCells()
-        .forEach(cell -> cell.enableHighlighting(pattern, DEFAULT_TEXT_HIGHLIGHT));
-  }
-
   /** デバッガの現在のスレッド ID が, このコントローラが保持するスレッドコンテキストのスレッド ID と同じか調べる. */
   private boolean isThisThreadSameAsDebugThread() {
     ThreadSelection thisThread = ThreadSelection.of(threadContext.threadId);
@@ -359,42 +313,6 @@ public class CallStackViewController {
     cellRegistry.getCells(node).forEach(cell -> cell.decorateText(node.isSelected()));
   }
 
-  /**
-   * {@link CallStackCell} に新しく割り当てられたアイテムの {@link BhNode} の選択状態に応じて,
-   * セルの装飾を更新する.
-   */
-  private static void updateCellDecoration(ItemChangeEvent event) {
-    boolean shouldDecorate =
-        !event.empty()
-        && Optional.ofNullable(event.newVal())
-            .flatMap(CallStackItem::getNode)
-            .map(BhNode::isSelected)
-            .orElse(false);
-    event.cell().decorateText(shouldDecorate);
-  }
-
-  /** {@link CallStackCell} に新しく割り当てられたアイテムに応じて, セルの強調表示を更新する. */
-  private void updateSearchResultHighlight(ItemChangeEvent event) {
-    boolean shouldHighlight =
-        !event.empty()
-        && event.newVal() != null
-        && searchResult != null
-        && searchResult.items.contains(event.newVal());
-    if (shouldHighlight) {
-      event.cell().enableHighlighting(searchResult.query.getPattern(), DEFAULT_TEXT_HIGHLIGHT);
-    } else {
-      event.cell().disableHighlighting();
-    }
-  }
-
-  /** {@link CallStackCell} に割り当てられるアイテムが変わったときの処理. */
-  private void onCellItemChanged(ItemChangeEvent event) {
-    cellRegistry.updateItemToCellsMap(event);
-    cellRegistry.updateNodeToCellsMap(event);
-    updateCellDecoration(event);
-    updateSearchResultHighlight(event);
-  }
-
   /** 検索ボタンが押されたときの処理. */
   private void onSearchButtonClicked() {
     if (isDiscarded) {
@@ -405,7 +323,7 @@ public class CallStackViewController {
       return;
     }
     csSearchButton.pseudoClassStateChanged(getPseudoClass(BhConstants.Css.Pseudo.ON), true);
-    searchBox.open(new SearchBoxDelegateImpl());
+    searchBox.open(new SharedSearchBoxDelegateImpl());
   }
 
   /** コールスタックビューの親要素が変わったときのイベントハンドラ. */
@@ -431,12 +349,54 @@ public class CallStackViewController {
     cellRegistry.getCells().forEach(CallStackCell::disableHighlighting);
   }
 
-  /** {@link SearchBox} を使ったコールスタック一覧の検索を担当するクラス. */
-  private class SearchBoxDelegateImpl implements SearchBoxDelegate {
+  /** {@link SharedSearchBox} を使ったコールスタック一覧の検索を担当するクラス. */
+  private class SharedSearchBoxDelegateImpl implements SharedSearchBoxDelegate {
 
     @Override
     public SearchQueryResult onSearchRequested(SearchQuery query) {
-      return selectItem(query);
+      if (isDiscarded || query.isEmpty()) {
+        clearSearchResult();
+        return new SearchQueryResult(0, 0);
+      }
+      try {
+        if (searchBox.getNumConsecutiveSameRequests() <= 1 || searchResult == null) {
+          searchResult = search(query);
+          highlightSearchResult(searchResult);
+        }
+        int selectedIdx = callStackListView.getSelectionModel().getSelectedIndex();
+        Optional<CyclicSublistFinder.Found<CallStackItem>> foundOpt = query.isForward()
+            ? searchResult.finder.getItemAfter(selectedIdx)
+            : searchResult.finder.getItemBefore(selectedIdx);
+
+        foundOpt.ifPresent(found -> {
+          callStackListView.getSelectionModel().select(found.getIdxInSrcList());
+          callStackListView.scrollTo(Math.max(found.getIdxInSrcList() - 1, 0));
+        });
+
+        int numResults = searchResult.items.size();
+        boolean truncated = numResults == maxResultsInCallStack;
+        int idxInResults = foundOpt.map(CyclicSublistFinder.Found::getIdxInSublist).orElse(-1);
+        return new SearchQueryResult(idxInResults, numResults, truncated);
+      } catch (PatternSyntaxException e) {
+        clearSearchResult();
+        return new SearchQueryResult(true);
+      }
+    }
+
+    /** {@code query} でコールスタック全体を検索する. */
+    private SearchResult search(SearchQuery query) {
+      List<CallStackItem> results = ItemSearcher.search(
+          query,
+          callStackListView.getItems(),
+          CallStackCell::getText,
+          maxResultsInCallStack);
+      return new SearchResult(results, query);
+    }
+
+    private void highlightSearchResult(SearchResult searchResult) throws PatternSyntaxException {
+      Pattern pattern = searchResult.query.getPattern();
+      cellRegistry.getCells()
+          .forEach(cell -> cell.enableHighlighting(pattern, DEFAULT_TEXT_HIGHLIGHT));
     }
 
     @Override
@@ -444,9 +404,6 @@ public class CallStackViewController {
       clearSearchResult();
       csSearchButton.pseudoClassStateChanged(getPseudoClass(BhConstants.Css.Pseudo.ON), false);
     }
-
-    @Override
-    public void onCleared() {}
 
     @Override
     public Object getUser() {
@@ -520,46 +477,45 @@ public class CallStackViewController {
      */
     CallStackCell createCell() {
       var cell = new CallStackCell();
-      cell.setOnItemChanged(CallStackViewController.this::onCellItemChanged);
+      cell.setOnItemChanged(this::onCellItemChanged);
       cells.add(cell);
       return cell;
     }
 
-//    /** {@link CallStackCell} に割り当てられるアイテムが変わったときの処理. */
-//    private void onCellItemChanged(ItemChangeEvent event) {
-//      cellRegistry.updateItemToCellsMap(event);
-//      cellRegistry.updateNodeToCellsMap(event);
-//      updateCellDecoration(event);
-//      updateSearchResultHighlight(event);
-//    }
+    private void onCellItemChanged(ItemChangeEvent event) {
+      cellRegistry.updateItemToCellsMap(event);
+      cellRegistry.updateNodeToCellsMap(event);
+      updateCellDecoration(event);
+      updateSearchResultHighlight(event);
+    }
 
-//    /**
-//     * {@link CallStackCell} に新しく割り当てられたアイテムの {@link BhNode} の選択状態に応じて,
-//     * セルの装飾を更新する.
-//     */
-//    private static void updateCellDecoration(ItemChangeEvent event) {
-//      boolean shouldDecorate =
-//          !event.empty()
-//          && Optional.ofNullable(event.newVal())
-//              .flatMap(CallStackItem::getNode)
-//              .map(BhNode::isSelected)
-//              .orElse(false);
-//      event.cell().decorateText(shouldDecorate);
-//    }
-//
-//    /** {@link CallStackCell} に新しく割り当てられたアイテムに応じて, セルの強調表示を更新する. */
-//    private void updateSearchResultHighlight(ItemChangeEvent event) {
-//      boolean shouldHighlight =
-//          !event.empty()
-//          && event.newVal() != null
-//          && searchResult != null
-//          && searchResult.items.contains(event.newVal());
-//      if (shouldHighlight) {
-//        event.cell().enableHighlighting(searchResult.query.getPattern(), DEFAULT_TEXT_HIGHLIGHT);
-//      } else {
-//        event.cell().disableHighlighting();
-//      }
-//    }
+    /**
+     * {@link CallStackCell} に新しく割り当てられたアイテムの {@link BhNode} の選択状態に応じて,
+     * セルの装飾を更新する.
+     */
+    private static void updateCellDecoration(ItemChangeEvent event) {
+      boolean shouldDecorate =
+          !event.empty()
+          && Optional.ofNullable(event.newVal())
+              .flatMap(CallStackItem::getNode)
+              .map(BhNode::isSelected)
+              .orElse(false);
+      event.cell().decorateText(shouldDecorate);
+    }
+
+    /** {@link CallStackCell} に新しく割り当てられたアイテムに応じて, セルの強調表示を更新する. */
+    private void updateSearchResultHighlight(ItemChangeEvent event) {
+      boolean shouldHighlight =
+          !event.empty()
+          && event.newVal() != null
+          && searchResult != null
+          && searchResult.items.contains(event.newVal());
+      if (shouldHighlight) {
+        event.cell().enableHighlighting(searchResult.query.getPattern(), DEFAULT_TEXT_HIGHLIGHT);
+      } else {
+        event.cell().disableHighlighting();
+      }
+    }
   }
 
   /** コールスタックに対する検索結果を保持するクラス. */

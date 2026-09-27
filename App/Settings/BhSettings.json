@@ -13,8 +13,8 @@
     "main": {
       "width": 1360,
       "height": 936,
-      "posX": 240,
-      "posY": 34,
+      "posX": 340,
+      "posY": 72,
       "maximized": false
     },
     "debug": {
@@ -25,13 +25,13 @@
       "maximized": false
     },
     "nodeSelectionSplitPos": 0.8904619970193741,
-    "notificationSplitPos": 0.62531328320802
+    "notificationSplitPos": 0.6102756892230576
   },
   "Ui": {
     "trackNodeInCurrentWorkspace": false,
     "trackNodeInInactiveWorkspace": true,
     "currentNodeSelectionViewZoomLevel": -1,
-    "currentWorkspaceZoomLevel": -12
+    "currentWorkspaceZoomLevel": -17
   },
   "Debug": {
     "maxCallStackItems": 32,

@@ -22,11 +22,7 @@
          styleClass="flatCheckBox"
          selected="true"
          text="$jump.text"/>
-      <Button fx:id="enSearchButton" text="$search.text" styleClass="flatButton, searchButton">
-        <tooltip>
-          <Tooltip text="$searchTooltip.text" styleClass="uiFunctionTooltip"/>
-        </tooltip>
-      </Button>
+      <fx:include fx:id="searchBox" source="SearchBox.fxml"/>
     </HBox>
 
     <HBox>

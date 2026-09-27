@@ -10,8 +10,8 @@
   <TabPane fx:id="workspaceSetTab" tabClosingPolicy="ALL_TABS" tabDragPolicy="REORDER"/>
   <fx:include fx:id="trashCan" source="TrashCan.fxml" MouseTransparent="true"/>
   <fx:include
-     fx:id="searchBox"
-     source="SearchBox.fxml"
+     fx:id="sharedSearchBox"
+     source="SharedSearchBox.fxml"
      visible="false"
      StackPane.Alignment="BOTTOM_LEFT"/>
 </StackPane>

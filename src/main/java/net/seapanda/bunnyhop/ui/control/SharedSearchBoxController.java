@@ -29,36 +29,35 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
 import net.seapanda.bunnyhop.common.text.TextDefs;
-import net.seapanda.bunnyhop.search.NullSearchBoxDelegate;
-import net.seapanda.bunnyhop.search.SearchBoxDelegate;
 import net.seapanda.bunnyhop.search.SearchQuery;
 import net.seapanda.bunnyhop.search.SearchQueryResult;
+import net.seapanda.bunnyhop.search.SharedSearchBoxDelegate;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
 
-
 /**
- * ノード検索用検索ボックスのコントローラ.
+ * 検索ボックスのコントローラ.
  *
  * @author K.Koike
  */
-public class NodeSearchBoxController implements SearchBox {
+public class SharedSearchBoxController implements SharedSearchBox {
 
-  @FXML private HBox nodeSearchBoxViewBase;
+  @FXML private HBox sharedSearchBoxViewBase;
   @FXML private TextField searchWordField;
   @FXML private ToggleButton regexButton;
   @FXML private ToggleButton caseSensitiveButton;
-  @FXML private Button requestButton;
-  @FXML private Button clearButton;
+  @FXML private Button searchBoxCloseButton;
+  @FXML private Button findPrevButton;
+  @FXML private Button findNextButton;
   @FXML private Label searchResultLabel;
   /** 同じ検索クエリと検索ハンドラで検索された回数. */
   private long countConsecutiveSameRequests = 0;
   private SearchQuery previousQuery;
-  private SearchBoxDelegate delegate = new NullSearchBoxDelegate();
+  private SharedSearchBoxDelegate delegate = new SharedSearchBoxDelegate() {};
 
   /** このコントローラの UI 要素を初期化する. */
   @FXML
   public void initialize() {
-    nodeSearchBoxViewBase.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+    sharedSearchBoxViewBase.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
     setEventHandlers();
     Platform.runLater(this::updateSearchWordFieldLength);
   }
@@ -68,8 +67,9 @@ public class NodeSearchBoxController implements SearchBox {
     searchWordField.textProperty().addListener(
         (obs, oldVal, newVal) -> updateSearchWordFieldLength());
     searchWordField.setOnKeyPressed(this::onKeyPressed);
-    requestButton.setOnAction(event -> onSearchRequested());
-    clearButton.setOnAction(event -> clearSearchResult());
+    searchBoxCloseButton.setOnAction(event -> close());
+    findPrevButton.setOnAction(event -> onSearchRequested(false));
+    findNextButton.setOnAction(event -> onSearchRequested(true));
   }
 
   /** 検索ワード入力フィールドの幅をテキストの長さに応じて帰る. */
@@ -90,23 +90,22 @@ public class NodeSearchBoxController implements SearchBox {
 
   private void onKeyPressed(KeyEvent event) {
     if (event.getCode() == KeyCode.ENTER) {
-      onSearchRequested();
+      onSearchRequested(!event.isShiftDown());
     }
   }
 
   /** UI の状態と引数をもとに {@link SearchQuery} オブジェクトを作成する. */
-  private SearchQuery createQuery() {
+  private SearchQuery createQuery(boolean findNext) {
     return new SearchQuery(
         searchWordField.getText(),
         regexButton.isSelected(),
         caseSensitiveButton.isSelected(),
-        true);
+        findNext);
   }
 
   /** 検索をリクエストされたときの処理. */
-  private void onSearchRequested() {
-    clearSearchResult();
-    var currentQuery = createQuery();
+  private void onSearchRequested(boolean findNext) {
+    var currentQuery = createQuery(findNext);
     if (!currentQuery.isEqualTo(previousQuery)) {
       countConsecutiveSameRequests = 0;
     }
@@ -117,22 +116,21 @@ public class NodeSearchBoxController implements SearchBox {
   }
 
   @Override
-  public void open(SearchBoxDelegate delegate) {
+  public void open(SharedSearchBoxDelegate delegate) {
     Objects.requireNonNull(delegate);
     if (this.delegate.getUser() != delegate.getUser()) {
       close();
       this.delegate = delegate;
     }
-    nodeSearchBoxViewBase.visibleProperty().set(true);
+    sharedSearchBoxViewBase.visibleProperty().set(true);
   }
 
   @Override
   public void close() {
-    nodeSearchBoxViewBase.visibleProperty().set(false);
+    sharedSearchBoxViewBase.visibleProperty().set(false);
     countConsecutiveSameRequests = 0;
-    clearSearchResult();
     delegate.onClosed();
-    delegate = new NullSearchBoxDelegate();
+    delegate = new SharedSearchBoxDelegate() {};
   }
 
   @Override
@@ -143,22 +141,20 @@ public class NodeSearchBoxController implements SearchBox {
   @Override
   public void setSearchResult(SearchQueryResult result) {
     if (result == null) {
-      clearSearchResult();
+      searchResultLabel.setText("");
       return;
     }
     if (result.isRegexInvalid()) {
       searchResultLabel.setText(TextDefs.SearchBox.regexIsInvalid.get());
       return;
     }
+    if (result.numFound() == 0 || result.currentIdx() < 0) {
+      searchResultLabel.setText(TextDefs.SearchBox.resultCount.get(result.numFound()));
+      return;
+    }
     String plus = result.truncated() ? "+" : "";
-    String text = "%s%s".formatted(result.numFound(), plus);
-    searchResultLabel.setText(TextDefs.SearchBox.resultCount.get(text));
-  }
-
-  @Override
-  public void clearSearchResult() {
-    searchResultLabel.setText("");
-    delegate.onCleared();
+    String text = "%s / %s%s".formatted(result.currentIdx() + 1, result.numFound(), plus);
+    searchResultLabel.setText(TextDefs.SearchBox.result.get(text));
   }
 
   @Override

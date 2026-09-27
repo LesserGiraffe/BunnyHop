@@ -17,11 +17,7 @@
 
   <VBox fx:id="mvVbox">
     <HBox fx:id="mvHbox">
-      <Button fx:id="mvSearchButton" text="$search.text" styleClass="flatButton, searchButton">
-        <tooltip>
-          <Tooltip text="$searchTooltip.text" styleClass="uiFunctionTooltip"/>
-        </tooltip>
-      </Button>
+      <fx:include fx:id="searchBox" source="SearchBox.fxml"/>
     </HBox>
     <TextArea  fx:id="mainMsgArea" VBox.vgrow="ALWAYS"/>
   </VBox>
