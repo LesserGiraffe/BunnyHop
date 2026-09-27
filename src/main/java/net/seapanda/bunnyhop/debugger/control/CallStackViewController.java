@@ -25,13 +25,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.SequencedSet;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import javafx.beans.property.BooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -58,13 +61,13 @@ import net.seapanda.bunnyhop.debugger.view.VariableListCell;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
+import net.seapanda.bunnyhop.search.CyclicSublistFinder;
 import net.seapanda.bunnyhop.search.ItemSearcher;
 import net.seapanda.bunnyhop.search.SearchBoxDelegate;
 import net.seapanda.bunnyhop.search.SearchQuery;
 import net.seapanda.bunnyhop.search.SearchQueryResult;
 import net.seapanda.bunnyhop.ui.control.SearchBox;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
-import net.seapanda.bunnyhop.utility.collection.ImmutableCircularList;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
 
 /**
@@ -298,47 +301,45 @@ public class CallStackViewController {
     if (isDiscarded || query.isEmpty()) {
       return new SearchQueryResult(0, 0);
     }
-    ImmutableCircularList<CallStackItem> matchedItems;
-    CallStackItem found;
-    if (searchBox.getNumConsecutiveSameRequests() >= 2 && searchResult != null) {
-      matchedItems = searchResult.items();
-      found = query.isForward() ? matchedItems.getNext() : matchedItems.getPrevious();
-    } else {
-      matchedItems = searchAndHighlight(query);
-      found = matchedItems.getCurrent();
+    try {
+      if (searchBox.getNumConsecutiveSameRequests() <= 1 || searchResult == null) {
+        searchResult = search(query);
+        highlightSearchResult(searchResult);
+      }
+      int selectedIdx = callStackListView.getSelectionModel().getSelectedIndex();
+      Optional<CyclicSublistFinder.Found<CallStackItem>> foundOpt = query.isForward()
+          ? searchResult.finder.getItemAfter(selectedIdx)
+          : searchResult.finder.getItemBefore(selectedIdx);
+
+      foundOpt.ifPresent(found -> {
+        callStackListView.getSelectionModel().select(found.getIdxInSrcList());
+        callStackListView.scrollTo(Math.max(0, found.getIdxInSrcList() - 1));
+      });
+
+      int numResults = searchResult.items.size();
+      boolean truncated = numResults == maxResultsInCallStack;
+      int idxInResults = foundOpt.map(CyclicSublistFinder.Found::getIdxInSublist).orElse(-1);
+      return new SearchQueryResult(idxInResults, numResults, truncated);
+    } catch (PatternSyntaxException e) {
+      clearSearchResult();
+      return new SearchQueryResult(true);
     }
-    if (found != null) {
-      callStackListView.getSelectionModel().select(found);
-      callStackListView.scrollTo(found);
-    }
-    boolean truncated = matchedItems.size() == maxResultsInCallStack;
-    return new SearchQueryResult(matchedItems.getPointer(), matchedItems.size(), truncated);
   }
 
-  /**
-   * {@code query} で変数一覧全体を検索し, 一致した要素を強調表示した上で, それらを巡回可能なリストとして返す.
-   *
-   * @param query 検索条件
-   * @return {@code query} に一致した {@link CallStackItem} を格納する巡回リスト
-   */
-  private ImmutableCircularList<CallStackItem> searchAndHighlight(SearchQuery query) {
-    ImmutableCircularList<CallStackItem> matchedItems = ItemSearcher.search(
+  /** {@code query} でコールスタック全体を検索する. */
+  private SearchResult search(SearchQuery query) {
+    List<CallStackItem> results = ItemSearcher.search(
         query,
         callStackListView.getItems(),
         CallStackCell::getText,
         maxResultsInCallStack);
-    searchResult = new SearchResult(matchedItems, query);
-    highlightSearchResult(searchResult);
-    return matchedItems;
+    return new SearchResult(results, query);
   }
 
-  private void highlightSearchResult(SearchResult result) {
-    Pattern pattern = result.query().getPattern();
-    for (CallStackItem item : result.itemSet) {
-      cellRegistry
-          .getCells(item)
-          .forEach(cell -> cell.enableHighlighting(pattern, DEFAULT_TEXT_HIGHLIGHT));
-    }
+  private void highlightSearchResult(SearchResult searchResult) throws PatternSyntaxException {
+    Pattern pattern = searchResult.query.getPattern();
+    cellRegistry.getCells()
+        .forEach(cell -> cell.enableHighlighting(pattern, DEFAULT_TEXT_HIGHLIGHT));
   }
 
   /** デバッガの現在のスレッド ID が, このコントローラが保持するスレッドコンテキストのスレッド ID と同じか調べる. */
@@ -378,9 +379,9 @@ public class CallStackViewController {
         !event.empty()
         && event.newVal() != null
         && searchResult != null
-        && searchResult.itemSet().contains(event.newVal());
+        && searchResult.items.contains(event.newVal());
     if (shouldHighlight) {
-      event.cell().enableHighlighting(searchResult.query().getPattern(), DEFAULT_TEXT_HIGHLIGHT);
+      event.cell().enableHighlighting(searchResult.query.getPattern(), DEFAULT_TEXT_HIGHLIGHT);
     } else {
       event.cell().disableHighlighting();
     }
@@ -502,11 +503,6 @@ public class CallStackViewController {
               .add(event.cell()));
     }
 
-    /** 引数で指定した {@link CallStackItem} に対応する {@link VariableListCell} のセットを取得する. */
-    Set<CallStackCell> getCells(CallStackItem item) {
-      return itemToCells.getOrDefault(item, new HashSet<>());
-    }
-
     /** 引数で指定した {@link BhNode} に対応する {@link CallStackCell} のセットを取得する. */
     Set<CallStackCell> getCells(BhNode node) {
       return nodeToCells.getOrDefault(node, new HashSet<>());
@@ -528,19 +524,55 @@ public class CallStackViewController {
       cells.add(cell);
       return cell;
     }
+
+//    /** {@link CallStackCell} に割り当てられるアイテムが変わったときの処理. */
+//    private void onCellItemChanged(ItemChangeEvent event) {
+//      cellRegistry.updateItemToCellsMap(event);
+//      cellRegistry.updateNodeToCellsMap(event);
+//      updateCellDecoration(event);
+//      updateSearchResultHighlight(event);
+//    }
+
+//    /**
+//     * {@link CallStackCell} に新しく割り当てられたアイテムの {@link BhNode} の選択状態に応じて,
+//     * セルの装飾を更新する.
+//     */
+//    private static void updateCellDecoration(ItemChangeEvent event) {
+//      boolean shouldDecorate =
+//          !event.empty()
+//          && Optional.ofNullable(event.newVal())
+//              .flatMap(CallStackItem::getNode)
+//              .map(BhNode::isSelected)
+//              .orElse(false);
+//      event.cell().decorateText(shouldDecorate);
+//    }
+//
+//    /** {@link CallStackCell} に新しく割り当てられたアイテムに応じて, セルの強調表示を更新する. */
+//    private void updateSearchResultHighlight(ItemChangeEvent event) {
+//      boolean shouldHighlight =
+//          !event.empty()
+//          && event.newVal() != null
+//          && searchResult != null
+//          && searchResult.items.contains(event.newVal());
+//      if (shouldHighlight) {
+//        event.cell().enableHighlighting(searchResult.query.getPattern(), DEFAULT_TEXT_HIGHLIGHT);
+//      } else {
+//        event.cell().disableHighlighting();
+//      }
+//    }
   }
 
-  /** 検索結果を格納するレコード. */
-  record SearchResult(
-      ImmutableCircularList<CallStackItem> items,
-      Set<CallStackItem> itemSet,
-      SearchQuery query) {
+  /** コールスタックに対する検索結果を保持するクラス. */
+  private class SearchResult {
 
-    SearchResult(ImmutableCircularList<CallStackItem> items, SearchQuery query) {
-      this(
-          items,
-          new HashSet<>(items.getItems()),
-          query);
+    private final CyclicSublistFinder<CallStackItem> finder;
+    private final SequencedSet<CallStackItem> items;
+    private final SearchQuery query;
+
+    SearchResult(List<CallStackItem> items, SearchQuery query) {
+      finder = new CyclicSublistFinder<>(items, callStackListView.getItems());
+      this.items = new LinkedHashSet<>(items);
+      this.query = query;
     }
   }
 }

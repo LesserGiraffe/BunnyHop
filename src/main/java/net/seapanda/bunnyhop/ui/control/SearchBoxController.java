@@ -147,13 +147,17 @@ public class SearchBoxController implements SearchBox {
       clearSearchResult();
       return;
     }
+    if (result.isRegexInvalid()) {
+      searchResultLabel.setText(TextDefs.SearchBox.regexIsInvalid.get());
+      return;
+    }
     if (result.numFound() == 0 || result.currentIdx() < 0) {
       searchResultLabel.setText(TextDefs.SearchBox.resultCount.get(result.numFound()));
-    } else {
-      String plus = result.truncated() ? "+" : "";
-      String text = "%s / %s%s".formatted(result.currentIdx() + 1, result.numFound(), plus);
-      searchResultLabel.setText(TextDefs.SearchBox.result.get(text));
+      return;
     }
+    String plus = result.truncated() ? "+" : "";
+    String text = "%s / %s%s".formatted(result.currentIdx() + 1, result.numFound(), plus);
+    searchResultLabel.setText(TextDefs.SearchBox.result.get(text));
   }
 
   @Override

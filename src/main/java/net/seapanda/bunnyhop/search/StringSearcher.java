@@ -17,10 +17,9 @@
 package net.seapanda.bunnyhop.search;
 
 import java.util.ArrayList;
-import java.util.SequencedCollection;
+import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import net.seapanda.bunnyhop.utility.collection.ImmutableCircularList;
 
 /**
  * 文字列から {@link SearchQuery} に一致する要素を見つける機能を提供するクラス.
@@ -50,26 +49,25 @@ public class StringSearcher {
   }
 
   /**
-   * {@code text} から {@code query} に一致する部分文字列を見つけて
-   * {@link ImmutableCircularList} に格納して返す.
+   * {@code text} から {@code query} に一致する部分文字列を見つけて {@link List} に格納して返す.
    *
    * @param query 検索クエリ
    * @param text この文字列から {@code query} に一致する部分文字列を探す.
    * @param maxResults 取得する検索結果の上限. 負の数を指定すると全ての結果を返す.
    */
-  public static ImmutableCircularList<Substring> search(
+  public static List<Substring> search(
       SearchQuery query, String text, int maxResults) {
     return new StringSearcher(query).search(text, maxResults);
   }
 
   /**
    * {@code text} から {@code query} に一致する部分文字列を全て見つけて
-   * {@link ImmutableCircularList} に格納して返す.
+   * {@link List} に格納して返す.
    *
    * @param query 検索クエリ
    * @param text この文字列から {@code query} に一致する部分文字列を探す.
    */
-  public static ImmutableCircularList<Substring> search(SearchQuery query, String text) {
+  public static List<Substring> search(SearchQuery query, String text) {
     return search(query, text, -1);
   }
 
@@ -80,8 +78,7 @@ public class StringSearcher {
    * @param text この文字列から {@code query} に一致する部分文字列を探す.
    * @param maxResults 取得する検索結果の上限. 負の数を指定すると全ての結果を返す.
    */
-  public static SequencedCollection<Substring> search(
-      Pattern pattern, String text, int maxResults) {
+  public static List<Substring> search(Pattern pattern, String text, int maxResults) {
     long max = maxResults < 0 ? Long.MAX_VALUE : maxResults;
     return pattern.matcher(text).results()
       .limit(max)
@@ -96,36 +93,31 @@ public class StringSearcher {
    * @param pattern このパターンに一致する文字列を見つける
    * @param text この文字列から {@code query} に一致する部分文字列を探す.
    */
-  public static SequencedCollection<Substring> search(Pattern pattern, String text) {
+  public static List<Substring> search(Pattern pattern, String text) {
     return search(pattern, text, -1);
   }
 
   /**
    * {@code text} から, このオブジェクトが持つ検索クエリに一致する部分文字列を見つけて
-   * {@link ImmutableCircularList} に格納して返す.
+   * {@link List} に格納して返す.
    *
    * @param text この文字列から, このオブジェクトが持つ検索クエリに一致する部分文字列を探す.
    * @param maxResults 取得する検索結果の上限. 負の数を指定すると全ての結果を返す.
    */
-  public ImmutableCircularList<Substring> search(String text, int maxResults) {
+  public List<Substring> search(String text, int maxResults) {
     if (pattern == null) {
-      return new ImmutableCircularList<>();
+      return new ArrayList<>();
     }
-    SequencedCollection<Substring> results = search(pattern, text, maxResults);
-    var result = new ImmutableCircularList<>(results);
-    if (!query.isForward()) {
-      result.movePrevious(1);
-    }
-    return result;
+    return search(pattern, text, maxResults);
   }
 
   /**
    * {@code text} から, このオブジェクトが持つ検索クエリに一致する部分文字列を全て見つけて
-   * {@link ImmutableCircularList} に格納して返す.
+   * {@link List} に格納して返す.
    *
    * @param text この文字列から, このオブジェクトが持つ検索クエリに一致する部分文字列を探す.
    */
-  public ImmutableCircularList<Substring> search(String text) {
+  public List<Substring> search(String text) {
     return this.search(text, -1);
   }
 

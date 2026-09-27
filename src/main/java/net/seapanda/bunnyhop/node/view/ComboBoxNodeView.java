@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.SequencedCollection;
 import java.util.SequencedSet;
 import java.util.regex.Pattern;
 import javafx.beans.value.ChangeListener;
@@ -38,7 +37,6 @@ import net.seapanda.bunnyhop.node.view.traverse.NodeViewWalker;
 import net.seapanda.bunnyhop.search.StringSearcher;
 import net.seapanda.bunnyhop.search.Substring;
 import net.seapanda.bunnyhop.ui.skin.HighlightableListCellSkin;
-import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import org.apache.commons.lang3.mutable.MutableBoolean;
@@ -63,11 +61,9 @@ public final class ComboBoxNodeView extends TextNodeView {
    * @param style      このノードビューのスタイル
    * @param components このノードビューに追加する GUI コンポーネント
    * @param isTemplate このノードビューがテンプレートノードビューの場合 true
-   * @throws ViewConstructionException ノードビューの初期化に失敗
    */
   public ComboBoxNodeView(
-      TextNode model, BhNodeViewStyle style, SequencedSet<Node> components, boolean isTemplate)
-      throws ViewConstructionException {
+      TextNode model, BhNodeViewStyle style, SequencedSet<Node> components, boolean isTemplate) {
     super(model, style, components, isTemplate);
     this.model = model;
     geometry = new Geometry(this, new NodeSizeCalculator(this, this::getContentRegionSize)) {};
@@ -82,10 +78,8 @@ public final class ComboBoxNodeView extends TextNodeView {
    *
    * @param style      このノードビューのスタイル
    * @param isTemplate このノードビューがテンプレートノードビューの場合 true
-   * @throws ViewConstructionException ノードビューの初期化に失敗
    */
-  public ComboBoxNodeView(BhNodeViewStyle style, boolean isTemplate)
-      throws ViewConstructionException {
+  public ComboBoxNodeView(BhNodeViewStyle style, boolean isTemplate) {
     this(null, style, new LinkedHashSet<>(), isTemplate);
   }
 
@@ -247,7 +241,7 @@ public final class ComboBoxNodeView extends TextNodeView {
      * @param styleClass 強調表示する部分に適用するスタイルクラス
      * @param maxHighlights  強調表示する箇所の上限.  負の数を指定すると全ての一致箇所を強調表示する.
      */
-    private SequencedCollection<Substring> enableHighlighting(
+    private List<Substring> enableHighlighting(
         Pattern pattern, String styleClass,  int maxHighlights) {
       return skin.enableHighlighting(pattern, styleClass, maxHighlights);
     }
@@ -258,7 +252,7 @@ public final class ComboBoxNodeView extends TextNodeView {
     }
 
     /** セル内の現在強調表示されている文字列のリストを返す. */
-    private SequencedCollection<Substring> getHighlightedTexts() {
+    private List<Substring> getHighlightedTexts() {
       return skin.getHighlightedTexts();
     }
   }
@@ -292,7 +286,7 @@ public final class ComboBoxNodeView extends TextNodeView {
     }
 
     @Override
-    public SequencedCollection<Substring> enableTextHighlighting(
+    public List<Substring> enableTextHighlighting(
         Pattern pattern, int maxHighlights) {
       highlightPattern = pattern;
       this.maxHighlights = maxHighlights;
@@ -309,7 +303,7 @@ public final class ComboBoxNodeView extends TextNodeView {
     }
 
     @Override
-    public SequencedCollection<Substring> getHighlightedTexts() {
+    public List<Substring> getHighlightedTexts() {
       return cells.getFirst().getHighlightedTexts();
     }
 

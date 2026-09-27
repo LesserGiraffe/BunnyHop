@@ -146,6 +146,10 @@ public class NodeSearchBoxController implements SearchBox {
       clearSearchResult();
       return;
     }
+    if (result.isRegexInvalid()) {
+      searchResultLabel.setText(TextDefs.SearchBox.regexIsInvalid.get());
+      return;
+    }
     String plus = result.truncated() ? "+" : "";
     String text = "%s%s".formatted(result.numFound(), plus);
     searchResultLabel.setText(TextDefs.SearchBox.resultCount.get(text));

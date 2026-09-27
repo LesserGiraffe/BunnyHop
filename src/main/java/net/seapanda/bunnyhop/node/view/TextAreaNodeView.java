@@ -19,8 +19,8 @@ package net.seapanda.bunnyhop.node.view;
 import static net.seapanda.bunnyhop.ui.skin.HighlightingChangePolicy.REFRESH;
 
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Optional;
-import java.util.SequencedCollection;
 import java.util.SequencedSet;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -39,7 +39,6 @@ import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle;
 import net.seapanda.bunnyhop.node.view.traverse.NodeViewWalker;
 import net.seapanda.bunnyhop.search.Substring;
 import net.seapanda.bunnyhop.ui.skin.HighlightableTextAreaSkin;
-import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import org.apache.commons.lang3.StringUtils;
@@ -68,11 +67,9 @@ public final class TextAreaNodeView extends TextInputNodeView {
    * @param style このノードビューのスタイル
    * @param components このノードビューに追加する GUI コンポーネント
    * @param isTemplate このノードビューがテンプレートノードビューの場合 true
-   * @throws ViewConstructionException ノードビューの初期化に失敗
    */
   public TextAreaNodeView(
-      TextNode model, BhNodeViewStyle style, SequencedSet<Node> components, boolean isTemplate)
-      throws ViewConstructionException {
+      TextNode model, BhNodeViewStyle style, SequencedSet<Node> components, boolean isTemplate) {
     super(model, style, components, isTemplate);
     this.model = model;
     geometry = new Geometry(this, new NodeSizeCalculator(this, this::getContentRegionSize)) {};
@@ -89,10 +86,8 @@ public final class TextAreaNodeView extends TextInputNodeView {
    *
    * @param style このノードビューのスタイル
    * @param isTemplate このノードビューがテンプレートノードビューの場合 true
-   * @throws ViewConstructionException ノードビューの初期化に失敗
    */
-  public TextAreaNodeView(BhNodeViewStyle style, boolean isTemplate)
-      throws ViewConstructionException {
+  public TextAreaNodeView(BhNodeViewStyle style, boolean isTemplate) {
     this(null, style, new LinkedHashSet<>(), isTemplate);
   }
 
@@ -224,7 +219,7 @@ public final class TextAreaNodeView extends TextInputNodeView {
     }
 
     @Override
-    public SequencedCollection<Substring> enableTextHighlighting(
+    public List<Substring> enableTextHighlighting(
         Pattern pattern, int maxHighlights) {
       String styleClass = TextAreaNodeView.this.getStyle().textArea.textHighlight.cssClass;
       return skin.enableHighlighting(pattern, styleClass, maxHighlights);
@@ -236,7 +231,7 @@ public final class TextAreaNodeView extends TextInputNodeView {
     }
 
     @Override
-    public SequencedCollection<Substring> getHighlightedTexts() {
+    public List<Substring> getHighlightedTexts() {
       return skin.getHighlightedTexts();
     }
 

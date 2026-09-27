@@ -47,7 +47,7 @@ class TextRangePathFactory {
    * @param ranges 結合対象の範囲リスト
    * @return 結合後の範囲リスト
    */
-  static SequencedCollection<IntegerRange> mergeRange(SequencedCollection<IntegerRange> ranges) {
+  static List<IntegerRange> mergeRange(SequencedCollection<IntegerRange> ranges) {
     var merged = new ArrayList<IntegerRange>();
     if (ranges.isEmpty()) {
       return merged;

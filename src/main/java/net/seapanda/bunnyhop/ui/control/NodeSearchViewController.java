@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
@@ -107,11 +108,15 @@ public class NodeSearchViewController {
   private SearchQueryResult search(SearchQuery query) {
     clearSearchResult();
     searchResult = new SearchResult(new LinkedHashSet<>(), query);
-    for (BhNodeView nodeView : nodeViews) {
-      collectMatchesFromView(nodeView, searchResult);
+    try {
+      for (BhNodeView nodeView : nodeViews) {
+        collectMatchesFromView(nodeView, searchResult);
+      }
+      refreshResultListView(searchResult);
+      return toSearchQueryResult(searchResult);
+    } catch (PatternSyntaxException e) {
+      return new SearchQueryResult(true);
     }
-    refreshResultListView(searchResult);
-    return toSearchQueryResult(searchResult);
   }
 
   /**
@@ -121,7 +126,8 @@ public class NodeSearchViewController {
    * @param view このビューのテキストから検索する
    * @param searchResult 検索結果の格納先. 結果の数が上限に達している場合は何もしない.
    */
-  private void collectMatchesFromView(BhNodeView view, SearchResult searchResult) {
+  private void collectMatchesFromView(BhNodeView view, SearchResult searchResult) throws
+      PatternSyntaxException {
     if (searchResult.items().size() >= maxItemsInNodeSearchResult) {
       return;
     }

@@ -734,7 +734,7 @@ public abstract class BhNode extends SyntaxSymbol {
    *
    * @return このノードのコンパイルエラーメッセージ.  このノードにコンパイルエラーがない場合は空のリスト.
    */
-  public SequencedCollection<String> getCompileErrorMessages() {
+  public List<String> getCompileErrorMessages() {
     return new ArrayList<>(compileErrorMessages);
   }
 

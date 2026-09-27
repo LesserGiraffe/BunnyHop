@@ -146,6 +146,7 @@
       "clear": "❌",
       "result": "結果: %s",
       "result-count": "結果 %s 件",
+      "regex-is-invalid": "不正なパターン",
       "tooltip": {
         "close": "閉じる",
         "regex": "正規表現を使う",

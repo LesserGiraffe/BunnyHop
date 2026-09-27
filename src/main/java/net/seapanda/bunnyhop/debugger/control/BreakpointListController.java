@@ -25,12 +25,15 @@ import static net.seapanda.bunnyhop.node.view.effect.VisualEffectType.JUMP_TARGE
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.SequencedSet;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -44,13 +47,13 @@ import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectType;
+import net.seapanda.bunnyhop.search.CyclicSublistFinder;
 import net.seapanda.bunnyhop.search.ItemSearcher;
 import net.seapanda.bunnyhop.search.SearchBoxDelegate;
 import net.seapanda.bunnyhop.search.SearchQuery;
 import net.seapanda.bunnyhop.search.SearchQueryResult;
 import net.seapanda.bunnyhop.ui.control.SearchBox;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
-import net.seapanda.bunnyhop.utility.collection.ImmutableCircularList;
 import net.seapanda.bunnyhop.workspace.control.WorkspaceSelectorController;
 import net.seapanda.bunnyhop.workspace.model.Workspace;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
@@ -147,47 +150,45 @@ public class BreakpointListController {
     if (query.isEmpty()) {
       return new SearchQueryResult(0, 0);
     }
-    ImmutableCircularList<BhNode> matchedItems;
-    BhNode found;
-    if (searchBox.getNumConsecutiveSameRequests() >= 2 && searchResult != null) {
-      matchedItems = searchResult.nodes();
-      found = query.isForward() ? matchedItems.getNext() : matchedItems.getPrevious();
-    } else {
-      matchedItems = searchAndHighlight(query);
-      found = matchedItems.getCurrent();
+    try {
+      if (searchBox.getNumConsecutiveSameRequests() <= 1 || searchResult == null) {
+        searchResult = search(query);
+        highlightSearchResult(searchResult);
+      }
+      int selectedIdx = bpListView.getSelectionModel().getSelectedIndex();
+      Optional<CyclicSublistFinder.Found<BhNode>> foundOpt = query.isForward()
+          ? searchResult.finder.getItemAfter(selectedIdx)
+          : searchResult.finder.getItemBefore(selectedIdx);
+
+      foundOpt.ifPresent(found -> {
+        bpListView.getSelectionModel().select(found.getIdxInSrcList());
+        bpListView.scrollTo(Math.max(0, found.getIdxInSrcList() - 1));
+      });
+
+      int numResults = searchResult.items.size();
+      boolean truncated = numResults == maxResultsInBreakpointList;
+      int idxInResults = foundOpt.map(CyclicSublistFinder.Found::getIdxInSublist).orElse(-1);
+      return new SearchQueryResult(idxInResults, numResults, truncated);
+    } catch (PatternSyntaxException e) {
+      clearSearchResult();
+      return new SearchQueryResult(true);
     }
-    if (found != null) {
-      bpListView.getSelectionModel().select(found);
-      bpListView.scrollTo(found);
-    }
-    boolean truncated = matchedItems.size() == maxResultsInBreakpointList;
-    return new SearchQueryResult(matchedItems.getPointer(), matchedItems.size(), truncated);
   }
 
-  /**
-   * {@code query} で変数一覧全体を検索し, 一致した要素を強調表示した上で, それらを巡回可能なリストとして返す.
-   *
-   * @param query 検索条件
-   * @return {@code query} に一致した {@link BhNode} を格納する巡回リスト
-   */
-  private ImmutableCircularList<BhNode> searchAndHighlight(SearchQuery query) {
-    ImmutableCircularList<BhNode> matchedItems = ItemSearcher.search(
+  /** {@code query} でコールスタック全体を検索する. */
+  private SearchResult search(SearchQuery query) throws PatternSyntaxException {
+    List<BhNode> results = ItemSearcher.search(
         query,
         bpListView.getItems(),
         BreakpointListCell::getText,
         maxResultsInBreakpointList);
-    searchResult = new SearchResult(matchedItems, query);
-    highlightSearchResult(searchResult);
-    return matchedItems;
+    return new SearchResult(results, query);
   }
 
-  private void highlightSearchResult(SearchResult result) {
-    Pattern pattern = result.query().getPattern();
-    for (BhNode node : result.nodeSet()) {
-      cellRegistry
-          .getCells(node)
-          .forEach(cell -> cell.enableHighlighting(pattern, DEFAULT_TEXT_HIGHLIGHT));
-    }
+  private void highlightSearchResult(SearchResult searchResult) throws PatternSyntaxException {
+    Pattern pattern = searchResult.query.getPattern();
+    cellRegistry.getCells()
+        .forEach(cell -> cell.enableHighlighting(pattern, DEFAULT_TEXT_HIGHLIGHT));
   }
 
   /** {@code nodes} をブレークポイント一覧に加える. */
@@ -251,9 +252,9 @@ public class BreakpointListController {
         !event.empty()
         && event.newVal() != null
         && searchResult != null
-        && searchResult.nodeSet().contains(event.newVal());
+        && searchResult.items.contains(event.newVal());
     if (shouldHighlight) {
-      event.cell().enableHighlighting(searchResult.query().getPattern(), DEFAULT_TEXT_HIGHLIGHT);
+      event.cell().enableHighlighting(searchResult.query.getPattern(), DEFAULT_TEXT_HIGHLIGHT);
     } else {
       event.cell().disableHighlighting();
     }
@@ -353,17 +354,17 @@ public class BreakpointListController {
     }
   }
 
-  /** 検索結果を格納するレコード. */
-  record SearchResult(
-      ImmutableCircularList<BhNode> nodes,
-      Set<BhNode> nodeSet,
-      SearchQuery query) {
+  /** ブレークポイント一覧に対する検索結果を保持するクラス. */
+  private class SearchResult {
 
-    SearchResult(ImmutableCircularList<BhNode> items, SearchQuery query) {
-      this(
-          items,
-          new HashSet<>(items.getItems()),
-          query);
+    private final CyclicSublistFinder<BhNode> finder;
+    private final SequencedSet<BhNode> items;
+    private final SearchQuery query;
+
+    SearchResult(List<BhNode> items, SearchQuery query) {
+      finder = new CyclicSublistFinder<>(items, bpListView.getItems());
+      this.items = new LinkedHashSet<>(items);
+      this.query = query;
     }
   }
 }

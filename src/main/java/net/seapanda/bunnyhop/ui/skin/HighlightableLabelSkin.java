@@ -18,9 +18,8 @@ package net.seapanda.bunnyhop.ui.skin;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Objects;
+import java.util.List;
 import java.util.Optional;
-import java.util.SequencedCollection;
 import java.util.regex.Pattern;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -82,7 +81,7 @@ public class HighlightableLabelSkin extends LabelSkin {
    * @param pattern 強調表示する文字列の正規表現
    * @param styleClass 強調表示部分に適用するスタイルクラス
    */
-  public SequencedCollection<Substring> enableHighlighting(Pattern pattern, String styleClass) {
+  public List<Substring> enableHighlighting(Pattern pattern, String styleClass) {
     return enableHighlighting(pattern, styleClass, -1);
   }
 
@@ -93,24 +92,20 @@ public class HighlightableLabelSkin extends LabelSkin {
    * @param styleClass 強調表示部分に適用するスタイルクラス
    * @param maxHighlights 強調表示する箇所の上限.  負の数を指定すると全ての一致箇所を強調表示する.
    */
-  public SequencedCollection<Substring> enableHighlighting(
+  public List<Substring> enableHighlighting(
       Pattern pattern, String styleClass, int maxHighlights) {
     this.pattern = pattern;
     this.styleClass = styleClass;
     this.maxHighlights = maxHighlights;
-    SequencedCollection<Substring> substrings = search(pattern, maxHighlights);
-    SequencedCollection<IntegerRange> ranges = substrings.stream()
-        .map(str -> str.getRange().orElse(null))
-        .filter(Objects::nonNull)
-        .toList();
-    SequencedCollection<Path> paths = TextRangePathFactory.create(text, ranges, styleClass);
+    List<Substring> substrings = search(pattern, maxHighlights);
+    List<IntegerRange> ranges = substrings.stream().map(str -> str.getRange()).toList();
+    List<Path> paths = TextRangePathFactory.create(text, ranges, styleClass);
     highlightLayer.getChildren().setAll(paths);
     return substrings;
   }
 
-  private SequencedCollection<Substring> search(Pattern pattern, int maxHighlights) {
-    SequencedCollection<Substring> substrings =
-        StringSearcher.search(pattern, text.getText(), maxHighlights);
+  private List<Substring> search(Pattern pattern, int maxHighlights) {
+    List<Substring> substrings = StringSearcher.search(pattern, text.getText(), maxHighlights);
     highlightedTexts.clear();
     highlightedTexts.addAll(substrings);
     return substrings;
@@ -129,7 +124,7 @@ public class HighlightableLabelSkin extends LabelSkin {
   }
 
   /** 現在強調表示されている文字列のリストを返す. */
-  public SequencedCollection<Substring> getHighlightedTexts() {
+  public List<Substring> getHighlightedTexts() {
     return new ArrayList<>(highlightedTexts);
   }
 

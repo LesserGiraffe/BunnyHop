@@ -17,7 +17,6 @@
 package net.seapanda.bunnyhop.search;
 
 import java.util.Objects;
-import java.util.Optional;
 import org.apache.commons.lang3.IntegerRange;
 
 /**
@@ -41,14 +40,14 @@ public class Substring {
    *
    * @param source 部分文字列を含む文字列
    * @param start 部分文字列の元の文字列における始まりの位置
-   * @param length 部分文字列の長さ
+   * @param length 部分文字列の長さ (>= 1)
    */
   public Substring(String source, int start, int length) {
     if (start < 0) {
       throw new IllegalArgumentException("'start' must be 0 or greater.");
     }
-    if (length < 0) {
-      throw new IllegalArgumentException("'length' must be 0 or greater.");
+    if (length <= 0) {
+      throw new IllegalArgumentException("'length' must be 1 or greater.");
     }
     this.source = source;
     this.start = start;
@@ -60,13 +59,16 @@ public class Substring {
    *
    * @param source 部分文字列を含む文字列
    * @param start 部分文字列の元の文字列における始まりの位置
-   * @param substring 部分文字列の元の文字列における終わりの位置
+   * @param substring 部分文字列  (空文字列不可)
    */
   public Substring(String source, int start, String substring) {
     Objects.requireNonNull(source);
     Objects.requireNonNull(substring);
     if (start < 0) {
       throw new IllegalArgumentException("'start' must be 0 or greater.");
+    }
+    if (substring.isEmpty()) {
+      throw new IllegalArgumentException("'substring' must not be empty.");
     }
     this.source = source;
     this.start = start;
@@ -84,6 +86,11 @@ public class Substring {
     return start;
   }
 
+  /** 部分文字列の元の文字列における終わりの位置を返す. */
+  public int getEnd() {
+    return start + length - 1;
+  }
+
   /** 部分文字列の長さを返す. */
   public int getLength() {
     return length;
@@ -92,13 +99,10 @@ public class Substring {
   /**
    * 部分文字列の元の文字列の中での範囲を返す.
    *
-   * @return 部分文字列の元の文字列の中での範囲.  部分文字列が空の場合 empty を返す.
+   * @return 部分文字列の元の文字列の中での範囲.
    */
-  public Optional<IntegerRange> getRange() {
-    if (length == 0) {
-      return Optional.empty();
-    }
-    return Optional.of(IntegerRange.of(start, start + length - 1));
+  public IntegerRange getRange() {
+    return IntegerRange.of(start, start + length - 1);
   }
 
   @Override

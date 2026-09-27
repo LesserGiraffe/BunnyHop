@@ -96,11 +96,4 @@ public class NodeSearchListCell extends ListCell<NodeSearchListItem> {
     isHighlightingEnabled = false;
     skin.disableHighlighting();
   }
-
-  /** このセルに割り当てられたアイテムが変わったときのイベント. */
-  public record ItemChangeEvent(
-      NodeSearchListCell cell,
-      NodeSearchListItem oldVal,
-      NodeSearchListItem newVal,
-      boolean empty) {}
 }

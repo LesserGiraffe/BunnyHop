@@ -146,6 +146,7 @@
       "clear": "❌",
       "result": "けっか: %s",
       "result-count": "けっか %s けん",
+      "regex-is-invalid": "ふ正なパターン",
       "tooltip": {
         "close": "とじる",
         "regex": "せいきひょうげんを使う",

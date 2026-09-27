@@ -102,7 +102,7 @@ public class VariableInfo {
   }
 
   /** このオブジェクトが持つ変数情報を返す. */
-  public SequencedCollection<Variable> getVariables() {
+  public List<Variable> getVariables() {
     return new ArrayList<>(varIdToVar.values());
   }
 

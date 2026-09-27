@@ -393,5 +393,7 @@ public class TextDefs {
         TextId.of("gui", "search-box", "result"), params);
     public static final Getter resultCount = params -> db.get(
         TextId.of("gui", "search-box", "result-count"), params);
+    public static final Getter regexIsInvalid = params -> db.get(
+        TextId.of("gui", "search-box", "regex-is-invalid"), params);
   }
 }

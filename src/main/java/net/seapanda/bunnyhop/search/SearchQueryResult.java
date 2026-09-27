@@ -23,10 +23,20 @@ package net.seapanda.bunnyhop.search;
  *                   負の数のとき, 注目している検索結果が存在しなことを示す.
  * @param numFound 検索結果の個数.
  * @param truncated 検索結果の数が検索可能な上限に達しているかどうか.
+ * @param isRegexInvalid 検索に使用した正規表現が不正なパターンであったかどうか.
  */
-public record SearchQueryResult(int currentIdx, int numFound, boolean truncated) {
+public record SearchQueryResult(
+    int currentIdx, int numFound, boolean truncated, boolean isRegexInvalid) {
 
   public SearchQueryResult(int currentIdx, int numFound) {
-    this(currentIdx, numFound, false);
+    this(currentIdx, numFound, false, false);
+  }
+
+  public SearchQueryResult(int currentIdx, int numFound, boolean truncated) {
+    this(currentIdx, numFound, truncated, false);
+  }
+
+  public SearchQueryResult(boolean isRegexInvalid) {
+    this(-1, 0, false, isRegexInvalid);
   }
 }

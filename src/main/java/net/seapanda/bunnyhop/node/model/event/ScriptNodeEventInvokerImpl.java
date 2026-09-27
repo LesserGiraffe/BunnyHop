@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.SequencedCollection;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
@@ -403,7 +402,7 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
   }
 
   @Override
-  public SequencedCollection<String> onCompileErrChecking(BhNode target) {
+  public List<String> onCompileErrChecking(BhNode target) {
     ScriptNameAndScript defined = getScript(target.getId(), EventType.ON_COMPILE_ERR_CHECKING);
     if (defined == null) {
       return new ArrayList<>();

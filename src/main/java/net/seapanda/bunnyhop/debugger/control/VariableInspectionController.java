@@ -26,15 +26,18 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.SequencedCollection;
+import java.util.SequencedSet;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 import javafx.beans.property.BooleanProperty;
 import javafx.collections.ObservableList;
@@ -60,13 +63,13 @@ import net.seapanda.bunnyhop.debugger.view.VariableListCell.ItemChangeEvent;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
+import net.seapanda.bunnyhop.search.CyclicSublistFinder;
 import net.seapanda.bunnyhop.search.ItemSearcher;
 import net.seapanda.bunnyhop.search.SearchBoxDelegate;
 import net.seapanda.bunnyhop.search.SearchQuery;
 import net.seapanda.bunnyhop.search.SearchQueryResult;
 import net.seapanda.bunnyhop.ui.control.SearchBox;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
-import net.seapanda.bunnyhop.utility.collection.ImmutableCircularList;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet.NodeSelectionEvent;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet.NodeTextChangedEvent;
@@ -328,9 +331,9 @@ public class VariableInspectionController {
         !event.empty()
         && event.newVal() != null
         && searchResult != null
-        && searchResult.listItems().contains(event.newVal());
+        && searchResult.listItems.contains(event.newVal());
     if (shouldHighlight) {
-      event.cell().enableHighlighting(searchResult.query().getPattern(), DEFAULT_TEXT_HIGHLIGHT);
+      event.cell().enableHighlighting(searchResult.query.getPattern(), DEFAULT_TEXT_HIGHLIGHT);
     } else {
       event.cell().disableHighlighting();
     }
@@ -364,49 +367,50 @@ public class VariableInspectionController {
     if (isDiscarded || query.isEmpty()) {
       return new SearchQueryResult(0, 0);
     }
-    ImmutableCircularList<VariableTreeItem> matchedItems;
-    VariableTreeItem found;
-    if (searchBox.getNumConsecutiveSameRequests() >= 2 && searchResult != null) {
-      matchedItems = searchResult.treeItems();
-      found = query.isForward() ? matchedItems.getNext() : matchedItems.getPrevious();
-    } else {
-      matchedItems = searchAndHighlight(query);
-      found = matchedItems.getCurrent();
+    try {
+      if (searchBox.getNumConsecutiveSameRequests() <= 1 || searchResult == null) {
+        searchResult = search(query);
+        highlightSearchResult(searchResult);
+      }
+
+      VariableTreeItem selectedItem =
+          (VariableTreeItem) variableTreeView.getSelectionModel().getSelectedItem();
+      Optional<CyclicSublistFinder.Found<VariableTreeItem>> foundOpt = query.isForward()
+          ? searchResult.finder.getItemAfter(selectedItem)
+          : searchResult.finder.getItemBefore(selectedItem);
+
+      foundOpt.ifPresent(found -> {
+        expandAncestorsOf(found.getItem());
+        int idx = variableTreeView.getRow(found.getItem());
+        variableTreeView.getSelectionModel().select(idx);
+        variableTreeView.scrollTo(Math.max(0, idx - 1));
+      });
+
+      int numResults = searchResult.treeItems.size();
+      boolean truncated = numResults == maxResultsInVariableInspection;
+      int idxInResults = foundOpt.map(CyclicSublistFinder.Found::getIdxInSublist).orElse(-1);
+      return new SearchQueryResult(idxInResults, numResults, truncated);
+    } catch (PatternSyntaxException e) {
+      clearSearchResult();
+      return new SearchQueryResult(true);
     }
-    if (found != null) {
-      expandAncestorsOf(found);
-      variableTreeView.getSelectionModel().select(found);
-      int index = variableTreeView.getRow(found);
-      variableTreeView.scrollTo(index);
-    }
-    boolean truncated = matchedItems.size() == maxResultsInVariableInspection;
-    return new SearchQueryResult(matchedItems.getPointer(), matchedItems.size(), truncated);
   }
 
-  /**
-   * {@code query} で変数一覧全体を検索し, 一致した要素を強調表示した上で, それらを巡回可能なリストとして返す.
-   *
-   * @param query 検索条件
-   * @return {@code query} に一致した {@link VariableTreeItem} を格納する巡回リスト
-   */
-  private ImmutableCircularList<VariableTreeItem> searchAndHighlight(SearchQuery query) {
-    ImmutableCircularList<VariableTreeItem> matchedItems = ItemSearcher.search(
+  /** {@code query} で変数一覧を検索する. */
+  private SearchResult search(SearchQuery query) {
+    List<VariableTreeItem> allVarItems = rootVarItem.collectDescendants();
+    List<VariableTreeItem> results = ItemSearcher.search(
         query,
-        rootVarItem.collectDescendants(),
+        allVarItems,
         treeItem -> VariableListCell.getText(treeItem.getValue()),
         maxResultsInVariableInspection);
-    searchResult = new SearchResult(matchedItems, query);
-    highlightSearchResult(searchResult);
-    return matchedItems;
+    return new SearchResult(results, allVarItems, query);
   }
 
-  private void highlightSearchResult(SearchResult result) {
-    Pattern pattern = result.query().getPattern();
-    for (VariableListItem listItem : result.listItems()) {
-      cellRegistry
-          .getCells(listItem)
-          .forEach(cell -> cell.enableHighlighting(pattern, DEFAULT_TEXT_HIGHLIGHT));
-    }
+  private void highlightSearchResult(SearchResult result) throws PatternSyntaxException {
+    Pattern pattern = result.query.getPattern();
+    cellRegistry.getCells()
+        .forEach(cell -> cell.enableHighlighting(pattern, DEFAULT_TEXT_HIGHLIGHT));
   }
 
   /** 現在の検索結果を破棄し, それに伴う強調表示を全て解除する. */
@@ -503,8 +507,8 @@ public class VariableInspectionController {
      *
      * @return このオブジェクトの子孫のコレクション.
      */
-    public SequencedCollection<VariableTreeItem> collectDescendants() {
-      SequencedCollection<VariableTreeItem> descendants = new ArrayList<>();
+    public List<VariableTreeItem> collectDescendants() {
+      List<VariableTreeItem> descendants = new ArrayList<>();
       getCurrentChildren().forEach(item -> item.collectSubTree(descendants));
       return descendants;
     }
@@ -620,19 +624,22 @@ public class VariableInspectionController {
     }
   }
 
-  /** 検索結果を格納するレコード. */
-  record SearchResult(
-      ImmutableCircularList<VariableTreeItem> treeItems,
-      Set<VariableListItem> listItems,
-      SearchQuery query) {
+  /** 変数一覧に対する検索結果を保持するクラス. */
+  private static class SearchResult {
 
-    SearchResult(ImmutableCircularList<VariableTreeItem> treeItems, SearchQuery query) {
-      this(
-          treeItems,
-          treeItems.getItems().stream()
-              .map(treeItem -> treeItem.item)
-              .collect(Collectors.toCollection(HashSet::new)),
-          query);
+    private final CyclicSublistFinder<VariableTreeItem> finder;
+    private final SequencedSet<VariableTreeItem> treeItems;
+    private final SequencedSet<VariableListItem> listItems;
+    private final SearchQuery query;
+
+    SearchResult(
+        List<VariableTreeItem> matchedItems, List<VariableTreeItem> allItems, SearchQuery query) {
+      finder = new CyclicSublistFinder<>(matchedItems, allItems);
+      treeItems = new LinkedHashSet<>(matchedItems);
+      listItems = matchedItems.stream()
+          .map(TreeItem::getValue)
+          .collect(Collectors.toCollection(LinkedHashSet::new));
+      this.query = query;
     }
   }
 }

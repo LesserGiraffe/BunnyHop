@@ -16,8 +16,8 @@
 
 package net.seapanda.bunnyhop.node.view;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.SequencedCollection;
 import java.util.SequencedSet;
 import java.util.regex.Pattern;
 import javafx.scene.Node;
@@ -70,7 +70,7 @@ public abstract class TextNodeView extends LeafNodeView {
      * @param maxHighlights 強調表示する箇所の上限.  負の数を指定すると全ての一致箇所を強調表示する.
      * @return 一致した部分文字列のリスト
      */
-    public abstract SequencedCollection<Substring> enableTextHighlighting(
+    public abstract List<Substring> enableTextHighlighting(
         Pattern pattern, int maxHighlights);
 
     /**
@@ -79,7 +79,7 @@ public abstract class TextNodeView extends LeafNodeView {
      * @param pattern 強調表示する部分の正規表現
      * @return 一致した部分文字列のリスト
      */
-    public SequencedCollection<Substring> enableTextHighlighting(Pattern pattern) {
+    public List<Substring> enableTextHighlighting(Pattern pattern) {
       return enableTextHighlighting(pattern, -1);
     }
 
@@ -87,7 +87,7 @@ public abstract class TextNodeView extends LeafNodeView {
     public abstract void disableTextHighlighting();
 
     /** 強調表示されている文字列のリストを取得する. */
-    public abstract SequencedCollection<Substring> getHighlightedTexts();
+    public abstract List<Substring> getHighlightedTexts();
 
     /** 文字列の強調表示が有効かどうかを調べる. */
     public abstract boolean isTextHighlightingEnabled();

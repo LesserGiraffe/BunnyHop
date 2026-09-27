@@ -19,8 +19,8 @@ package net.seapanda.bunnyhop.node.view;
 import static net.seapanda.bunnyhop.ui.skin.HighlightingChangePolicy.REFRESH;
 
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Optional;
-import java.util.SequencedCollection;
 import java.util.SequencedSet;
 import java.util.regex.Pattern;
 import javafx.scene.Node;
@@ -118,8 +118,7 @@ public final class LabelNodeView extends TextNodeView {
     }
 
     @Override
-    public SequencedCollection<Substring> enableTextHighlighting(
-        Pattern pattern, int maxHighlights) {
+    public List<Substring> enableTextHighlighting(Pattern pattern, int maxHighlights) {
       String styleClass = LabelNodeView.this.getStyle().label.textHighlight.cssClass;
       skin.enableHighlighting(pattern, styleClass, maxHighlights);
       // skin のテキストが準備できていない場合があるので, Label のテキストを参照する.
@@ -132,7 +131,7 @@ public final class LabelNodeView extends TextNodeView {
     }
 
     @Override
-    public SequencedCollection<Substring> getHighlightedTexts() {
+    public List<Substring> getHighlightedTexts() {
       return skin.getHighlightedTexts();
     }
 

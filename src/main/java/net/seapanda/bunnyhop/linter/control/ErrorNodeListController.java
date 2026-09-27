@@ -18,7 +18,6 @@ package net.seapanda.bunnyhop.linter.control;
 
 import static javafx.css.PseudoClass.getPseudoClass;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Css.Class.DEFAULT_TEXT_HIGHLIGHT;
-import static net.seapanda.bunnyhop.common.configuration.BhSettings.Search.maxResultsInErrorNodeList;
 import static net.seapanda.bunnyhop.common.configuration.BhSettings.Search.maxResultsInVariableInspection;
 import static net.seapanda.bunnyhop.node.view.effect.VisualEffectType.JUMP_TARGET;
 
@@ -27,13 +26,16 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.SequencedCollection;
+import java.util.SequencedSet;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
@@ -51,13 +53,13 @@ import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectType;
+import net.seapanda.bunnyhop.search.CyclicSublistFinder;
 import net.seapanda.bunnyhop.search.ItemSearcher;
 import net.seapanda.bunnyhop.search.SearchBoxDelegate;
 import net.seapanda.bunnyhop.search.SearchQuery;
 import net.seapanda.bunnyhop.search.SearchQueryResult;
 import net.seapanda.bunnyhop.ui.control.SearchBox;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
-import net.seapanda.bunnyhop.utility.collection.ImmutableCircularList;
 import net.seapanda.bunnyhop.workspace.control.WorkspaceSelectorController;
 import net.seapanda.bunnyhop.workspace.model.Workspace;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
@@ -204,54 +206,55 @@ public class ErrorNodeListController {
     searchBox.open(new SearchBoxDelegateImpl());
   }
 
-  /** 変数一覧から {@code query} に一致する要素を探して選択する. */
+  /** エラーノード一覧から {@code query} に一致する要素を探して選択する. */
   private SearchQueryResult selectItem(SearchQuery query) {
     if (query.isEmpty()) {
       return new SearchQueryResult(0, 0);
     }
-    ImmutableCircularList<ErrorNodeTreeItem> matchedItems;
-    ErrorNodeTreeItem found;
-    if (searchBox.getNumConsecutiveSameRequests() >= 2 && searchResult != null) {
-      matchedItems = searchResult.treeItems();
-      found = query.isForward() ? matchedItems.getNext() : matchedItems.getPrevious();
-    } else {
-      matchedItems = searchAndHighlight(query);
-      found = matchedItems.getCurrent();
+    try {
+      if (searchBox.getNumConsecutiveSameRequests() <= 1 || searchResult == null) {
+        searchResult = search(query);
+        highlightSearchResult(searchResult);
+      }
+
+      ErrorNodeTreeItem selectedItem =
+          (ErrorNodeTreeItem) enTreeView.getSelectionModel().getSelectedItem();
+      Optional<CyclicSublistFinder.Found<ErrorNodeTreeItem>> foundOpt = query.isForward()
+          ? searchResult.finder.getItemAfter(selectedItem)
+          : searchResult.finder.getItemBefore(selectedItem);
+
+      foundOpt.ifPresent(found -> {
+        expandAncestorsOf(found.getItem());
+        int idx = enTreeView.getRow(found.getItem());
+        enTreeView.getSelectionModel().select(idx);
+        enTreeView.scrollTo(Math.max(0, idx - 1));
+      });
+
+      int numResults = searchResult.treeItems.size();
+      boolean truncated = numResults == maxResultsInVariableInspection;
+      int idxInResults = foundOpt.map(CyclicSublistFinder.Found::getIdxInSublist).orElse(-1);
+      return new SearchQueryResult(idxInResults, numResults, truncated);
+    } catch (PatternSyntaxException e) {
+      clearSearchResult();
+      return new SearchQueryResult(true);
     }
-    if (found != null) {
-      expandAncestorsOf(found);
-      enTreeView.getSelectionModel().select(found);
-      int index = enTreeView.getRow(found);
-      enTreeView.scrollTo(index);
-    }
-    boolean truncated = matchedItems.size() == maxResultsInVariableInspection;
-    return new SearchQueryResult(matchedItems.getPointer(), matchedItems.size(), truncated);
   }
 
-  /**
-   * {@code query} で変数一覧全体を検索し, 一致した要素を強調表示した上で, それらを巡回可能なリストとして返す.
-   *
-   * @param query 検索条件
-   * @return {@code query} に一致した {@link ErrorNodeTreeItem} を格納する巡回リスト
-   */
-  private ImmutableCircularList<ErrorNodeTreeItem> searchAndHighlight(SearchQuery query) {
-    ImmutableCircularList<ErrorNodeTreeItem> matchedItems = ItemSearcher.search(
+  /** {@code query} でエラーノード一覧を検索する. */
+  private SearchResult search(SearchQuery query) {
+    List<ErrorNodeTreeItem> allVarItems = rootErrorNodeItem.collectDescendants();
+    List<ErrorNodeTreeItem> results = ItemSearcher.search(
         query,
-        rootErrorNodeItem.collectDescendants(),
+        allVarItems,
         treeItem -> ErrorNodeListCell.getText(treeItem.getValue()),
-        maxResultsInErrorNodeList);
-    searchResult = new SearchResult(matchedItems, query);
-    highlightSearchResult(searchResult);
-    return matchedItems;
+        maxResultsInVariableInspection);
+    return new SearchResult(results, allVarItems, query);
   }
 
-  private void highlightSearchResult(SearchResult result) {
-    Pattern pattern = result.query().getPattern();
-    for (ErrorNodeListItem listItem : result.listItems()) {
-      cellRegistry
-          .getCells(listItem.node())
-          .forEach(cell -> cell.enableHighlighting(pattern, DEFAULT_TEXT_HIGHLIGHT));
-    }
+  private void highlightSearchResult(SearchResult result) throws PatternSyntaxException {
+    Pattern pattern = result.query.getPattern();
+    cellRegistry.getCells()
+        .forEach(cell -> cell.enableHighlighting(pattern, DEFAULT_TEXT_HIGHLIGHT));
   }
 
   /** {@code item} の先祖要素を全て展開する. */
@@ -296,9 +299,9 @@ public class ErrorNodeListController {
         !event.empty()
         && event.newVal() != null
         && searchResult != null
-        && searchResult.listItems().contains(event.newVal());
+        && searchResult.listItems.contains(event.newVal());
     if (shouldHighlight) {
-      event.cell().enableHighlighting(searchResult.query().getPattern(), DEFAULT_TEXT_HIGHLIGHT);
+      event.cell().enableHighlighting(searchResult.query.getPattern(), DEFAULT_TEXT_HIGHLIGHT);
     } else {
       event.cell().disableHighlighting();
     }
@@ -340,8 +343,8 @@ public class ErrorNodeListController {
      *
      * @return このオブジェクトの子孫のコレクション.
      */
-    public SequencedCollection<ErrorNodeTreeItem> collectDescendants() {
-      SequencedCollection<ErrorNodeTreeItem> descendants = new ArrayList<>();
+    public List<ErrorNodeTreeItem> collectDescendants() {
+      List<ErrorNodeTreeItem> descendants = new ArrayList<>();
       getCurrentChildren().forEach(item -> item.collectSubTree(descendants));
       return descendants;
     }
@@ -485,19 +488,22 @@ public class ErrorNodeListController {
     }
   }
 
-  /** 検索結果を格納するレコード. */
-  record SearchResult(
-      ImmutableCircularList<ErrorNodeTreeItem> treeItems,
-      Set<ErrorNodeListItem> listItems,
-      SearchQuery query) {
+  /** エラーノード一覧に対する検索結果を保持するクラス. */
+  private static class SearchResult {
 
-    SearchResult(ImmutableCircularList<ErrorNodeTreeItem> treeItems, SearchQuery query) {
-      this(
-          treeItems,
-          treeItems.getItems().stream()
-              .map(TreeItem::getValue)
-              .collect(Collectors.toCollection(HashSet::new)),
-          query);
+    private final CyclicSublistFinder<ErrorNodeTreeItem> finder;
+    private final SequencedSet<ErrorNodeTreeItem> treeItems;
+    private final SequencedSet<ErrorNodeListItem> listItems;
+    private final SearchQuery query;
+
+    SearchResult(
+        List<ErrorNodeTreeItem> matchedItems, List<ErrorNodeTreeItem> allItems, SearchQuery query) {
+      finder = new CyclicSublistFinder<>(matchedItems, allItems);
+      treeItems = new LinkedHashSet<>(matchedItems);
+      listItems = matchedItems.stream()
+          .map(TreeItem::getValue)
+          .collect(Collectors.toCollection(LinkedHashSet::new));
+      this.query = query;
     }
   }
 }
