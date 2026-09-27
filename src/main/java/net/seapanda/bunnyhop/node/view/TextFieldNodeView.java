@@ -59,6 +59,8 @@ public final class TextFieldNodeView extends TextInputNodeView {
   private boolean shouldSelectText = true;
   /** {@link #textField} がフォーカスを得る前に保持していたテキスト. */
   private String textBeforeFocused = "";
+  /** テキストのフォーマットを検査する関数オブジェクト. */
+  private Function<String, Boolean> fnCheckFormat = str -> true;
 
   /**
    * コンストラクタ.
@@ -129,6 +131,11 @@ public final class TextFieldNodeView extends TextInputNodeView {
     }
     textField.deselect();
     shouldSelectText = true;
+
+    if (!fnCheckFormat.apply(getText())) {
+      textField.setText(textBeforeFocused);
+      return;
+    }
     if (!StringUtils.equals(textBeforeFocused, getText())) {
       var event = new TextChangeEvent(this, textBeforeFocused, getText());
       getCallbackRegistry().onTextChangedInvoker.invoke(event);
@@ -142,21 +149,20 @@ public final class TextFieldNodeView extends TextInputNodeView {
   }
 
   @Override
-  public void setTextChangeListener(Function<String, Boolean> fnCheckFormat) {
-    textField.boundsInLocalProperty().addListener(
-        (observable, oldVal, newVal) -> updateTextFieldLooks(fnCheckFormat));
+  public void setFormatChecker(Function<String, Boolean> fnCheckFormat) {
+    fnCheckFormat = fnCheckFormat == null ? str -> true : fnCheckFormat;
+    this.fnCheckFormat = fnCheckFormat;
 
-    // テキストの長さに応じてTextField の長さが変わるように
+    textField.boundsInLocalProperty().addListener(
+        (observable, oldVal, newVal) -> updateTextFieldLooks());
+
+    // テキストの長さに応じて TextField の長さが変わるようにする.
     textField.textProperty().addListener(
-        (observable, oldVal, newVal) ->  updateTextFieldLooks(fnCheckFormat));
+        (observable, oldVal, newVal) ->  updateTextFieldLooks());
   }
 
-  /**
-   * テキストフィールドの見た目を変える.
-   *
-   * @param fnCheckFormat テキストのフォーマットをチェックする関数
-   */
-  private void updateTextFieldLooks(Function<String, Boolean> fnCheckFormat) {
+  /** テキストフィールドの外観を更新する. */
+  private void updateTextFieldLooks() {
     Text text = (Text) textField.lookup(".text");
     if (text == null) {
       return;

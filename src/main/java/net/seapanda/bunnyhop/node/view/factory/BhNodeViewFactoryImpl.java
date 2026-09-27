@@ -146,7 +146,7 @@ public class BhNodeViewFactoryImpl implements BhNodeViewFactory {
     return switch (style.component) {
       case TEXT_FIELD -> {
         var view = new TextFieldNodeView(style, isTemplate);
-        view.setTextChangeListener(str -> true);
+        view.setFormatChecker(str -> true);
         view.setText(text);
         yield view;
       }
@@ -162,7 +162,7 @@ public class BhNodeViewFactoryImpl implements BhNodeViewFactory {
       }
       case TEXT_AREA -> {
         var view = new TextAreaNodeView(style, isTemplate);
-        view.setTextChangeListener(str -> true);
+        view.setFormatChecker(str -> true);
         view.setText(text);
         yield view;
       }

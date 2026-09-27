@@ -45,19 +45,19 @@ public abstract class TextInputNodeView extends TextNodeView {
   abstract TextInputControl getTextInputControl();
 
   /**
-   * テキスト変更時のイベントハンドラを登録する.
+   * 入力された文字列のフォーマットをチェックする関数を登録する.
    *
-   * @param fnCheckFormat 入力された文字列の形式が正しいかどうか判断する関数 (テキスト変更時のイベントハンドラから呼び出す)
+   * @param fnCheckFormat 入力された文字列の形式が正しいかどうか判断する関数
    */
-  public abstract void setTextChangeListener(Function<String, Boolean> fnCheckFormat);
+  public abstract void setFormatChecker(Function<String, Boolean> fnCheckFormat);
 
   /**
-   * テキストフィールドのカーソル on/off 時のイベントハンドラを登録する.
+   * テキスト入力欄のフォーカス変更時のイベントハンドラを登録する.
    *
-   * @param changeFocusFunc テキストフィールドのカーソルon/off時のイベントハンドラ
+   * @param onFocusChanged テキスト入力欄のフォーカス変更時のイベントハンドラ
    */
-  public final void addFocusListener(ChangeListener<? super Boolean> changeFocusFunc) {
-    getTextInputControl().focusedProperty().addListener(changeFocusFunc);
+  public final void addOnFocusChanged(ChangeListener<? super Boolean> onFocusChanged) {
+    getTextInputControl().focusedProperty().addListener(onFocusChanged);
   }
 
   /**
@@ -73,8 +73,7 @@ public abstract class TextInputNodeView extends TextNodeView {
    *     &nbsp;&nbsp; v2 -> 整形したテキスト
    *     </pre>
    */
-  public final void setTextFormatter(
-      BiFunction<String, String, FormatResult> formatter) {
+  public final void setTextFormatter(BiFunction<String, String, FormatResult> formatter) {
     TextInputControl control = getTextInputControl();
     control.setTextFormatter(
         new TextFormatter<>(change -> setFormattedText(formatter, control.getLength(), change)));
@@ -112,18 +111,18 @@ public abstract class TextInputNodeView extends TextNodeView {
   }
 
 
-  /** テキストフィールドが編集可能かどうかをセットする.
+  /** テキスト入力欄が編集可能かどうかをセットする.
    *
-   * @param editable テキストフィールドが編集可能なときtrue
+   * @param editable テキスト入力欄が編集可能なときtrue
    */
   public final void setEditable(boolean editable) {
     getTextInputControl().setEditable(editable);
   }
 
   /**
-   * テキストフィールドが編集可能かどうかチェックする.
+   * テキスト入力欄が編集可能かどうかチェックする.
    *
-   * @return テキストフィールドが編集可能な場合 true
+   * @return テキスト入力欄が編集可能な場合 true
    */
   public final boolean getEditable() {
     return getTextInputControl().editableProperty().getValue();

@@ -59,6 +59,8 @@ public final class TextAreaNodeView extends TextInputNodeView {
   private boolean shouldSelectText = true;
   /** {@link #textArea} がフォーカスを得る前に保持していたテキスト. */
   private String textBeforeFocused = "";
+  /** テキストのフォーマットを検査する関数オブジェクト. */
+  private Function<String, Boolean> fnCheckFormat = str -> true;
 
   /**
    * コンストラクタ.
@@ -132,32 +134,32 @@ public final class TextAreaNodeView extends TextInputNodeView {
     }
     textArea.deselect();
     shouldSelectText = true;
+
+    if (!fnCheckFormat.apply(getText())) {
+      textArea.setText(textBeforeFocused);
+      return;
+    }
     if (!StringUtils.equals(textBeforeFocused, getText())) {
       var event = new TextChangeEvent(this, textBeforeFocused, getText());
       getCallbackRegistry().onTextChangedInvoker.invoke(event);
     }
   }
 
-  /**
-   * テキスト変更時のイベントハンドラを登録する.
-   *
-   * @param fnCheckFormat 入力された文字列の形式が正しいかどうか判断する関数 (テキスト変更時のイベントハンドラから呼び出す)
-   */
-  public void setTextChangeListener(Function<String, Boolean> fnCheckFormat) {
+  @Override
+  public void setFormatChecker(Function<String, Boolean> fnCheckFormat) {
+    fnCheckFormat = fnCheckFormat == null ? str -> true : fnCheckFormat;
+    this.fnCheckFormat = fnCheckFormat;
+
     textArea.boundsInLocalProperty().addListener(
-        (observable, oldVal, newVal) -> updateTextAreaLooks(fnCheckFormat));
+        (observable, oldVal, newVal) -> updateTextAreaLooks());
 
     // テキストの長さに応じてTextArea のサイズが変わるようにする.
     textArea.textProperty().addListener(
-        (observable, oldVal, newVal) -> updateTextAreaLooks(fnCheckFormat));
+        (observable, oldVal, newVal) -> updateTextAreaLooks());
   }
 
-  /**
-   * テキストエリアの見た目を変える.
-   *
-   * @param fnCheckFormat テキストのフォーマットをチェックする関数
-   */
-  private void updateTextAreaLooks(Function<String, Boolean> fnCheckFormat) {
+  /** テキストエリアの外観を更新する. */
+  private void updateTextAreaLooks() {
     Text text = (Text) textArea.lookup(".text");
     Region content = (Region) textArea.lookup(".content");
     if (text == null || content == null) {

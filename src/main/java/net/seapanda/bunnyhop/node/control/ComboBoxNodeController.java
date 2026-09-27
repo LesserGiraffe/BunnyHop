@@ -18,7 +18,6 @@ package net.seapanda.bunnyhop.node.control;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.TextNode;
@@ -71,8 +70,8 @@ public class ComboBoxNodeController implements BhNodeController {
 
     List<SelectableItem<String, Object>> items = createItems();
     view.setItems(items);
-    view.addOnItemSelected(
-        (observable, oldVal, newVal) -> checkAndSetContent(oldVal, newVal));
+    view.setItemFormatChecker(item -> model.isTextAcceptable(item.getModel()));
+    view.addOnFocusChanged((observable, oldValue, newValue) -> onFocusChanged(newValue));
     view.getItemByModelText(model.getText())
         .ifPresentOrElse(
             view::setValue,
@@ -82,21 +81,18 @@ public class ComboBoxNodeController implements BhNodeController {
             });
   }
 
-  /** 新しく選択されたコンボボックスのアイテムが適切かどうかを調べて, 適切ならビューとモデルに設定する. */
-  private void checkAndSetContent(
-      SelectableItem<String, Object> oldItem, SelectableItem<String, Object> newItem) {
+  private void onFocusChanged(Boolean focused) {
     try {
       notifService.begin();
-      if (Objects.equals(newItem.getModel(), model.getText())) {
+      if (focused) {
         return;
       }
-      if (model.isTextAcceptable(newItem.getModel())) {
-        // model の文字列を ComboBox の選択アイテムに対応したものにする
-        model.setText(newItem.getModel());
-        model.assignContentsToDerivatives();
-      } else {
-        view.setValue(oldItem);
+      SelectableItem<String, Object> value = view.getValue();
+      if (value == null) {
+        return;
       }
+      model.setText(value.getModel());
+      model.assignContentsToDerivatives();
     } finally {
       notifService.end();
     }

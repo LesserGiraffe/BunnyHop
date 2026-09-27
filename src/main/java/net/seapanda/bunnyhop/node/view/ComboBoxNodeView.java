@@ -19,8 +19,10 @@ package net.seapanda.bunnyhop.node.view;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.SequencedSet;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
@@ -53,6 +55,10 @@ public final class ComboBoxNodeView extends TextNodeView {
   private final MutableBoolean dragging = new MutableBoolean();
   private final Visual visual = new Visual(this);
   private final Geometry geometry;
+  /** {@link #comboBox} がフォーカスを得る前に選択されていたアイテム. */
+  private SelectableItem<String, Object> itemBeforeFocused = new SelectableItem<>("", "");
+  /** コンボボックスのアイテムが適切か検査する関数オブジェクト. */
+  private Function<SelectableItem<String, Object>, Boolean> fnCheckItem = item -> true;
 
   /**
    * コンストラクタ.
@@ -70,7 +76,7 @@ public final class ComboBoxNodeView extends TextNodeView {
     setComponent(comboBox);
     setEventHandlers();
     initializeStyle();
-    initializeItem();
+    setInitialComboboxValue();
   }
 
   /**
@@ -90,7 +96,7 @@ public final class ComboBoxNodeView extends TextNodeView {
     comboBox.getStyleClass().add(getStyle().comboBox.cssClass);
   }
 
-  private void initializeItem() {
+  private void setInitialComboboxValue() {
     if (!comboBox.getItems().isEmpty()) {
       comboBox.setValue(comboBox.getItems().getFirst());
     }
@@ -98,19 +104,43 @@ public final class ComboBoxNodeView extends TextNodeView {
 
   private void setEventHandlers() {
     comboBox.addEventFilter(Event.ANY, this::forwardEvent);
-    addOnItemSelected((obs, oldVal, newVal) -> onItemChanged(oldVal, newVal));
+    comboBox.focusedProperty().addListener((obs, oldVal, newVal) -> onFocusChanged(newVal));
     ViewUtil.enableAutoResize(comboBox, item -> item.getView().toString());
   }
 
-  /**
-   * コンボボックスのアイテムが変更されたときの処理.
-   */
-  private void onItemChanged(
-      SelectableItem<String, Object> oldVal, SelectableItem<String, Object> newVal) {
-    String oldText = oldVal == null ? null : oldVal.getView().toString();
-    String newText = newVal == null ? null : newVal.getView().toString();
-    var event = new TextChangeEvent(this, oldText, newText);
-    getCallbackRegistry().onTextChangedInvoker.invoke(event);
+  private void onFocusChanged(boolean focused) {
+    SelectableItem<String, Object> value = getValue();
+    if (focused) {
+      itemBeforeFocused = getValue();
+      return;
+    }
+    if (!fnCheckItem.apply(value)) {
+      comboBox.setValue(itemBeforeFocused);
+      return;
+    }
+    if (!Objects.equals(itemBeforeFocused, value)) {
+      String oldText = itemBeforeFocused == null ? null : itemBeforeFocused.getView().toString();
+      String newText = value == null ? null : value.getView().toString();
+      var event = new TextChangeEvent(this, oldText, newText);
+      getCallbackRegistry().onTextChangedInvoker.invoke(event);
+    }
+  }
+
+  private void forwardEvent(Event event) {
+    BhNodeView view = (model == null) ? getTreeControl().getParentView() : this;
+    if (view == null) {
+      event.consume();
+      return;
+    }
+    view.getCallbackRegistry().dispatch(event);
+    if (view.isTemplate() || dragging.getValue()) {
+      event.consume();
+    }
+    if (event.getEventType().equals(MouseEvent.DRAG_DETECTED)) {
+      dragging.setTrue();
+    } else if (event.getEventType().equals(MouseEvent.MOUSE_RELEASED)) {
+      dragging.setFalse();
+    }
   }
 
   /**
@@ -128,18 +158,9 @@ public final class ComboBoxNodeView extends TextNodeView {
   }
 
   /**
-   * コンボボックスでアイテムが選択された時のイベントハンドラを追加する.
+   * 現在選択されているのコンボボックスのアイテムを取得する.
    *
-   * @param handler 登録するイベントハンドラ
-   */
-  public void addOnItemSelected(ChangeListener<? super SelectableItem<String, Object>> handler) {
-    comboBox.valueProperty().addListener(handler);
-  }
-
-  /**
-   * 現在選択中のコンボボックスのアイテムを取得する.
-   *
-   * @return 現在のコンボボックスのテキスト
+   * @return 現在の選択されているコンボボックスのアイテム
    */
   public SelectableItem<String, Object> getValue() {
     return comboBox.getValue();
@@ -170,21 +191,19 @@ public final class ComboBoxNodeView extends TextNodeView {
     comboBox.setValue(item);
   }
 
-  private void forwardEvent(Event event) {
-    BhNodeView view = (model == null) ? getTreeControl().getParentView() : this;
-    if (view == null) {
-      event.consume();
-      return;
-    }
-    view.getCallbackRegistry().dispatch(event);
-    if (view.isTemplate() || dragging.getValue()) {
-      event.consume();
-    }
-    if (event.getEventType().equals(MouseEvent.DRAG_DETECTED)) {
-      dragging.setTrue();
-    } else if (event.getEventType().equals(MouseEvent.MOUSE_RELEASED)) {
-      dragging.setFalse();
-    }
+  /** コンボボックスのアイテムが適切か検査する関数を設定する. */
+  public void setItemFormatChecker(Function<SelectableItem<String, Object>, Boolean> fnCheckItem) {
+    fnCheckItem = fnCheckItem == null ? item -> true : fnCheckItem;
+    this.fnCheckItem = fnCheckItem;
+  }
+
+  /**
+   * コンボボックスのフォーカス変更時のイベントハンドラを登録する.
+   *
+   * @param onFocusChanged コンボボックスのフォーカス変更時のイベントハンドラ
+   */
+  public void addOnFocusChanged(ChangeListener<? super Boolean> onFocusChanged) {
+    comboBox.focusedProperty().addListener(onFocusChanged);
   }
 
   /** コンテンツを表示する領域の大きさを取得する. */

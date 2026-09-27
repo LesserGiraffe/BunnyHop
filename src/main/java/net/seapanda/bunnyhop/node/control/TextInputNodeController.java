@@ -55,8 +55,8 @@ public class TextInputNodeController implements BhNodeController {
   /** TextInputNodeView の文字列変更時のハンドラを登録する. */
   private void setEventHandlers() {
     view.setTextFormatter(model::formatText);
-    view.setTextChangeListener(model::isTextAcceptable);
-    view.addFocusListener((observable, oldValue, newValue) -> onFocusChanged(!newValue));
+    view.setFormatChecker(model::isTextAcceptable);
+    view.addOnFocusChanged((observable, oldValue, newValue) -> onFocusChanged(newValue));
 
     String initText = model.getText();
     view.setText(initText + " ");  //初期文字列が空文字だったときのため
@@ -64,21 +64,14 @@ public class TextInputNodeController implements BhNodeController {
     model.getCallbackRegistry().getOnTextChanged().add(event -> view.setText(event.newText()));
   }
 
-  /** {@code TextInputNodeView} のフォーカスが外れた時のイベントハンドラ. */
-  private void onFocusChanged(Boolean isInputFinished) {
+  private void onFocusChanged(Boolean focused) {
     try {
       notifService.begin();
-      if (!isInputFinished) {
+      if (focused) {
         return;
       }
-      String currentGuiText = view.getText();
-      boolean isValidFormat = model.isTextAcceptable(currentGuiText);
-      if (isValidFormat) {  //正しいフォーマットの文字列が入力されていた場合
-        model.setText(currentGuiText);  //model の文字列をTextField のものに変更する
-        model.assignContentsToDerivatives();
-      } else {
-        view.setText(model.getText());  //view の文字列を変更前の文字列に戻す
-      }
+      model.setText(view.getText());
+      model.assignContentsToDerivatives();
     } finally {
       notifService.end();
     }
