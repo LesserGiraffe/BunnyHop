@@ -75,10 +75,9 @@ public class XmlBhNodeRepository implements BhNodeRepository {
    * @param cnctrDirPath このディレクトリ以下から {@link Connector} のパラメータの定義ファイルを探す.
    * @param generator ノードやコネクタの生成に使用するオブジェクト
    * @param textDb ノードが参照するテキストデータを保持したオブジェクト
-   * @return 全てのファイルから正しくテンプレートを作成できた場合 true
    * @throws NodeConstructionException {@link BhNode} の作成時に参照するデータの構築に失敗したことを表す例外
    */
-  public boolean collect(
+  public void collect(
       Path nodeDirPath,
       Path cnctrDirPath,
       ModelGenerator generator,
@@ -95,7 +94,6 @@ public class XmlBhNodeRepository implements BhNodeRepository {
     if (!success) {
       throw new NodeConstructionException(msg);
     }
-    return true;
   }
 
   /**

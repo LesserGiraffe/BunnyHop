@@ -227,30 +227,6 @@ public class Workspace implements Serializable {
   }
 
   /**
-   * {@code toSelect} を選択済みノードリストに追加する.
-   *
-   * @param toAdd 選択済みノードリストに追加するノード
-   */
-  private void addToSelectedNodeList(BhNode toAdd) {
-    if (selectedList.contains(toAdd)) {
-      return;
-    }
-    selectedList.add(toAdd);
-  }
-
-  /**
-   * {@code toRemove} を選択済みノードリストから削除する.
-   *
-   * @param toRemove 選択済みリストから削除する {@link BhNode}
-   */
-  private void removeFromSelectedNodeList(BhNode toRemove) {
-    if (!selectedList.contains(toRemove)) {
-      return;
-    }
-    selectedList.remove(toRemove);
-  }
-
-  /**
    * このワークスペース内で選択済みの {@link BhNode} のリストを返す.
    *
    * @return 選択中の {@link BhNode} のリスト
@@ -493,6 +469,30 @@ public class Workspace implements Serializable {
     private void onNodeTextChanged(TextNode.TextChangedEvent event) {
       onNodeTextChangedInvoker.invoke(new NodeTextChangedEvent(
           Workspace.this, event.node(), event.oldText(), event.newText(), event.userOpe()));
+    }
+
+    /**
+     * {@code toSelect} を選択済みノードリストに追加する.
+     *
+     * @param toAdd 選択済みノードリストに追加するノード
+     */
+    private void addToSelectedNodeList(BhNode toAdd) {
+      if (selectedList.contains(toAdd)) {
+        return;
+      }
+      selectedList.add(toAdd);
+    }
+
+    /**
+     * {@code toRemove} を選択済みノードリストから削除する.
+     *
+     * @param toRemove 選択済みリストから削除する {@link BhNode}
+     */
+    private void removeFromSelectedNodeList(BhNode toRemove) {
+      if (!selectedList.contains(toRemove)) {
+        return;
+      }
+      selectedList.remove(toRemove);
     }
   }
 

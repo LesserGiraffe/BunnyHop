@@ -98,7 +98,7 @@ public class HighlightableLabelSkin extends LabelSkin {
     this.styleClass = styleClass;
     this.maxHighlights = maxHighlights;
     List<Substring> substrings = search(pattern, maxHighlights);
-    List<IntegerRange> ranges = substrings.stream().map(str -> str.getRange()).toList();
+    List<IntegerRange> ranges = substrings.stream().map(Substring::getRange).toList();
     List<Path> paths = TextRangePathFactory.create(text, ranges, styleClass);
     highlightLayer.getChildren().setAll(paths);
     return substrings;
