@@ -51,6 +51,7 @@
       "undo-redo": "元に戻す / やり直す",
       "track-node-in-current-workspace": "選択中のワークスぺースで移動したブロックに注目する",
       "track-node-in-inactive-workspace": "選択していないワークスぺースで移動したブロックに注目する",
+      "text-change-undo-enable": "テキストの変更を Undo の対象にする",
       "help": "ヘルプ",
       "version-info": "バージョン",
       "license": "ライセンス"

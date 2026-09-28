@@ -57,6 +57,7 @@ public class MenuBarController {
   @FXML private MenuItem focusSimulator;
   @FXML private MenuItem trackNodeInCurrentWs;
   @FXML private MenuItem trackNodeInInactiveWs;
+  @FXML private MenuItem textChangeUndoEnabled;
 
   private final WorkspaceSet wss;
   private final TransactionNotificationService notifService;
@@ -116,6 +117,12 @@ public class MenuBarController {
       BhSettings.Ui.trackNodeInInactiveWorkspace = !BhSettings.Ui.trackNodeInInactiveWorkspace;
     });
     setMenuChecked(trackNodeInInactiveWs, BhSettings.Ui.trackNodeInInactiveWorkspace);
+
+    textChangeUndoEnabled.setOnAction(action -> {
+      setMenuChecked(textChangeUndoEnabled, !BhSettings.Undo.textChangeUndoEnabled);
+      BhSettings.Undo.textChangeUndoEnabled = !BhSettings.Undo.textChangeUndoEnabled;
+    });
+    setMenuChecked(textChangeUndoEnabled, BhSettings.Undo.textChangeUndoEnabled);
   }
 
   /**

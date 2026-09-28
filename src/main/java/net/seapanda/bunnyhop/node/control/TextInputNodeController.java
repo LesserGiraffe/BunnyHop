@@ -16,10 +16,13 @@
 
 package net.seapanda.bunnyhop.node.control;
 
+import static net.seapanda.bunnyhop.common.configuration.BhSettings.Undo.textChangeUndoEnabled;
+
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.TextNode;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.TextInputNodeView;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionContext;
 import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
 
 /**
@@ -65,13 +68,27 @@ public class TextInputNodeController implements BhNodeController {
   }
 
   private void onFocusChanged(Boolean focused) {
+    if (focused) {
+      return;
+    }
+    setModelText(view.getText());
+  }
+
+  /**
+   * 文字列をモデルに反映する.
+   *
+   * @param text モデルに反映する文字列
+   */
+  private void setModelText(String text) {
     try {
-      notifService.begin();
-      if (focused) {
-        return;
+      TransactionContext context = notifService.begin();
+      if (textChangeUndoEnabled) {
+        model.setText(text, context.userOpe());
+        model.assignContentsToDerivatives(context.userOpe());
+      } else {
+        model.setText(text);
+        model.assignContentsToDerivatives();
       }
-      model.setText(view.getText());
-      model.assignContentsToDerivatives();
     } finally {
       notifService.end();
     }

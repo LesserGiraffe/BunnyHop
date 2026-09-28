@@ -16,6 +16,8 @@
 
 package net.seapanda.bunnyhop.node.control;
 
+import static net.seapanda.bunnyhop.common.configuration.BhSettings.Undo.textChangeUndoEnabled;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,6 +26,7 @@ import net.seapanda.bunnyhop.node.model.TextNode;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.ComboBoxNodeView;
 import net.seapanda.bunnyhop.node.view.component.SelectableItem;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionContext;
 import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
 
 /**
@@ -55,15 +58,17 @@ public class ComboBoxNodeController implements BhNodeController {
     notifService = controller.getNotificationService();
 
     setEventHandlers();
-    node.getCallbackRegistry().getOnTextChanged().add(event -> nodeView.getItems().stream()
-        .filter(item -> item.getModel().equals(event.newText()))
-        .findFirst()
-        .ifPresent(nodeView::setValue));
   }
 
   private void setEventHandlers() {
-    model.getCallbackRegistry().getOnTextChanged().add(event ->
-        view.getItems().stream()
+    model.getCallbackRegistry().getOnTextChanged().add(
+        event -> view.getItems().stream()
+            .filter(item -> item.getModel().equals(event.newText()))
+            .findFirst()
+            .ifPresent(view::setValue));
+
+    model.getCallbackRegistry().getOnTextChanged().add(
+        event -> view.getItems().stream()
             .filter(item -> item.getModel().equals(event.newText()))
             .findFirst()
             .ifPresent(view::setValue));
@@ -82,17 +87,30 @@ public class ComboBoxNodeController implements BhNodeController {
   }
 
   private void onFocusChanged(Boolean focused) {
+    if (focused) {
+      return;
+    }
+    SelectableItem<String, Object> value = view.getValue();
+    if (value != null) {
+      setModelText(value.getModel());
+    }
+  }
+
+  /**
+   * 文字列をモデルに反映する.
+   *
+   * @param text モデルに反映する文字列
+   */
+  private void setModelText(String text) {
     try {
-      notifService.begin();
-      if (focused) {
-        return;
+      TransactionContext context = notifService.begin();
+      if (textChangeUndoEnabled) {
+        model.setText(text, context.userOpe());
+        model.assignContentsToDerivatives(context.userOpe());
+      } else {
+        model.setText(text);
+        model.assignContentsToDerivatives();
       }
-      SelectableItem<String, Object> value = view.getValue();
-      if (value == null) {
-        return;
-      }
-      model.setText(value.getModel());
-      model.assignContentsToDerivatives();
     } finally {
       notifService.end();
     }

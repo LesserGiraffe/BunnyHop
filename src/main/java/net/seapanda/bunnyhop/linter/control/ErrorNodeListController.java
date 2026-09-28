@@ -17,7 +17,7 @@
 package net.seapanda.bunnyhop.linter.control;
 
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Css.Class.DEFAULT_TEXT_HIGHLIGHT;
-import static net.seapanda.bunnyhop.common.configuration.BhSettings.Search.maxResultsInVariableInspection;
+import static net.seapanda.bunnyhop.common.configuration.BhSettings.Search.maxResultsInErrorNodeList;
 import static net.seapanda.bunnyhop.node.view.effect.VisualEffectType.JUMP_TARGET;
 
 import java.util.ArrayList;
@@ -284,7 +284,7 @@ public class ErrorNodeListController {
         });
 
         int numResults = searchResult.treeItems.size();
-        boolean truncated = numResults == maxResultsInVariableInspection;
+        boolean truncated = numResults == maxResultsInErrorNodeList;
         int idxInResults = foundOpt.map(CyclicSublistFinder.Found::getIdxInSublist).orElse(-1);
         return new SearchQueryResult(idxInResults, numResults, truncated);
       } catch (PatternSyntaxException e) {
@@ -300,7 +300,7 @@ public class ErrorNodeListController {
           query,
           allVarItems,
           treeItem -> ErrorNodeListCell.getText(treeItem.getValue()),
-          maxResultsInVariableInspection);
+          maxResultsInErrorNodeList);
       return new SearchResult(results, allVarItems, query);
     }
 

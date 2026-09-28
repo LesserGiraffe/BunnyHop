@@ -160,8 +160,16 @@ public class TextNode extends Derivative<TextNode> {
    * 派生ノードの先の全ての派生ノードにも再帰的にこの処理を適用する.
    */
   public void assignContentsToDerivatives() {
-    getDerivatives().forEach(derv -> derv.setText(text));
-    getDerivatives().forEach(TextNode::assignContentsToDerivatives);
+    assignContentsToDerivatives(new UserOperation());
+  }
+
+  /**
+   * このノードの派生ノードにこのノードのテキストを設定する.
+   * 派生ノードの先の全ての派生ノードにも再帰的にこの処理を適用する.
+   */
+  public void assignContentsToDerivatives(UserOperation userOpe) {
+    getDerivatives().forEach(derv -> derv.setText(text, userOpe));
+    getDerivatives().forEach(derv -> derv.assignContentsToDerivatives(userOpe));
   }
 
   @Override

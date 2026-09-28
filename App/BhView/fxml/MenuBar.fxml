@@ -19,6 +19,7 @@
     <TextFetcher fx:id="undoRedoText" textId="gui,menu-bar,undo-redo"/>
     <TextFetcher fx:id="trackNodeInCurrentWsText" textId="gui,menu-bar,track-node-in-current-workspace"/>
     <TextFetcher fx:id="trackNodeInInactiveWsText" textId="gui,menu-bar,track-node-in-inactive-workspace"/>
+    <TextFetcher fx:id="textChangeUndoEnabledText" textId="gui,menu-bar,text-change-undo-enable"/>
     <TextFetcher fx:id="helpText" textId="gui,menu-bar,help"/>
     <TextFetcher fx:id="versionInfoText" textId="gui,menu-bar,version-info"/>
     <TextFetcher fx:id="licenseText" textId="gui,menu-bar,license"/>
@@ -36,6 +37,7 @@
     <Menu text="$undoRedoText.text">
       <MenuItem fx:id="trackNodeInCurrentWs" text="$trackNodeInCurrentWsText.text"/>
       <MenuItem fx:id="trackNodeInInactiveWs" text="$trackNodeInInactiveWsText.text"/>
+      <MenuItem fx:id="textChangeUndoEnabled" text="$textChangeUndoEnabledText.text"/>
     </Menu>
   </Menu>
   <Menu text="$helpText.text">

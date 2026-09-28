@@ -1,5 +1,8 @@
 {
   "language": "Japanese",
+  "Undo": {
+    "textChangeUndoEnabled": true
+  },
   "Search": {
     "maxResultsInMainMessage": 500,
     "maxResultsInVariableInspection": 500,
@@ -11,10 +14,10 @@
   },
   "Window": {
     "main": {
-      "width": 1360,
-      "height": 936,
-      "posX": 340,
-      "posY": 72,
+      "width": 1192,
+      "height": 716,
+      "posX": 434,
+      "posY": 574,
       "maximized": false
     },
     "debug": {
@@ -24,8 +27,8 @@
       "posY": 282,
       "maximized": false
     },
-    "nodeSelectionSplitPos": 0.8904619970193741,
-    "notificationSplitPos": 0.6102756892230576
+    "nodeSelectionSplitPos": 0.8841567291311755,
+    "notificationSplitPos": 0.8200692041522492
   },
   "Ui": {
     "trackNodeInCurrentWorkspace": false,

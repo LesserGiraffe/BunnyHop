@@ -117,4 +117,10 @@ public class BhSettings {
     /** ノード検索結果の 1 項目に表示する文字列の最大文字数. */
     public static volatile int maxCharsInNodeSearchResultItem = 64;
   }
+
+  /** Undo / Redo の設定に関するパラメータ. */
+  public static class Undo {
+    /** テキストの変更を Undo / Redo の対象にするかどうか. */
+    public static volatile boolean textChangeUndoEnabled = true;
+  }
 }

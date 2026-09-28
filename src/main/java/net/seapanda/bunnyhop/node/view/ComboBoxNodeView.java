@@ -76,7 +76,7 @@ public final class ComboBoxNodeView extends TextNodeView {
     setComponent(comboBox);
     setEventHandlers();
     initializeStyle();
-    setInitialComboboxValue();
+    setInitialComboBoxValue();
   }
 
   /**
@@ -96,7 +96,7 @@ public final class ComboBoxNodeView extends TextNodeView {
     comboBox.getStyleClass().add(getStyle().comboBox.cssClass);
   }
 
-  private void setInitialComboboxValue() {
+  private void setInitialComboBoxValue() {
     if (!comboBox.getItems().isEmpty()) {
       comboBox.setValue(comboBox.getItems().getFirst());
     }
@@ -104,8 +104,20 @@ public final class ComboBoxNodeView extends TextNodeView {
 
   private void setEventHandlers() {
     comboBox.addEventFilter(Event.ANY, this::forwardEvent);
+    comboBox.valueProperty().addListener((obs, oldVal, newVal) -> onValueChanged(newVal));
     comboBox.focusedProperty().addListener((obs, oldVal, newVal) -> onFocusChanged(newVal));
     ViewUtil.enableAutoResize(comboBox, item -> item.getView().toString());
+  }
+
+  /**
+   * {@link #comboBox} の値が変わったときの処理.
+   *
+   * <p>コンボボックスの値が正常であった場合, 値の変更をすぐに確定させるために, コンボボックスのフォーカスを外す.
+   */
+  private void onValueChanged(SelectableItem<String, Object> val) {
+    if (fnCheckItem.apply(val)) {
+      comboBox.getParent().requestFocus();
+    }
   }
 
   private void onFocusChanged(boolean focused) {

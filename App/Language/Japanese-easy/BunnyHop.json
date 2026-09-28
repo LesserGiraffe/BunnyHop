@@ -51,6 +51,7 @@
       "undo-redo": "元にもどす / やり直す",
       "track-node-in-current-workspace": "せんたく中のワークスぺースで いどうしたブロックに注目する",
       "track-node-in-inactive-workspace": "せんたくしていないワークスぺースで いどうしたブロックに注目する",
+      "text-change-undo-enable": "へんこうしたテキストを「元にもどす」でもどす",
       "help": "ヘルプ",
       "version-info": "バージョン",
       "license": "ライセンス"
@@ -296,7 +297,7 @@
         "title": "バージョンいちらん",
         "system": "システム",
         "runtime": "ランタイム",
-        "simulator": "シミュレータ"    
+        "simulator": "シミュレータ"
       }
     }
   },
@@ -503,7 +504,7 @@
       "magenta": "むらさき",
       "yellow": "きいろ",
       "white": "白",
-      "black": "黒" 
+      "black": "黒"
     },
 
     "musical-scale": {
@@ -526,7 +527,7 @@
       "posInf": "+ むげん大",
       "negInf": "- むげん大",
       "infinite": "+/- むげん大",
-      "nan": "非数"
+      "nan": "非数 (ひすう)"
     },
 
     "save-text": {
