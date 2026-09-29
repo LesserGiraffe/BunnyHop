@@ -8,7 +8,7 @@
       "subGroup0" : {
         "space" : 1.1,
         "arrangement" : "Row",
-        "connectorList" : ["Arg0", "${L1}{のカウントが 0 になるまで待つ}"]
+        "connectorList" : ["Arg0", "${L1}{のカウントが 0 になるまで まつ}"]
       },
       "subGroup1" : {
         "space" : 1.1,

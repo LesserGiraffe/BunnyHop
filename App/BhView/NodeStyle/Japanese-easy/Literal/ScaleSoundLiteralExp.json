@@ -8,8 +8,8 @@
       "space" : 1.1,
       "arrangement" : "Row",
       "connectorList" : [
-        "${L1}{音量}", "Volume", "${L1}{%  }",
-        "${L1}{長さ}", "Duration", "${L1}{秒  }",
+        "${L1}{音りょう}", "Volume", "${L1}{%  }",
+        "${L1}{長さ}", "Duration", "${L1}{びょう  }",
         "${L1}{高さ}", "Octave", "${L1}{の}",
         "ScaleSound"]
     }

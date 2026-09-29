@@ -5,7 +5,7 @@
     "inner" : {
       "arrangement" : "Row",
       "space" : 1.1,
-      "connectorList" : ["LeftVar", "${L1}{に}", "RightExp", "${L1}{を代入する}"]
+      "connectorList" : ["LeftVar", "${L1}{に}", "RightExp", "${L1}{を だいにゅうする}"]
     }
   }
 }

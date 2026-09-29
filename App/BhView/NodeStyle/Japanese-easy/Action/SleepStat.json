@@ -6,7 +6,7 @@
     "inner" : {
       "arrangement" : "Row",
       "space" : 1.1,
-      "connectorList" : ["Arg0", "${L1}{秒間待つ}"]
+      "connectorList" : ["Arg0", "${L1}{びょう間 まつ}"]
     }
   }
 }

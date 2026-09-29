@@ -11,7 +11,7 @@
       "subGroup0" : {
         "arrangement" : "Row",
         "space" : 1.1,
-        "connectorList" : ["${L2}{はいた区間}", "MutexBlockName"]
+        "connectorList" : ["${L2}{はいた くかん}", "MutexBlockName"]
       },
       "subGroup1" : {
         "connectorList" : ["ExclusiveStat"]

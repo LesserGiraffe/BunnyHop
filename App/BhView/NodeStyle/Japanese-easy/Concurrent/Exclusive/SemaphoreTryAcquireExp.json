@@ -5,7 +5,7 @@
     "inner" : {
       "space" : 1.1,
       "arrangement" : "Row",
-      "connectorList" :["Arg2", "${L1}{秒いないに}" ,"Arg0", "${L1}{からチケットを}", "Arg1", "${L1}{まい取れた}"]
+      "connectorList" :["Arg2", "${L1}{びょう いないに}" ,"Arg0", "${L1}{からチケットを}", "Arg1", "${L1}{まい とれた}"]
     }
   }
 }

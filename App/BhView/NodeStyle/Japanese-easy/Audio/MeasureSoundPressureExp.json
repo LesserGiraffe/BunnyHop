@@ -5,7 +5,7 @@
     "inner" : {
       "space" : 1.1,
       "arrangement" : "Row",
-      "connectorList" : ["Arg0", "${L1}{秒間の音の大きさの}", "Option0"]
+      "connectorList" : ["Arg0", "${L1}{びょう間の音の大きさの}", "Option0"]
     }
   }
 }

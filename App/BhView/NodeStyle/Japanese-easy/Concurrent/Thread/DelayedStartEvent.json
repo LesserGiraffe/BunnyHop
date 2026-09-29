@@ -9,7 +9,7 @@
       "subGroup0" : {
         "arrangement" : "Row",
         "space" : 1.1,
-        "connectorList" : ["TimeCnctr", "${L2}{秒後に始める}"]
+        "connectorList" : ["TimeCnctr", "${L2}{びょう後に はじめる}"]
       },
       "subGroup1" : {
         "arrangement" : "Column",

@@ -9,12 +9,12 @@
       "subGroup0" : {
         "space" : 1.1,
         "arrangement" : "Row",
-        "connectorList" : ["${L2}{同期タイマー}", "SyncTimerName"]
+        "connectorList" : ["${L2}{どうきタイマー}", "SyncTimerName"]
       },
       "subGroup1" : {
         "space" : 1.1,
         "arrangement" : "Row",
-        "connectorList" : ["${L2}{自動リセット}", "Arg1"]
+        "connectorList" : ["${L2}{自どうリセット}", "Arg1"]
       },
       "subGroup2" : {
         "space" : 1.1,

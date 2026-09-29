@@ -8,7 +8,7 @@
       "subGroup0" : {
         "space" : 1.1,
         "arrangement" : "Row",
-        "connectorList" :["Arg0", "${L1}{のカウントが}", "Arg1", "${L1}{秒いないに 0 になった}"]
+        "connectorList" :["Arg0", "${L1}{のカウントが}", "Arg1", "${L1}{びょう いないに 0 になった}"]
       },
       "subGroup1" : {
         "space" : 1.1,
