@@ -28,6 +28,7 @@ import javafx.application.Platform;
 import javafx.css.PseudoClass;
 import javafx.event.Event;
 import javafx.scene.Node;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.input.MouseEvent;
@@ -38,6 +39,7 @@ import net.seapanda.bunnyhop.node.model.TextNode;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle;
 import net.seapanda.bunnyhop.node.view.traverse.NodeViewWalker;
 import net.seapanda.bunnyhop.search.Substring;
+import net.seapanda.bunnyhop.ui.skin.AntiBlurScrollPaneSkin;
 import net.seapanda.bunnyhop.ui.skin.HighlightableTextAreaSkin;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
@@ -79,6 +81,7 @@ public final class TextAreaNodeView extends TextInputNodeView {
     textArea.addEventFilter(MouseEvent.ANY, this::forwardEvent);
     textArea.setOnMouseClicked(event -> Platform.runLater(() -> onTextAreaClicked(event)));
     textArea.focusedProperty().addListener((obs, oldVal, newVal) -> onFocusChanged(newVal));
+    preventTexFromBlurring();
     setEditable(getStyle().textArea.editable);
     initializeStyle();
   }
@@ -91,6 +94,13 @@ public final class TextAreaNodeView extends TextInputNodeView {
    */
   public TextAreaNodeView(BhNodeViewStyle style, boolean isTemplate) {
     this(null, style, new LinkedHashSet<>(), isTemplate);
+  }
+
+  /** テキストアリアの文字がぼやけるのを防止する. */
+  private void preventTexFromBlurring() {
+    var sp = (ScrollPane) textArea.lookup(".scroll-pane");
+    var skin = new AntiBlurScrollPaneSkin(sp);
+    sp.setSkin(skin);
   }
 
   private void forwardEvent(Event event) {

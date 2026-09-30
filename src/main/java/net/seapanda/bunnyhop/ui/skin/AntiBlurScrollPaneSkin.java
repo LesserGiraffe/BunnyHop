@@ -16,10 +16,9 @@
 
 package net.seapanda.bunnyhop.ui.skin;
 
-import java.lang.reflect.Field;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.skin.ScrollPaneSkin;
-import javafx.scene.layout.StackPane;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 
 /**
  * {@link ScrollPane} の文字の滲みを防止するためのスキン.
@@ -31,11 +30,14 @@ public class AntiBlurScrollPaneSkin extends ScrollPaneSkin {
   /** コンストラクタ. */
   public AntiBlurScrollPaneSkin(ScrollPane scrollpane) {
     super(scrollpane);
-    try {
-      Field viewRectField = ScrollPaneSkin.class.getDeclaredField("viewRect");
-      viewRectField.setAccessible(true);
-      StackPane viewRect = (StackPane) viewRectField.get(this);
-      viewRect.setCache(false);
-    } catch (Exception ignored) { /* Do nothing. */ }
+    var done = new MutableBoolean(false);
+    scrollpane.sceneProperty().addListener((obs, oldVal, newVal) -> {
+      if (done.getValue()) {
+        return;
+      }
+      scrollpane.setCache(false);
+      scrollpane.getChildrenUnmodifiable().forEach(node -> node.setCache(false));
+      done.setTrue();
+    });
   }
 }
