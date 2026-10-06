@@ -621,7 +621,7 @@
       "SemaphoreAcquireStat": "チケットボックスからチケットを取る",
       "SemaphoreTryAcquireExp": "チケットボックスからチケットを取る (タイムアウト付)",
       "SemaphoreReleaseStat": "チケットボックスにチケットを追加する",
-      "GetNumSemaphorePermitExp": "チケットボックスのチケットの枚数を取得する",
+      "GetNumSemaphorePermitsExp": "チケットボックスのチケットの枚数を取得する",
       "SemaphoreDecl": "チケットボックスの宣言 (${name})",
       "SemaphoreVar": "チケットボックス (${name})",
       "DelayedStartEvent": "指定した時間だけ待ってから処理を始める",

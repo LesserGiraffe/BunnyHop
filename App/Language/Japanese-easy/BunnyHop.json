@@ -621,7 +621,7 @@
       "SemaphoreAcquireStat": "チケットボックスからチケットを とる",
       "SemaphoreTryAcquireExp": "チケットボックスからチケットを とる (タイムアウトつき)",
       "SemaphoreReleaseStat": "チケットボックスにチケットを ついかする",
-      "GetNumSemaphorePermitExp": "チケットボックスのチケットの数を しゅとくする",
+      "GetNumSemaphorePermitsExp": "チケットボックスのチケットの数を しゅとくする",
       "SemaphoreDecl": "チケットボックスの せんげん (${name})",
       "SemaphoreVar": "チケットボックス (${name})",
       "DelayedStartEvent": "していした時間だけまってから しょりをはじめる",
