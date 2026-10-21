@@ -4,6 +4,7 @@
   name="NumListVoid"
   nodeStyleID="NumListVoid.json"
   breakpoint="ignore"
+  entryPoint="none"
   onMovedFromChildToWS="DeleteNode.js"
   onAliasAsked="OnAliasAsked.js"
   text="${node}{list-label}"

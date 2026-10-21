@@ -4,6 +4,7 @@
   name="SoundListSliceExp"
   nodeStyleID="SoundListSliceExp.json"
   breakpoint="ignore"
+  entryPoint="selectable"
   onChildReplaced="OnChildOfListCtrlReplaced.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">

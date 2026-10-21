@@ -4,6 +4,7 @@
   name="AnyCompExp"
   nodeStyleID="AnyCompExp.json"
   breakpoint="ignore"
+  entryPoint="selectable"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
 
@@ -24,6 +25,7 @@
         name="CompOpe"
         nodeStyleID="DefaultComboBox.json"
         breakpoint="specifyParent"
+        entryPoint="none"
         onTextOptionsCreating="CreateEqualityCompOpts.js"
         version="bhn-0.1.0"/>
     </Connector>

@@ -21,7 +21,8 @@ import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.ConnectiveNode;
 import net.seapanda.bunnyhop.node.model.Connector;
 import net.seapanda.bunnyhop.node.model.parameter.ConnectorId;
-import net.seapanda.bunnyhop.node.model.syntaxsymbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.node.model.syntaxtree.SyntaxTreeNode;
+import net.seapanda.bunnyhop.node.model.traverse.BhNodeWalker;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 
 /**
@@ -29,13 +30,16 @@ import net.seapanda.bunnyhop.service.undo.UserOperation;
  *
  * @author K.Koike
  */
-public abstract class Section extends SyntaxSymbol {
+public abstract class Section extends SyntaxTreeNode {
   
   //どちらか一方のみのフィールドが親オブジェクトを持つ
   /** このセクションを保持している ConnectiveNode オブジェクト. */
   protected ConnectiveNode parentNode;
   /** このセクションを保持している Subsection オブジェクト. */
   protected Subsection parentSection;
+
+  /** {@code visitor} にこのオブジェクトを渡す. */
+  public abstract void accept(BhNodeWalker visitor);
 
   /**
    * コンストラクタ.
@@ -114,30 +118,7 @@ public abstract class Section extends SyntaxSymbol {
   }
 
   @Override
-  public boolean isDescendantOf(SyntaxSymbol ancestor) {
-    if (this == ancestor) {
-      return true;
-    }
-    if (parentNode != null) {
-      return parentNode.isDescendantOf(ancestor);
-    }
-    return parentSection.isDescendantOf(ancestor);
-  }
-
-  @Override
-  public SyntaxSymbol findAncestorOf(String symbolName, int generation, boolean toTop) {
-    if (generation == 0) {
-      if (symbolNameMatches(symbolName)) {
-        return this;
-      }
-      if (!toTop) {
-        return null;
-      }
-    }
-
-    if (parentNode != null) {
-      return parentNode.findAncestorOf(symbolName, Math.max(0, generation - 1), toTop);
-    }
-    return parentSection.findAncestorOf(symbolName, Math.max(0, generation - 1), toTop);
+  public SyntaxTreeNode getParent() {
+    return (parentNode != null) ? parentNode : parentSection;
   }
 }

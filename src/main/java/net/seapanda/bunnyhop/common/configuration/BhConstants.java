@@ -232,6 +232,7 @@ public class BhConstants {
     public static final String ATTR_DERIVATIVE_JOINT = "derivativeJoint";
     public static final String ATTR_IMPORT = "import";
     public static final String ATTR_BREAKPOINT = "breakpoint";
+    public static final String ATTR_ENTRY_POINT = "entryPoint";
     public static final String ATTR_VAL_TRUE = "true";
     public static final String ATTR_VAL_FALSE = "false";
     public static final String ATTR_VAL_DEFAULT_NODE_STYLE_ID = "";
@@ -240,6 +241,8 @@ public class BhConstants {
     public static final String ATTR_VAL_SET = "set";
     public static final String ATTR_VAL_IGNORE = "ignore";
     public static final String ATTR_VAL_SPECIFY_PARENT = "specifyParent";
+    public static final String ATTR_VAL_SELECTABLE = "selectable";
+    public static final String ATTR_VAL_NONE = "none";
   }
 
   /** 外部スクリプトで使う識別子名. */

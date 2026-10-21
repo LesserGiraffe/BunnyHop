@@ -4,6 +4,7 @@
   name="MelodyExp"
   nodeStyleID="MelodyExp.json"
   breakpoint="specifyParent"
+  entryPoint="selectable"
   onChildReplaced="OnChildSoundExpReplaced.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">

@@ -4,6 +4,7 @@
   name="VoidFuncDef"
   nodeStyleID="VoidFuncDef.json"
   breakpoint="ignore"
+  entryPoint="none"
   onCompanionNodesCreating="CreateVoidFuncCompanions.js"
   onRelatedNodesRequired="GetDerivationFamily.js"
   onAliasAsked="OnAliasAsked.js"

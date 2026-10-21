@@ -19,11 +19,12 @@ package net.seapanda.bunnyhop.node.model.factory;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import net.seapanda.bunnyhop.common.configuration.BhConstants;
+import net.seapanda.bunnyhop.common.configuration.BhConstants.BhModelDef;
 import net.seapanda.bunnyhop.node.model.parameter.BhNodeId;
 import net.seapanda.bunnyhop.node.model.parameter.BhNodeVersion;
 import net.seapanda.bunnyhop.node.model.parameter.BhNodeViewStyleId;
 import net.seapanda.bunnyhop.node.model.parameter.BreakpointSetting;
+import net.seapanda.bunnyhop.node.model.parameter.EntryPointSetting;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.utility.textdb.TextDatabase;
 import org.w3c.dom.Element;
@@ -39,6 +40,7 @@ public record BhNodeAttributes(
     BhNodeVersion version,
     BhNodeViewStyleId nodeStyleId,
     BreakpointSetting breakpointSetting,
+    EntryPointSetting entryPointSetting,
     String onMovedFromChildToWs,
     String onMovedFromWsToChild,
     String onChildReplaced,
@@ -75,40 +77,32 @@ public record BhNodeAttributes(
    * @param elem Node タグを表すオブジェクト
    */
   public static BhNodeAttributes create(Element elem, TextDatabase textDb) {
-    var bhNodeId = BhNodeId.of(elem.getAttribute(BhConstants.BhModelDef.ATTR_BH_NODE_ID));
-    String name = elem.getAttribute(BhConstants.BhModelDef.ATTR_NAME);
-    BhNodeViewStyleId nodeStyleId = BhNodeViewStyleId.of(
-        elem.getAttribute(BhConstants.BhModelDef.ATTR_NODE_STYLE_ID));
+    var bhNodeId = BhNodeId.of(elem.getAttribute(BhModelDef.ATTR_BH_NODE_ID));
+    String name = elem.getAttribute(BhModelDef.ATTR_NAME);
+    BhNodeViewStyleId nodeStyleId =
+        BhNodeViewStyleId.of(elem.getAttribute(BhModelDef.ATTR_NODE_STYLE_ID));
     BreakpointSetting breakpointSetting = getBreakpointSetting(elem);
-    String onMovedFromChildToWs =
-        elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_MOVED_FROM_CHILD_TO_WS);
-    String onMovedFromWsToChild =
-        elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_MOVED_FROM_WS_TO_CHILD);
-    String onTextChecking = elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_TEXT_CHECKING);
-    String onTextFormatting = elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_TEXT_FORMATTING);
-    String onDeletionRequested =
-        elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_DELETION_REQUESTED);
-    String onCutRequested = elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_CUT_REQUESTED);
-    String onCopyRequested = elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_COPY_REQUESTED);
-    String onChildReplaced = elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_CHILD_REPLACED);
+    EntryPointSetting entryPointSetting = getEntryPointSetting(elem);
+    String onMovedFromChildToWs = elem.getAttribute(BhModelDef.ATTR_ON_MOVED_FROM_CHILD_TO_WS);
+    String onMovedFromWsToChild = elem.getAttribute(BhModelDef.ATTR_ON_MOVED_FROM_WS_TO_CHILD);
+    String onTextChecking = elem.getAttribute(BhModelDef.ATTR_ON_TEXT_CHECKING);
+    String onTextFormatting = elem.getAttribute(BhModelDef.ATTR_ON_TEXT_FORMATTING);
+    String onDeletionRequested = elem.getAttribute(BhModelDef.ATTR_ON_DELETION_REQUESTED);
+    String onCutRequested = elem.getAttribute(BhModelDef.ATTR_ON_CUT_REQUESTED);
+    String onCopyRequested = elem.getAttribute(BhModelDef.ATTR_ON_COPY_REQUESTED);
+    String onChildReplaced = elem.getAttribute(BhModelDef.ATTR_ON_CHILD_REPLACED);
     String onCompanionNodesCreating =
-        elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_COMPANION_NODES_CREATING);
-    String onCompileErrorChecking =
-        elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_COMPILE_ERROR_CHECKING);
-    String onTextOptionsCreating = 
-        elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_TEST_OPTIONS_CREATING);
-    String onCreatedAsTemplate =
-        elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_CREATED_AS_TEMPLATE);
-    String onUiEventReceived = elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_UI_EVENT_RECEIVED);
-    String onAliasAsked = elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_ALIAS_ASKED);
-    String onUserDefinedNameAsked =
-        elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_USER_DEFINED_NAME_ASKED);
-    String onRelatedNodesRequired =
-        elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_RELATED_NODES_REQUIRED);
-    String onJumpTargetRequired =
-        elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_JUMP_TARGET_REQUIRED);
+        elem.getAttribute(BhModelDef.ATTR_ON_COMPANION_NODES_CREATING);
+    String onCompileErrorChecking = elem.getAttribute(BhModelDef.ATTR_ON_COMPILE_ERROR_CHECKING);
+    String onTextOptionsCreating = elem.getAttribute(BhModelDef.ATTR_ON_TEST_OPTIONS_CREATING);
+    String onCreatedAsTemplate = elem.getAttribute(BhModelDef.ATTR_ON_CREATED_AS_TEMPLATE);
+    String onUiEventReceived = elem.getAttribute(BhModelDef.ATTR_ON_UI_EVENT_RECEIVED);
+    String onAliasAsked = elem.getAttribute(BhModelDef.ATTR_ON_ALIAS_ASKED);
+    String onUserDefinedNameAsked = elem.getAttribute(BhModelDef.ATTR_ON_USER_DEFINED_NAME_ASKED);
+    String onRelatedNodesRequired = elem.getAttribute(BhModelDef.ATTR_ON_RELATED_NODES_REQUIRED);
+    String onJumpTargetRequired = elem.getAttribute(BhModelDef.ATTR_ON_JUMP_TARGET_REQUIRED);
     String text = getText(elem, textDb);
-    var version = BhNodeVersion.of(elem.getAttribute(BhConstants.BhModelDef.ATTR_VERSION));
+    var version = BhNodeVersion.of(elem.getAttribute(BhModelDef.ATTR_VERSION));
 
     return new BhNodeAttributes(
         bhNodeId,
@@ -116,6 +110,7 @@ public record BhNodeAttributes(
         version,
         nodeStyleId,
         breakpointSetting,
+        entryPointSetting,
         onMovedFromChildToWs,
         onMovedFromWsToChild,
         onChildReplaced,
@@ -137,7 +132,7 @@ public record BhNodeAttributes(
   }
 
   private static String getText(Element elem, TextDatabase textDb) {
-    String value = elem.getAttribute(BhConstants.BhModelDef.ATTR_TEXT);
+    String value = elem.getAttribute(BhModelDef.ATTR_TEXT);
     if (embedded.matcher(value).find()) {
       Matcher matcher = contents.matcher(value);
       List<String> textId = matcher.results().map(
@@ -156,24 +151,46 @@ public record BhNodeAttributes(
   }
 
   private static BreakpointSetting getBreakpointSetting(Element elem) {
-    String setting = elem.getAttribute(BhConstants.BhModelDef.ATTR_BREAKPOINT);
+    String setting = elem.getAttribute(BhModelDef.ATTR_BREAKPOINT);
     if (setting.isEmpty()) {
-      setting = BhConstants.BhModelDef.ATTR_VAL_SPECIFY_PARENT;
+      setting = BhModelDef.ATTR_VAL_SPECIFY_PARENT;
     }
-    if (!setting.equals(BhConstants.BhModelDef.ATTR_VAL_SET)
-        && !setting.equals(BhConstants.BhModelDef.ATTR_VAL_IGNORE)
-        && !setting.equals(BhConstants.BhModelDef.ATTR_VAL_SPECIFY_PARENT)) {
+    if (!setting.equals(BhModelDef.ATTR_VAL_SET)
+        && !setting.equals(BhModelDef.ATTR_VAL_IGNORE)
+        && !setting.equals(BhModelDef.ATTR_VAL_SPECIFY_PARENT)) {
       LogManager.logger().error(
           "The value of a '%s' attribute must be '%s', '%s' or '%s'.    '%s=%s' is ignored.\n%s",
-          BhConstants.BhModelDef.ATTR_BREAKPOINT,
-          BhConstants.BhModelDef.ATTR_VAL_SET,
-          BhConstants.BhModelDef.ATTR_VAL_IGNORE,
-          BhConstants.BhModelDef.ATTR_VAL_SPECIFY_PARENT,
-          BhConstants.BhModelDef.ATTR_FIXED,
+          BhModelDef.ATTR_BREAKPOINT,
+          BhModelDef.ATTR_VAL_SET,
+          BhModelDef.ATTR_VAL_IGNORE,
+          BhModelDef.ATTR_VAL_SPECIFY_PARENT,
+          BhModelDef.ATTR_BREAKPOINT,
           setting,
           elem.getOwnerDocument().getBaseURI());
-      setting = BhConstants.BhModelDef.ATTR_VAL_SPECIFY_PARENT;
+      setting = BhModelDef.ATTR_VAL_SPECIFY_PARENT;
     }
     return BreakpointSetting.of(setting);
+  }
+
+  private static EntryPointSetting getEntryPointSetting(Element elem) {
+    String setting = elem.getAttribute(BhModelDef.ATTR_ENTRY_POINT);
+    if (setting.isEmpty()) {
+      setting = BhModelDef.ATTR_VAL_NONE;
+    }
+    if (!setting.equals(BhModelDef.ATTR_VAL_SELECTABLE)
+        && !setting.equals(BhModelDef.ATTR_VAL_NONE)
+        && !setting.equals(BhModelDef.ATTR_VAL_SET)) {
+      LogManager.logger().error(
+          "The value of a '%s' attribute must be '%s', '%s' or '%s'.    '%s=%s' is ignored.\n%s",
+          BhModelDef.ATTR_ENTRY_POINT,
+          BhModelDef.ATTR_VAL_SELECTABLE,
+          BhModelDef.ATTR_VAL_NONE,
+          BhModelDef.ATTR_VAL_SET,
+          BhModelDef.ATTR_ENTRY_POINT,
+          setting,
+          elem.getOwnerDocument().getBaseURI());
+      setting = BhModelDef.ATTR_VAL_NONE;
+    }
+    return EntryPointSetting.of(setting);
   }
 }

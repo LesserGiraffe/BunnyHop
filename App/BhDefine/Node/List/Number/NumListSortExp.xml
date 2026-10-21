@@ -4,6 +4,7 @@
   name="NumListSortExp"
   nodeStyleID="NumListSortExp.json"
   breakpoint="ignore"
+  entryPoint="selectable"
   onChildReplaced="OnChildOfListCtrlReplaced.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
@@ -24,6 +25,7 @@
         name="BoolLiteral"
         nodeStyleID="WordComboBox.json"
         breakpoint="specifyParent"
+        entryPoint="none"
         onTextOptionsCreating="CreateSortOrderOpts.js"
         version="bhn-0.1.0"/>
     </Connector>
@@ -38,6 +40,7 @@
         name="InPlaceOpts"
         nodeStyleID="WordComboBox.json"
         breakpoint="specifyParent"
+        entryPoint="none"
         onTextOptionsCreating="CreateListSortInPlaceOpts.js"
         version="bhn-0.1.0">
       </Node>

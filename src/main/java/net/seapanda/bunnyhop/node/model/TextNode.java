@@ -26,7 +26,7 @@ import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.node.model.parameter.BhNodeId;
 import net.seapanda.bunnyhop.node.model.parameter.BhNodeParameters;
 import net.seapanda.bunnyhop.node.model.parameter.DerivationId;
-import net.seapanda.bunnyhop.node.model.syntaxsymbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.node.model.syntaxtree.SyntaxTreeNode;
 import net.seapanda.bunnyhop.node.model.traverse.BhNodeWalker;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
@@ -173,6 +173,11 @@ public class TextNode extends Derivative<TextNode> {
   }
 
   @Override
+  public List<SyntaxTreeNode> getChildren() {
+    return List.of();
+  }
+
+  @Override
   public BhNode findOuterNode(int generation) {
     if (generation <= 0) {
       return this;
@@ -181,19 +186,8 @@ public class TextNode extends Derivative<TextNode> {
   }
 
   @Override
-  public void findDescendantOf(
-      int generation,
-      boolean toBottom,
-      List<SyntaxSymbol> foundSymbolList,
-      String... symbolNames) {
-
-    if (generation == 0) {
-      for (String symbolName : symbolNames) {
-        if (symbolNameMatches(symbolName)) {
-          foundSymbolList.add(this);
-        }
-      }
-    }
+  public String getLexeme() {
+    return text == null ? "" : text;
   }
 
   @Override

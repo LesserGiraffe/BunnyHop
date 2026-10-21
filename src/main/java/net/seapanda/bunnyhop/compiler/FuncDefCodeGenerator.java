@@ -16,11 +16,12 @@
 
 package net.seapanda.bunnyhop.compiler;
 
+import static net.seapanda.bunnyhop.compiler.Keywords.newLine;
+
 import java.util.Collection;
 import java.util.List;
+import net.seapanda.bunnyhop.compiler.SymbolNames.UserDefFunc;
 import net.seapanda.bunnyhop.compiler.VarDeclCodeGenerator.ParamList;
-import net.seapanda.bunnyhop.node.model.TextNode;
-import net.seapanda.bunnyhop.node.model.syntaxsymbol.SyntaxSymbol;
 
 /**
  * 関数定義のコード生成を行うクラス.
@@ -38,7 +39,6 @@ class FuncDefCodeGenerator {
       CommonCodeGenerator common,
       StatCodeGenerator statCodeGen,
       VarDeclCodeGenerator varDeclCodeGen) {
-
     this.common = common;
     this.statCodeGen = statCodeGen;
     this.varDeclCodeGen = varDeclCodeGen;
@@ -47,20 +47,19 @@ class FuncDefCodeGenerator {
   /**
    * 関数定義のコードを作成する.
    *
-   * @param compiledNodeList コンパイル対象のノードリスト
+   * @param nodes コンパイル対象のノードリスト
    * @param code 生成したコードの格納先
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
-  void genFuncDefs(
-      Collection<? extends SyntaxSymbol> compiledNodeList,
+  void generateFuncDefs(
+      Collection<CompilableSyntaxTreeNode> nodes,
       StringBuilder code,
       int nestLevel,
       CompileOption option) {
-
-    for (SyntaxSymbol symbol : compiledNodeList) {
-      if (SymbolNames.UserDefFunc.LIST.contains(symbol.getSymbolName())) {
-        genFuncDef(symbol, code, nestLevel, option);
+    for (CompilableSyntaxTreeNode symbol : nodes) {
+      if (UserDefFunc.LIST.contains(symbol.getSymbolName())) {
+        generateFuncDef(symbol, code, nestLevel, option);
       }
     }
   }
@@ -73,43 +72,45 @@ class FuncDefCodeGenerator {
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
-  void genFuncDef(
-      SyntaxSymbol funcDefNode,
+  void generateFuncDef(
+      CompilableSyntaxTreeNode funcDefNode,
       StringBuilder code,
       int nestLevel,
       CompileOption option) {
-
-    String funcName = common.genFuncName(funcDefNode);
+    String funcName = common.generateFuncName(funcDefNode);
     code.append(common.indent(nestLevel))
         .append(Keywords.Js._function_)
         .append(funcName)
         .append("(");
     if (option.withComments) {
-      TextNode funcNameNode = (TextNode) funcDefNode.findDescendantOf(
-          "*", "*", SymbolNames.UserDefFunc.FUNC_NAME, "*");
-      code.append(" /*").append(funcNameNode.getText()).append("*/");
+      CompilableSyntaxTreeNode funcNameNode =
+          funcDefNode.findDescendantOf("*", "*", UserDefFunc.FUNC_NAME, "*");
+      code.append(" /*").append(funcNameNode.getLexeme()).append("*/");
     }
-    SyntaxSymbol param = funcDefNode.findDescendantOf(
-        "*", "*", SymbolNames.UserDefFunc.PARAM_DECL, "*");
-    SyntaxSymbol outParam = funcDefNode.findDescendantOf(
-        "*", "*", SymbolNames.UserDefFunc.OUT_PARAM_DECL, "*");
+    CompilableSyntaxTreeNode param =
+        funcDefNode.findDescendantOf("*", "*", UserDefFunc.PARAM_DECL, "*");
+    CompilableSyntaxTreeNode outParam =
+        funcDefNode.findDescendantOf("*", "*", UserDefFunc.OUT_PARAM_DECL, "*");
     var commonParams = List.of(ScriptIdentifiers.Vars.THREAD_CONTEXT);
-    final ParamList params =
-        varDeclCodeGen.genParamList(commonParams, param, outParam, code, nestLevel + 1, option);
-    code.append(") {" + Keywords.newLine);
-    varDeclCodeGen.genVarAccessors(param, code, nestLevel + 1, option);
+    final ParamList params = varDeclCodeGen.generateParamList(
+        commonParams, param, outParam, code, nestLevel + 1, option);
+    code.append(") {")
+        .append(newLine);
+    varDeclCodeGen.generateVarAccessors(param, code, nestLevel + 1, option);
     // 変数アクセサを変数スタックに積む必要がないなら, 出力変数のアクセサは作る必要がない.
     if (option.addVarAccessorToVarStack) {
-      varDeclCodeGen.genOutParamAccessors(outParam, code, nestLevel + 1, option);
+      varDeclCodeGen.generateOutParamAccessors(outParam, code, nestLevel + 1, option);
     }
 
-    common.genPushToCallStack(code, nestLevel + 1, option);
-    common.genPushToVarStack(params.inParams(), params.outParams(), code, nestLevel + 1, option);
-    genFuncDefInner(funcDefNode, code, nestLevel + 1, option);
-    common.genPopFromVarStack(code, nestLevel + 1, option);
-    common.genPopFromCallStack(code, nestLevel + 1, option);    
+    common.generatePushToCallStack(code, nestLevel + 1, option);
+    common.generatePushToVarStack(
+        params.inParams(), params.outParams(), code, nestLevel + 1, option);
+    generateFuncDefInner(funcDefNode, code, nestLevel + 1, option);
+    common.generatePopFromVarStack(code, nestLevel + 1, option);
+    common.generatePopFromCallStack(code, nestLevel + 1, option);
     code.append(common.indent(nestLevel))
-        .append("}" + Keywords.newLine + Keywords.newLine);
+        .append("}")
+        .repeat(newLine, 2);
   }
 
   /**
@@ -120,20 +121,22 @@ class FuncDefCodeGenerator {
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
-  private void genFuncDefInner(
-      SyntaxSymbol funcDefNode,
+  private void generateFuncDefInner(
+      CompilableSyntaxTreeNode funcDefNode,
       StringBuilder code,
       int nestLevel,
       CompileOption option) {
     // _end : {
     code.append(common.indent(nestLevel))
         .append(ScriptIdentifiers.Label.end)
-        .append(" : {" + Keywords.newLine);
+        .append(" : {")
+        .append(newLine);
     
-    SyntaxSymbol stat =
+    CompilableSyntaxTreeNode stat =
         funcDefNode.findDescendantOf("*", "*", SymbolNames.Stat.STAT_LIST, "*");
-    statCodeGen.genStatement(stat, code, nestLevel + 1, option);
+    statCodeGen.generateStatement(stat, code, nestLevel + 1, option);
     code.append(common.indent(nestLevel))
-        .append("}" + Keywords.newLine);
+        .append("}")
+        .append(newLine);
   }
 }

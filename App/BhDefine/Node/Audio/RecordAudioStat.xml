@@ -4,6 +4,7 @@
   name="RecordAudioStat"
   nodeStyleID="RecordAudioStat.json"
   breakpoint="set"
+  entryPoint="selectable"
   onMovedFromChildToWS="OnStatMovedToWS.js"
   onMovedFromWsToChild="OnStatMovedToChild.js"
   onDeletionRequested="OnStatOrDeclDeletionRequested.js"

@@ -4,6 +4,7 @@
   name="MutexBlockStat"
   nodeStyleID="MutexBlockStat.json"
   breakpoint="set"
+  entryPoint="selectable"
   onMovedFromChildToWS="OnStatMovedToWS.js"
   onMovedFromWsToChild="OnStatMovedToChild.js"
   onCompileErrorChecking="CheckCompileErrorOfMutexBlockStat.js"

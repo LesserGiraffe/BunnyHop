@@ -41,7 +41,7 @@ import net.seapanda.bunnyhop.node.model.parameter.BhNodeId;
 import net.seapanda.bunnyhop.node.model.parameter.BhNodeVersion;
 import net.seapanda.bunnyhop.node.model.parameter.ConnectorId;
 import net.seapanda.bunnyhop.node.model.service.BhNodePlacer;
-import net.seapanda.bunnyhop.node.model.syntaxsymbol.InstanceId;
+import net.seapanda.bunnyhop.node.model.syntaxtree.NodeInstanceId;
 import net.seapanda.bunnyhop.node.model.traverse.BhNodeWalker;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
@@ -61,10 +61,10 @@ public class JsonProjectReader {
   /** 復元対象となった {@link BhNode} と元となった {@link BhNodeImage} の対応一覧. */
   private final Map<BhNode, BhNodeImage> nodeToImage = new HashMap<>();
   /**
-   * {@link BhNodeImage} が保持していた {@link InstanceId} と, 
+   * {@link BhNodeImage} が保持していた {@link NodeInstanceId} と,
    * その {@link BhNodeImage} から復元された {@link BhNode} の対応一覧を取得する.
    */
-  private final Map<InstanceId, BhNode> instIdToNode = new HashMap<>();
+  private final Map<NodeInstanceId, BhNode> instIdToNode = new HashMap<>();
   /** ロード中に発生した警告一覧. */
   private final EnumSet<ImportWarning> warnings = EnumSet.noneOf(ImportWarning.class);
   /** 復元対象となった {@link BhNode} の接続先のコネクタが見つからなかったときのエラー情報一覧. */
@@ -219,7 +219,7 @@ public class JsonProjectReader {
     }
     var userOpe = new UserOperation();
     BhNode node = nodeFactory.create(nodeImage.nodeId, userOpe);
-    node.setInstanceId(nodeImage.instanceId);
+    node.setInstanceId(nodeImage.nodeInstanceId);
     node.setDefault(nodeImage.isDefault);
     if (node.isBreakpointGroupLeader()) {
       node.setBreakpoint(nodeImage.isBreakpointSet, userOpe);
@@ -232,10 +232,10 @@ public class JsonProjectReader {
     if (node instanceof TextNode textNode) {
       textNode.setText(nodeImage.text);
     }
-    // InstanceId の重複チェックは buildDescendant を呼び出した後で行う必要がある.
+    // NodeInstanceId の重複チェックは buildDescendant を呼び出した後で行う必要がある.
     checkNodeImageInstanceId(nodeImage);
 
-    instIdToNode.put(nodeImage.instanceId, node);
+    instIdToNode.put(nodeImage.nodeInstanceId, node);
     nodeToImage.put(node, nodeImage);
     return node;
   }
@@ -291,16 +291,16 @@ public class JsonProjectReader {
   }
 
   /**
-   * {@link BhNodeImage} の {@link InstanceId} が適切かチェックする.
+   * {@link BhNodeImage} の {@link NodeInstanceId} が適切かチェックする.
    *
-   * <p>本メソッドでは, セーブデータ内部の {@link InstanceId} 同士が重複していないかチェックするが,
-   * 既存の {@link InstanceId} との重複はチェックしない.
+   * <p>本メソッドでは, セーブデータ内部の {@link NodeInstanceId} 同士が重複していないかチェックするが,
+   * 既存の {@link NodeInstanceId} との重複はチェックしない.
    */
   private void checkNodeImageInstanceId(BhNodeImage image) throws CorruptedSaveDataException {
-    if (instIdToNode.containsKey(image.instanceId)) {
+    if (instIdToNode.containsKey(image.nodeInstanceId)) {
       throw new CorruptedSaveDataException(
-          "Duplicated instance ID (%s).".formatted(image.instanceId));
-    } else if (image.instanceId.equals(InstanceId.NONE)) {
+          "Duplicated instance ID (%s).".formatted(image.nodeInstanceId));
+    } else if (image.nodeInstanceId.equals(NodeInstanceId.NONE)) {
       throw new CorruptedSaveDataException("Invalid instance ID (NONE).");
     }
   }
@@ -386,7 +386,7 @@ public class JsonProjectReader {
    * @param workspaces 復元された全てのワークスペースのリスト
    * @param nodeToImage 復元対象となった {@link BhNode} と元となった {@link BhNodeImage} の対応一覧
    *                    key には復元に失敗した {@link BhNode} も含まれる.
-   * @param instanceIdToNode {@link BhNodeImage} が保持していた {@link InstanceId} と, 
+   * @param instanceIdToNode {@link BhNodeImage} が保持していた {@link NodeInstanceId} と,
    *                         その {@link BhNodeImage} から復元された {@link BhNode} の対応一覧を取得する.
    *                         value には復元に失敗した {@link BhNode} も含まれる.
    * @param warnings ロード中に発生した警告一覧
@@ -402,7 +402,7 @@ public class JsonProjectReader {
   public record Result(
       List<Workspace> workspaces,
       Map<BhNode, BhNodeImage> nodeToImage,
-      Map<InstanceId, BhNode> instanceIdToNode,
+      Map<NodeInstanceId, BhNode> instanceIdToNode,
       Set<ImportWarning> warnings,
       Collection<ConnectorNotFoundInfo> cnctrNotFoundInfoList,
       Collection<BhNodeId> unknownNodeIds,
@@ -458,9 +458,9 @@ public class JsonProjectReader {
    * 派生ノードが見つからなかった場合のエラー情報を格納するレコード.
    *
    * @param orgNode 保持すべき派生ノードが見つからなかったオリジナルノード
-   * @param dervInstId 見つからなかった派生ノードの {@link InstanceId}
+   * @param dervInstId 見つからなかった派生ノードの {@link NodeInstanceId}
    */
-  private record DerivativeNotFoundInfo(BhNode orgNode, InstanceId dervInstId) {}
+  private record DerivativeNotFoundInfo(BhNode orgNode, NodeInstanceId dervInstId) {}
 
   /**
    * オリジナルノードに派生ノードを割り当てるクラス.
@@ -484,7 +484,7 @@ public class JsonProjectReader {
       if (importer.nodeToImage.get(original) == null) {
         return;
       }
-      for (InstanceId dervInstId : importer.nodeToImage.get(original).derivativeIds) {
+      for (NodeInstanceId dervInstId : importer.nodeToImage.get(original).derivativeIds) {
         BhNode derivative = importer.instIdToNode.get(dervInstId);
         if (derivative instanceof ConnectiveNode connective) {
           original.addDerivative(connective, userOpe);
@@ -503,7 +503,7 @@ public class JsonProjectReader {
       if (importer.nodeToImage.get(original) == null) {
         return;
       }
-      for (InstanceId dervInstId : importer.nodeToImage.get(original).derivativeIds) {
+      for (NodeInstanceId dervInstId : importer.nodeToImage.get(original).derivativeIds) {
         BhNode derivative = importer.instIdToNode.get(dervInstId);
         if (derivative instanceof TextNode textNode) {
           original.addDerivative(textNode, userOpe);

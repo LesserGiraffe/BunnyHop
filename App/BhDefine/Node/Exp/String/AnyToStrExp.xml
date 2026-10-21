@@ -4,6 +4,7 @@
   name="AnyToStrExp"
   nodeStyleID="ToStrExp.json"
   breakpoint="ignore"
+  entryPoint="selectable"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
 

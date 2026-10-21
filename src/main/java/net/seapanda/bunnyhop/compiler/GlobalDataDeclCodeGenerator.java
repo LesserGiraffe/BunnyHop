@@ -16,10 +16,10 @@
 
 package net.seapanda.bunnyhop.compiler;
 
+import static net.seapanda.bunnyhop.compiler.Keywords.newLine;
+
 import java.util.Collection;
 import java.util.Objects;
-import net.seapanda.bunnyhop.node.model.TextNode;
-import net.seapanda.bunnyhop.node.model.syntaxsymbol.SyntaxSymbol;
 
 /**
  * グローバルデータを定義するコードを生成するクラス.
@@ -44,14 +44,14 @@ class GlobalDataDeclCodeGenerator {
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
-  void genGlobalDataDecls(
-      Collection<? extends SyntaxSymbol> nodeListToCompile,
+  void generateGlobalDataDecls(
+      Collection<CompilableSyntaxTreeNode> nodeListToCompile,
       StringBuilder code,
       int nestLevel,
       CompileOption option) {
     nodeListToCompile.forEach(node -> {
       if (SymbolNames.GlobalData.LIST.contains(node.getSymbolName())) {
-        genGlobalDataDecls(node, code, nestLevel, option);
+        generateGlobalDataDecls(node, code, nestLevel, option);
       }
     });
   }
@@ -64,8 +64,8 @@ class GlobalDataDeclCodeGenerator {
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
-  private void genGlobalDataDecls(
-      SyntaxSymbol globalDataDeclNode,
+  private void generateGlobalDataDecls(
+      CompilableSyntaxTreeNode globalDataDeclNode,
       StringBuilder code,
       int nestLevel,
       CompileOption option) {
@@ -74,33 +74,34 @@ class GlobalDataDeclCodeGenerator {
     }
     if (option.withComments) {
       SymbolNames.GlobalData.DATA_NAME_CNCTR_LIST.stream()
-          .map(cnctrName ->
-              (TextNode) globalDataDeclNode.findDescendantOf("*", cnctrName, "*"))
+          .map(cnctrName -> globalDataDeclNode.findDescendantOf("*", cnctrName, "*"))
           .filter(Objects::nonNull)
           .findFirst()
-          .map(TextNode::getText)
+          .map(CompilableSyntaxTreeNode::getLexeme)
           .ifPresent(comment ->
               code.append(common.indent(nestLevel))
                   .append(" /*")
                   .append(comment)
-                  .append("*/" + Keywords.newLine));
+                  .append("*/")
+                  .append(newLine));
     }
 
     String varName =
-        expCodeGen.genPreDefFuncCallExp(globalDataDeclNode, code, nestLevel, option, true);
-    String thisVarName = common.genVarName(globalDataDeclNode);
+        expCodeGen.generatePreDefFuncCallExp(globalDataDeclNode, code, nestLevel, option, true);
+    String thisVarName = common.generateVarName(globalDataDeclNode);
     if (!varName.equals(thisVarName)) {
       code.append(common.indent(nestLevel))
           .append(thisVarName)
           .append(" = ")
           .append(varName)
-          .append(";" + Keywords.newLine);
+          .append(";")
+          .append(newLine);
     }
 
-    SyntaxSymbol nextGlobalDataDecl = globalDataDeclNode.findDescendantOf(
+    CompilableSyntaxTreeNode nextGlobalDataDecl = globalDataDeclNode.findDescendantOf(
         "*", SymbolNames.GlobalData.NEXT_GLOBAL_DATA_DECL, "*");
     if (nextGlobalDataDecl != null) {
-      genGlobalDataDecls(nextGlobalDataDecl, code, nestLevel, option);
+      generateGlobalDataDecls(nextGlobalDataDecl, code, nestLevel, option);
     }
   }
 }

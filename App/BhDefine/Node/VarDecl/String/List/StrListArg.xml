@@ -4,6 +4,7 @@
   name="StrListArg"
   nodeStyleID="StrListArg.json"
   breakpoint="ignore"
+  entryPoint="none"
   onRelatedNodesRequired="GetDerivationFamily.js"
   onJumpTargetRequired="GetOriginalNode.js"
   onCompileErrorChecking="CheckCompileErrorOfArgument.js"

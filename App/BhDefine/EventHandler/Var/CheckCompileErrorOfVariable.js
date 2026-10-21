@@ -7,7 +7,7 @@ function isOutOfScope() {
   if (varDeclInRoot !== null) {
     return false;
   }
-  let scope = original.findAncestorOf('VarScope', 1, true);
+  let scope = original.findAncestor(1, true, 'VarScope');
   if (scope === null) {
     return true;
   }

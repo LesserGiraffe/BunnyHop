@@ -22,7 +22,7 @@ import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
 /**
   * ワークスペースセットの情報をプロジェクトとして出力する機能を規定したインタフェース.
   *
-  * @author K.KOike
+  * @author K.Koike
   */
 public interface ProjectExporter {
 

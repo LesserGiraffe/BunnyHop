@@ -4,6 +4,7 @@
   name="DelayedStartEvent"
   nodeStyleID="DelayedStartEvent.json"
   breakpoint="ignore"
+  entryPoint="set"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
 
@@ -19,6 +20,7 @@
         name="DelayTime"
         nodeStyleID="FixedNumLiteral.json"
         breakpoint="specifyParent"
+        entryPoint="none"
         onTextFormatting="FullWidthToHalfWidth.js"
         onTextChecking="CheckNumFormat.js"
         text="1"

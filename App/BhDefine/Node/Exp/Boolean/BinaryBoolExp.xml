@@ -4,6 +4,7 @@
   name="BinaryBoolExp"
   nodeStyleID="BinaryBoolExp.json"
   breakpoint="ignore"
+  entryPoint="selectable"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
 
@@ -24,6 +25,7 @@
         name="BinaryBoolOpe"
         nodeStyleID="WordComboBox.json"
         breakpoint="specifyParent"
+        entryPoint="none"
         onTextOptionsCreating="CreateBinaryBoolOpts.js"
         version="bhn-0.1.0"/>
     </Connector>

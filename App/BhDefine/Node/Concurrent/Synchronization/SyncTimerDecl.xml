@@ -4,6 +4,7 @@
   name="SyncTimerDecl"
   nodeStyleID="SyncTimerDecl.json"
   breakpoint="ignore"
+  entryPoint="none"
   onCompanionNodesCreating="CreateSyncTimerCompanions.js"
   onMovedFromChildToWS="OnGlobalDataDeclMovedToWS.js"
   onMovedFromWsToChild="OnGlobalDataDeclMovedToChild.js"
@@ -37,6 +38,7 @@
         name="BoolLiteral"
         nodeStyleID="WordComboBox.json"
         breakpoint="specifyParent"
+        entryPoint="none"
         onTextOptionsCreating="CreateSyncTimerOpts.js"
         version="bhn-0.1.0"/>
     </Connector>
@@ -51,6 +53,7 @@
         name="NumLiteral"
         nodeStyleID="FixedNumLiteral.json"
         breakpoint="specifyParent"
+        entryPoint="none"
         onTextFormatting="FullWidthToHalfWidth.js"
         onTextChecking="CheckSyncTimerCount.js"
         text="1"

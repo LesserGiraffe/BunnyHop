@@ -2,6 +2,7 @@
   type="connective"
   bhNodeID="idStrListSliceExp"
   name="StrListSliceExp"
+  entryPoint="selectable"
   nodeStyleID="StrListSliceExp.json"
   breakpoint="ignore"
   onChildReplaced="OnChildOfListCtrlReplaced.js"

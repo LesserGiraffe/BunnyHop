@@ -4,6 +4,7 @@
   name="FourArithExp"
   nodeStyleID="FourArithExp.json"
   breakpoint="ignore"
+  entryPoint="selectable"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
 
@@ -23,6 +24,7 @@
         name="FourArithOpe"
         nodeStyleID="DefaultComboBox.json"
         breakpoint="specifyParent"
+        entryPoint="none"
         onTextOptionsCreating="CreateFourArithOpeOpts.js"
         version="bhn-0.1.0"/>
     </Connector>

@@ -4,6 +4,7 @@
   name="VarDeclVoid" 
   nodeStyleID="VarDeclVoid.json"
   breakpoint="ignore"
+  entryPoint="none"
   onMovedFromChildToWS="DeleteNode.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0"/>

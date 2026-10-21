@@ -4,6 +4,7 @@
   name="GetTextFilesExp"
   nodeStyleID="GetTextFilesExp.json"
   breakpoint="ignore"
+  entryPoint="selectable"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
 
@@ -17,6 +18,7 @@
         bhNodeID="idGetTextFilesExp.node0"
         name="ListName"
         breakpoint="ignore"
+        entryPoint="none"
         text="${node}{get-text-files}{text}"
         version="bhn-0.1.0">
       </Node>

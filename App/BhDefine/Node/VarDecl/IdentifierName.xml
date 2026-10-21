@@ -4,6 +4,7 @@
   name="IdentifierName"
   nodeStyleID="Identifier.json"
   breakpoint="specifyParent"
+  entryPoint="none"
   onTextChecking="CheckIdentifierFormat.js"
   onCreatedAsTemplate="OnIdentifierNameCreatedAsTeamplate.js"
   onAliasAsked="OnAliasAsked.js"

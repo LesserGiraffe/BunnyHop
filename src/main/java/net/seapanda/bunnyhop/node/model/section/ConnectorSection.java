@@ -17,13 +17,13 @@
 package net.seapanda.bunnyhop.node.model.section;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.Connector;
 import net.seapanda.bunnyhop.node.model.parameter.ConnectorId;
-import net.seapanda.bunnyhop.node.model.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.node.model.traverse.BhNodeWalker;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 
@@ -83,34 +83,9 @@ public class ConnectorSection extends Section {
     cnctrList.forEach(connector -> connector.accept(visitor));
   }
 
-  /**
-   * コネクタのリストを返す.
-   *
-   * @return コネクタのリスト
-   */
-  public List<Connector> getConnectorList() {
-    return cnctrList;
-  }
-
   @Override
-  public void findDescendantOf(
-      int generation, boolean toBottom, List<SyntaxSymbol> foundSymbolList, String... symbolNames) {
-    if (generation == 0) {
-      for (String symbolName : symbolNames) {
-        if (symbolNameMatches(symbolName)) {
-          foundSymbolList.add(this);
-        }
-      }
-      if (!toBottom) {
-        return;
-      }
-    }
-
-    int childLevel = generation - 1;
-    for (Connector cnctr : cnctrList) {
-      cnctr.findDescendantOf(
-          Math.max(0, childLevel), toBottom, foundSymbolList, symbolNames);
-    }
+  public List<Connector> getChildren() {
+    return Collections.unmodifiableList(cnctrList);
   }
 
   @Override

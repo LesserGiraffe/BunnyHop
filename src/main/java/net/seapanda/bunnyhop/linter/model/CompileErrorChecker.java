@@ -89,18 +89,18 @@ public class CompileErrorChecker {
     while (!targets.isEmpty()) {
       BhNode target = targets.removeFirst();
       if (!target.isDeleted()) {
-        BhNode root = findRootNode(target, targets);
+        BhNode root = findRootAndPrune(target, targets);
         rootNodes.add(root);
       }
     }
     return rootNodes;
   }
 
-  /** {@code node} のルートノードを探し, 途中のノードを {@code collection} から除外する. */
-  private static BhNode findRootNode(BhNode node, Set<BhNode> collection) {
+  /** {@code node} のルートノードを探し, 途中のノードを {@code unvisited} から除外する. */
+  private static BhNode findRootAndPrune(BhNode node, Set<BhNode> unvisited) {
     while (!node.isRoot()) {
       node = node.findParentNode();
-      collection.remove(node); // 余分な走査を省略する
+      unvisited.remove(node); // 余分な走査を省略する
     }
     return node;
   }
@@ -121,20 +121,20 @@ public class CompileErrorChecker {
     while (!targets.isEmpty()) {
       BhNode target = targets.removeFirst();
       if (!target.isDeleted()) {
-        BhNode node = findRootOriginal(target, targets);
+        BhNode node = findRootOriginalAndPrune(target, targets);
         rootOriginals.add(node);
       }
     }
     return rootOriginals;
   }
 
-  /** {@code nodes} から推移的に辿れる最後のオリジナルノードを探し, 途中のノードを {@code collection} から除外する. */
-  private static BhNode findRootOriginal(BhNode nodes, Set<BhNode> collection) {
-    while (nodes.isDerivative()) {
-      nodes = nodes.getOriginal();
-      collection.remove(nodes); // 余分な走査を省略する
+  /** {@code node} から推移的に辿れる最後のオリジナルノードを探し, 途中のノードを {@code unvisited} から除外する. */
+  private static BhNode findRootOriginalAndPrune(BhNode node, Set<BhNode> unvisited) {
+    while (node.isDerivative()) {
+      node = node.getOriginal();
+      unvisited.remove(node); // 余分な走査を省略する
     }
-    return nodes;
+    return node;
   }
 
   /** {@code node} と {@code node} から推移的に辿れる派生ノードを {@code collection} に格納する. */

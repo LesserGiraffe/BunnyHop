@@ -4,6 +4,7 @@
   name="StrToNumExp"
   nodeStyleID="StrToNumExp.json"
   breakpoint="ignore"
+  entryPoint="selectable"
   onCreatedAsTemplate="OnStrToNumExpCreatedAsTemplate.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
@@ -23,6 +24,7 @@
         bhNodeID="idStrToNumExp.node1"
         name="NumLiteral"
         breakpoint="specifyParent"
+        entryPoint="none"
         text="NaN"
         version="bhn-0.1.0"/>
     </Connector>

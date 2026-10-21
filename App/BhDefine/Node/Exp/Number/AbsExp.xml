@@ -4,6 +4,7 @@
   name="AbsExp"
   nodeStyleID="AbsExp.json"
   breakpoint="ignore"
+  entryPoint="selectable"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
 

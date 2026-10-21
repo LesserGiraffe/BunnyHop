@@ -4,6 +4,7 @@
   name="NumLiteralExp"
   nodeStyleID="NumLiteralExp.json"
   breakpoint="ignore"
+  entryPoint="selectable"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
@@ -20,6 +21,7 @@
         name="NumLiteral"
         nodeStyleID="NumLiteral.json"
         breakpoint="specifyParent"
+        entryPoint="none"
         onTextFormatting="FullWidthToHalfWidth.js"
         onTextChecking="CheckPositiveIntFormat.js"
         text="1"

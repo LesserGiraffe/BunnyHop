@@ -144,10 +144,10 @@ abstract class BhNodeViewBase implements BhNodeView {
     if (model == null) {
       return false;
     }
-    if (model.getParentConnector() == null) {
+    if (model.getParent() == null) {
       return false;
     }
-    return model.getParentConnector().isFixed();
+    return model.getParent().isFixed();
   }
 
   @Override

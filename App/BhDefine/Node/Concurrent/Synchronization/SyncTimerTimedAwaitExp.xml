@@ -4,6 +4,7 @@
   name="SyncTimerTimedAwaitExp"
   nodeStyleID="SyncTimerTimedAwaitExp.json"
   breakpoint="ignore"
+  entryPoint="selectable"
   onChildReplaced="OnChildOfSyncTimerCtrlReplaced.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
@@ -30,6 +31,7 @@
         name="CountdownOption"
         nodeStyleID="WordComboBox.json"
         breakpoint="specifyParent"
+        entryPoint="none"
         onTextOptionsCreating="CreateCountdownOpts.js"
         version="bhn-0.1.0">
       </Node>

@@ -4,6 +4,7 @@
   name="SemaphoreReleaseStat"
   nodeStyleID="SemaphoreReleaseStat.json"
   breakpoint="set"
+  entryPoint="selectable"
   onMovedFromChildToWS="OnStatMovedToWS.js"
   onMovedFromWsToChild="OnStatMovedToChild.js"
   onChildReplaced="OnChildOfSemaphoreCtrlReplaced.js"

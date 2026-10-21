@@ -18,8 +18,7 @@ package net.seapanda.bunnyhop.compiler;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import net.seapanda.bunnyhop.common.configuration.BhConstants;
-import net.seapanda.bunnyhop.utility.Utility;
+import java.util.Objects;
 
 /**
  * コンパイルオプションを格納するクラス.
@@ -38,8 +37,12 @@ public class CompileOption {
   public final boolean addConditionalWait;
   /** ソースコードにコメントを追加する場合 true. */
   public final boolean withComments;
+  /** メインルーチンを起動する際に BhProgram が受け取るイベントの名前. */
+  public final String mainRoutineLaunchEvent;
   /** 出力ファイルのパス. */
   public final Path outFile;
+  /** コンパイルして生成されたコードの実行環境. */
+  public final RuntimeEnvironment runtimeEnv;
 
   private CompileOption(Builder builder) {
     addNodeInstIdToContext = builder.isDebug;
@@ -47,27 +50,80 @@ public class CompileOption {
     addVarAccessorToVarStack = builder.isDebug;
     addConditionalWait = builder.isDebug;
     this.withComments = builder.withComments;
+    this.mainRoutineLaunchEvent = builder.mainRoutineLaunchEvent;
     this.outFile = builder.outFile;
+    this.runtimeEnv = builder.runtimeEnv;
+  }
+
+  /** {@link Builder} オブジェクトを作成する. */
+  public static Builder builder() {
+    return new Builder();
   }
 
   /** {@link CompileOption} のビルダークラス. */
   public static class Builder {
 
+    private Builder() {}
+
     private boolean isDebug = true;
     private boolean withComments = true;
-    public Path outFile = Paths.get(
-        Utility.execPath, BhConstants.Path.Dir.COMPILED, BhConstants.Path.File.APP_FILE_NAME_JS);
+    private String mainRoutineLaunchEvent = "PROGRAM_START";
+    private RuntimeEnvironment runtimeEnv = RuntimeEnvironment.LOCAL;
 
-    public Builder withComments(boolean withComments) {
-      this.withComments = withComments;
+    public Path outFile = Paths.get(".");
+
+    /**
+     * 生成するソースコードにコメントを追加するかどうかを設定する.
+     *
+     * @param val ソースコードにコメントを追加する場合 true
+     * @return このオブジェクト
+     */
+    public Builder withComments(boolean val) {
+      this.withComments = val;
       return this;
     }
 
-    public Builder outFile(Path outFile) {
-      this.outFile = outFile;
+    /**
+     * メインルーチンを起動する際に BhProgram が受け取るイベントの名前を設定する.
+     *
+     * @param val メインルーチンを起動する際に BhProgram が受け取るイベントの名前
+     * @return このオブジェクト
+     */
+    public Builder mainRoutineLaunchEvent(String val) {
+      Objects.requireNonNull(val);
+      mainRoutineLaunchEvent = val;
       return this;
     }
 
+    /**
+     * コンパイル結果の出力先ファイルのパスを設定する.
+     *
+     * @param val コンパイル結果の出力先ファイルのパス
+     * @return このオブジェクト
+     */
+    public Builder outFile(Path val) {
+      Objects.requireNonNull(val);
+      this.outFile = val;
+      return this;
+    }
+
+    /**
+     * 生成されたコードの実行環境を設定する.
+     *
+     * @param val 生成されたコードの実行環境
+     * @return このオブジェクト
+     */
+    public Builder runtimeEnvironment(RuntimeEnvironment val) {
+      Objects.requireNonNull(val);
+      this.runtimeEnv = val;
+      return this;
+    }
+
+    /**
+     * このオブジェクトに設定した内容から {@link CompileOption} を作成する.
+     *
+     * @return 作成した {@link CompileOption}
+     */
     public CompileOption build() {
       return new CompileOption(this);
     }

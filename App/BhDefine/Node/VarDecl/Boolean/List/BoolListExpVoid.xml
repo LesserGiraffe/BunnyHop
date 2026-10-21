@@ -4,6 +4,7 @@
   name="BoolListExpVoid"
   nodeStyleID="BoolListExpVoid.json"
   breakpoint="ignore"
+  entryPoint="none"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onAliasAsked="OnAliasAsked.js"
   text="${node}{list-label}"

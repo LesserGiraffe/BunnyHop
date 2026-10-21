@@ -16,6 +16,7 @@
 
 package net.seapanda.bunnyhop.compiler;
 
+import static java.util.Map.entry;
 import static net.seapanda.bunnyhop.compiler.ScriptIdentifiers.Funcs;
 import static net.seapanda.bunnyhop.compiler.ScriptIdentifiers.Vars;
 
@@ -23,14 +24,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import net.seapanda.bunnyhop.node.model.syntaxsymbol.SyntaxSymbol;
 
 /**
- * {@link SyntaxSymbol} が持つシンボル名の定義.
+ * シンボル名を定義するクラス.
  *
  * @author K.Koike
  */
-public class SymbolNames {
+class SymbolNames {
 
   /** 変数宣言に関するシンボル名. */
   public static class VarDecl {
@@ -100,28 +100,28 @@ public class SymbolNames {
             SOUND_LIST));
 
     public static final Map<String, String> INIT_VAL_MAP =
-        new HashMap<>() {{
-            put(NUM_VAR_DECL, "0");
-            put(STR_VAR_DECL, "''");
-            put(BOOL_VAR_DECL, "false");
-            put(COLOR_VAR_DECL, Vars.NIL_COLOR);
-            put(SOUND_VAR_DECL, Vars.NIL_SOUND);
-            put(NUM_LIST_DECL, "[]");
-            put(STR_LIST_DECL, "[]");
-            put(BOOL_LIST_DECL, "[]");
-            put(COLOR_LIST_DECL, "[]");
-            put(SOUND_LIST_DECL, "[]");
-            put(NUM_VAR_VOID, Vars.NIL);
-            put(STR_VAR_VOID, Vars.NIL);
-            put(BOOL_VAR_VOID, Vars.NIL);
-            put(COLOR_VAR_VOID, Vars.NIL);
-            put(SOUND_VAR_VOID, Vars.NIL);
-            put(NUM_LIST_VOID, "[]");
-            put(STR_LIST_VOID, "[]");
-            put(BOOL_LIST_VOID, "[]");
-            put(COLOR_LIST_VOID, "[]");
-            put(SOUND_LIST_VOID, "[]");
-          }};
+        new HashMap<>(Map.ofEntries(
+            entry(NUM_VAR_DECL, "0"),
+            entry(STR_VAR_DECL, "''"),
+            entry(BOOL_VAR_DECL, "false"),
+            entry(COLOR_VAR_DECL, Vars.NIL_COLOR),
+            entry(SOUND_VAR_DECL, Vars.NIL_SOUND),
+            entry(NUM_LIST_DECL, "[]"),
+            entry(STR_LIST_DECL, "[]"),
+            entry(BOOL_LIST_DECL, "[]"),
+            entry(COLOR_LIST_DECL, "[]"),
+            entry(SOUND_LIST_DECL, "[]"),
+            entry(NUM_VAR_VOID, Vars.NIL),
+            entry(STR_VAR_VOID, Vars.NIL),
+            entry(BOOL_VAR_VOID, Vars.NIL),
+            entry(COLOR_VAR_VOID, Vars.NIL),
+            entry(SOUND_VAR_VOID, Vars.NIL),
+            entry(NUM_LIST_VOID, "[]"),
+            entry(STR_LIST_VOID, "[]"),
+            entry(BOOL_LIST_VOID, "[]"),
+            entry(COLOR_LIST_VOID, "[]"),
+            entry(SOUND_LIST_VOID, "[]")
+        ));
 
     public static final Set<String> VAR_VOID_LIST =
         new HashSet<>(java.util.List.of(
@@ -261,21 +261,21 @@ public class SymbolNames {
             STR_COMP_EXP));
 
     public static final Map<String, String> OPERATOR_MAP =
-        new HashMap<>() {{
-            put(OP_ADD, " + ");
-            put(OP_SUB, " - ");
-            put(OP_DIV, " / ");
-            put(OP_MUL, " * ");
-            put(OP_MOD, " % ");
-            put(OP_AND, " && ");
-            put(OP_OR,  " || ");
-            put(OP_EQ,  " === ");
-            put(OP_NEQ, " !== ");
-            put(OP_LT,  " < ");
-            put(OP_LTE, " <= ");
-            put(OP_GT,  " > ");
-            put(OP_GTE, " >= ");
-          }};
+        new HashMap<>(Map.ofEntries(
+            entry(OP_ADD, " + "),
+            entry(OP_SUB, " - "),
+            entry(OP_DIV, " / "),
+            entry(OP_MUL, " * "),
+            entry(OP_MOD, " % "),
+            entry(OP_AND, " && "),
+            entry(OP_OR,  " || "),
+            entry(OP_EQ,  " === "),
+            entry(OP_NEQ, " !== "),
+            entry(OP_LT,  " < "),
+            entry(OP_LTE, " <= "),
+            entry(OP_GT,  " > "),
+            entry(OP_GTE, " >= ")
+        ));
   }
 
   /** 単項演算式に関するシンボル名. */
@@ -290,10 +290,10 @@ public class SymbolNames {
             NEG_EXP));
 
     public static final Map<String, String> OPERATOR_MAP =
-        new HashMap<>() {{
-            put(NOT_EXP, "!");
-            put(NEG_EXP, "-");
-          }};
+        new HashMap<>(Map.ofEntries(
+            entry(NOT_EXP, "!"),
+            entry(NEG_EXP, "-")
+        ));
   }
 
   /** BhProgram にあらかじめ定義されたメソッドを呼び出す処理に関するシンボル名. */
@@ -486,136 +486,137 @@ public class SymbolNames {
             List.ANY_LIST_SET_STAT));
 
     //  (関数呼び出しノード名, 関数呼び出しオプション...) -> 関数名
-    public static final Map<FuncId, String> NAME_MAP = new HashMap<>() {{
-        put(FuncId.of(STR_TO_NUM_EXP), Funcs.STR_TO_NUM);
-        put(FuncId.of(STR_TO_NUM_WITH_DEFAULT_VAL_EXP), Funcs.STR_TO_NUM);
-        put(FuncId.of(ANY_TO_STR_EXP), Funcs.STR);
-        put(FuncId.of(PRINT_STAT, OPT_WITH_LINE_BREAK), Funcs.PRINTLN);
-        put(FuncId.of(PRINT_STAT, OPT_WITHOUT_LINE_BREAK), Funcs.PRINT);
-        put(FuncId.of(SYNC_TIMER_AWAIT_STAT, OPT_WITH_COUNTDOWN),
-            Funcs.SYNC_TIMER_COUNTDOWN_AND_AWAIT);
-        put(FuncId.of(SYNC_TIMER_AWAIT_STAT, OPT_WITHOUT_COUNTDOWN), Funcs.SYNC_TIMER_AWAIT);
-        put(FuncId.of(RESET_SYNC_TIMER_STAT), Funcs.RESET_SYNC_TIMER);
-        put(FuncId.of(SYNC_TIMER_COUNTDOWN_STAT), Funcs.SYNC_TIMER_COUNTDOWN);
-        put(FuncId.of(SEMAPHORE_ACQUIRE_STAT), Funcs.SEMAPHORE_ACQUIRE);
-        put(FuncId.of(SEMAPHORE_RELEASE_STAT), Funcs.SEMAPHORE_RELEASE);
-        put(FuncId.of(SCAM_EXP), Funcs.SCAN);
-        put(FuncId.of(NUM_ROUND_EXP, OPT_ROUND), "Math.round");
-        put(FuncId.of(NUM_ROUND_EXP, OPT_CEIL), "Math.ceil");
-        put(FuncId.of(NUM_ROUND_EXP, OPT_FLOOR), "Math.floor");
-        put(FuncId.of(NUM_ROUND_EXP, OPT_TRUNC), "Math.trunc");
-        put(FuncId.of(ABS_EXP), "Math.abs");
-        put(FuncId.of(MAX_MIN_EXP, OPT_MAX), "Math.max");
-        put(FuncId.of(MAX_MIN_EXP, OPT_MIN), "Math.min");
-        put(FuncId.of(RANDOM_INT_EXP), Funcs.RANDOM_INT);
-        put(FuncId.of(MEASURE_DISTANCE_EXP), Funcs.MEASURE_DISTANCE);
-        put(FuncId.of(MELODY_EXP), Funcs.PUSH_SOUND);
-        put(FuncId.of(ANY_COMP_EXP, OPT_EQ), Funcs.ANY_EQ);
-        put(FuncId.of(ANY_COMP_EXP, OPT_NEQ), Funcs.ANY_NEQ);
-        put(FuncId.of(BINARY_COLOR_EXP, OPT_ADD), Funcs.ADD_COLOR);
-        put(FuncId.of(BINARY_COLOR_EXP, OPT_SUB), Funcs.SUB_COLOR);
-        put(FuncId.of(DETECT_COLOR_EXP), Funcs.DETECT_COLOR);
-        put(FuncId.of(GET_TIME_SINCE_PROGRAM_STARTED_EXP), Funcs.GET_TIMER_VAL);
-        put(FuncId.of(STR_CHAIN_LINK_EXP), Funcs.STRCAT);
-        put(FuncId.of(STR_LINE_FEED_CHAIN_LINK_EXP), Funcs.STRCAT_LF);
-        put(FuncId.of(STR_CHAIN_EXP), Funcs.IDENTITY);
-        put(FuncId.of(GET_SYNC_TIMER_COUNT_EXP), Funcs.GET_SYNC_TIMER_COUNT);
-        put(FuncId.of(SYNC_TIMER_TIMED_AWAIT_EXP, OPT_WITH_COUNTDOWN),
-            Funcs.SYNC_TIMER_COUNTDOWN_AND_TIMED_AWAIT);
-        put(FuncId.of(SYNC_TIMER_TIMED_AWAIT_EXP, OPT_WITHOUT_COUNTDOWN),
-            Funcs.SYNC_TIMER_TIMED_AWAIT);
-        put(FuncId.of(SEMAPHORE_TRY_ACQUIRE_EXP), Funcs.SEMAPHORE_TRY_ACQUIRE);
-        put(FuncId.of(GET_NUM_SEMAPHORE_PERMITS_EXP), Funcs.GET_NUM_SEMAPHORE_PERMITS);
-        put(FuncId.of(ANY_LIST_TO_STR_EXP), Funcs.LIST_TO_STR);
-        put(FuncId.of(CHECK_NUM_TYPE_EXP, OPT_FINITE), "Number.isFinite");
-        put(FuncId.of(CHECK_NUM_TYPE_EXP, OPT_INFINITE), Funcs.IS_NUM_INFINITE);
-        put(FuncId.of(CHECK_NUM_TYPE_EXP, OPT_POS_INF), Funcs.IS_NUM_POS_INF);
-        put(FuncId.of(CHECK_NUM_TYPE_EXP, OPT_NEG_INF), Funcs.IS_NUM_NEG_INF);
-        put(FuncId.of(CHECK_NUM_TYPE_EXP, OPT_NAN), "Number.isNaN");
-        put(FuncId.of(NUM_POW_EXP), "Math.pow");
-        put(FuncId.of(NUM_CLAMP_EXP), Funcs.NUM_CLAMP);
-        put(FuncId.of(LOAD_TEXT_EXP), Funcs.LOAD_TEXT);
-        put(FuncId.of(GET_TEXT_FILES_EXP), Funcs.GET_TEXT_FILES);
-        put(FuncId.of(GET_AUDIO_VOLUME_EXP), Funcs.GET_AUDIO_VOLUME);
-        put(FuncId.of(GET_AUDIO_FILES_EXP), Funcs.GET_AUDIO_FILES);
-        put(FuncId.of(MEASURE_SOUND_PRESSURE_EXP, OPT_PEAK), Funcs.FIND_SOUND_PRESSURE_PEAK);
-        put(FuncId.of(MEASURE_SOUND_PRESSURE_EXP, OPT_AVERAGE), Funcs.FIND_SOUND_PRESSURE_AVERAGE);
-        put(FuncId.of(OUT_ARG_TEST_EXP), Funcs.OUT_ARG_TEST);
-        put(FuncId.of(MOVE_STAT, OPT_MOVE_FORWARD), Funcs.MOVE_FORWARD);
-        put(FuncId.of(MOVE_STAT, OPT_MOVE_BACKWARD), Funcs.MOVE_BACKWARD);
-        put(FuncId.of(MOVE_STAT, OPT_TURN_RIGHT), Funcs.TURN_RIGHT);
-        put(FuncId.of(MOVE_STAT, OPT_TURN_LEFT), Funcs.TURN_LEFT);
-        put(FuncId.of(STOP_RASPI_CAR_STAT), Funcs.STOP_RASPI_CAR);
-        put(FuncId.of(SLEEP_STAT), Funcs.SLEEP);
-        put(FuncId.of(PLAY_MELODY_STAT), Funcs.PLAY_MELODIES);
-        put(FuncId.of(PLAY_SOUND_LIST_STAT), Funcs.PLAY_MELODIES);
-        put(FuncId.of(SAY_STAT), Funcs.SAY);
-        put(FuncId.of(LIGHT_EYE_STAT), Funcs.LIGHT_EYE);
-        put(FuncId.of(GlobalData.MUTEX_BLOCK_DECL), Funcs.NEW_LOCK_OBJ);
-        put(FuncId.of(GlobalData.SYNC_TIMER_DECL), Funcs.NEW_SYNC_TIMER);
-        put(FuncId.of(GlobalData.SEMAPHORE_DECL), Funcs.NEW_SEMAPHORE);
-        put(FuncId.of(SAVE_TEXT_STAT), Funcs.SAVE_TEXT);
-        put(FuncId.of(DELETE_TEXT_FILE_STAT), Funcs.DELETE_TEXT_FILE);
-        put(FuncId.of(DELETE_TEXT_FILES_STAT), Funcs.DELETE_TEXT_FILES);
-        put(FuncId.of(SET_AUDIO_VOLUME_STAT), Funcs.SET_AUDIO_VOLUME);
-        put(FuncId.of(RECORD_AUDIO_STAT), Funcs.RECORD_AUDIO);
-        put(FuncId.of(PLAY_AUDIO_STAT), Funcs.PLAY_AUDIO);
-        put(FuncId.of(DELETE_AUDIO_FILE_STAT), Funcs.DELETE_AUDIO_FILE);
-        put(FuncId.of(DELETE_AUDIO_FILES_STAT), Funcs.DELETE_AUDIO_FILES);
+    public static final Map<FuncId, String> NAME_MAP = new HashMap<>(Map.ofEntries(
+        entry(FuncId.of(STR_TO_NUM_EXP), Funcs.STR_TO_NUM),
+        entry(FuncId.of(STR_TO_NUM_WITH_DEFAULT_VAL_EXP), Funcs.STR_TO_NUM),
+        entry(FuncId.of(ANY_TO_STR_EXP), Funcs.STR),
+        entry(FuncId.of(PRINT_STAT, OPT_WITH_LINE_BREAK), Funcs.PRINTLN),
+        entry(FuncId.of(PRINT_STAT, OPT_WITHOUT_LINE_BREAK), Funcs.PRINT),
+        entry(FuncId.of(SYNC_TIMER_AWAIT_STAT, OPT_WITH_COUNTDOWN),
+            Funcs.SYNC_TIMER_COUNTDOWN_AND_AWAIT),
+        entry(FuncId.of(SYNC_TIMER_AWAIT_STAT, OPT_WITHOUT_COUNTDOWN), Funcs.SYNC_TIMER_AWAIT),
+        entry(FuncId.of(RESET_SYNC_TIMER_STAT), Funcs.RESET_SYNC_TIMER),
+        entry(FuncId.of(SYNC_TIMER_COUNTDOWN_STAT), Funcs.SYNC_TIMER_COUNTDOWN),
+        entry(FuncId.of(SEMAPHORE_ACQUIRE_STAT), Funcs.SEMAPHORE_ACQUIRE),
+        entry(FuncId.of(SEMAPHORE_RELEASE_STAT), Funcs.SEMAPHORE_RELEASE),
+        entry(FuncId.of(SCAM_EXP), Funcs.SCAN),
+        entry(FuncId.of(NUM_ROUND_EXP, OPT_ROUND), "Math.round"),
+        entry(FuncId.of(NUM_ROUND_EXP, OPT_CEIL), "Math.ceil"),
+        entry(FuncId.of(NUM_ROUND_EXP, OPT_FLOOR), "Math.floor"),
+        entry(FuncId.of(NUM_ROUND_EXP, OPT_TRUNC), "Math.trunc"),
+        entry(FuncId.of(ABS_EXP), "Math.abs"),
+        entry(FuncId.of(MAX_MIN_EXP, OPT_MAX), "Math.max"),
+        entry(FuncId.of(MAX_MIN_EXP, OPT_MIN), "Math.min"),
+        entry(FuncId.of(RANDOM_INT_EXP), Funcs.RANDOM_INT),
+        entry(FuncId.of(MEASURE_DISTANCE_EXP), Funcs.MEASURE_DISTANCE),
+        entry(FuncId.of(MELODY_EXP), Funcs.PUSH_SOUND),
+        entry(FuncId.of(ANY_COMP_EXP, OPT_EQ), Funcs.ANY_EQ),
+        entry(FuncId.of(ANY_COMP_EXP, OPT_NEQ), Funcs.ANY_NEQ),
+        entry(FuncId.of(BINARY_COLOR_EXP, OPT_ADD), Funcs.ADD_COLOR),
+        entry(FuncId.of(BINARY_COLOR_EXP, OPT_SUB), Funcs.SUB_COLOR),
+        entry(FuncId.of(DETECT_COLOR_EXP), Funcs.DETECT_COLOR),
+        entry(FuncId.of(GET_TIME_SINCE_PROGRAM_STARTED_EXP), Funcs.GET_TIMER_VAL),
+        entry(FuncId.of(STR_CHAIN_LINK_EXP), Funcs.STRCAT),
+        entry(FuncId.of(STR_LINE_FEED_CHAIN_LINK_EXP), Funcs.STRCAT_LF),
+        entry(FuncId.of(STR_CHAIN_EXP), Funcs.IDENTITY),
+        entry(FuncId.of(GET_SYNC_TIMER_COUNT_EXP), Funcs.GET_SYNC_TIMER_COUNT),
+        entry(FuncId.of(SYNC_TIMER_TIMED_AWAIT_EXP, OPT_WITH_COUNTDOWN),
+            Funcs.SYNC_TIMER_COUNTDOWN_AND_TIMED_AWAIT),
+        entry(FuncId.of(SYNC_TIMER_TIMED_AWAIT_EXP, OPT_WITHOUT_COUNTDOWN),
+            Funcs.SYNC_TIMER_TIMED_AWAIT),
+        entry(FuncId.of(SEMAPHORE_TRY_ACQUIRE_EXP), Funcs.SEMAPHORE_TRY_ACQUIRE),
+        entry(FuncId.of(GET_NUM_SEMAPHORE_PERMITS_EXP), Funcs.GET_NUM_SEMAPHORE_PERMITS),
+        entry(FuncId.of(ANY_LIST_TO_STR_EXP), Funcs.LIST_TO_STR),
+        entry(FuncId.of(CHECK_NUM_TYPE_EXP, OPT_FINITE), "Number.isFinite"),
+        entry(FuncId.of(CHECK_NUM_TYPE_EXP, OPT_INFINITE), Funcs.IS_NUM_INFINITE),
+        entry(FuncId.of(CHECK_NUM_TYPE_EXP, OPT_POS_INF), Funcs.IS_NUM_POS_INF),
+        entry(FuncId.of(CHECK_NUM_TYPE_EXP, OPT_NEG_INF), Funcs.IS_NUM_NEG_INF),
+        entry(FuncId.of(CHECK_NUM_TYPE_EXP, OPT_NAN), "Number.isNaN"),
+        entry(FuncId.of(NUM_POW_EXP), "Math.pow"),
+        entry(FuncId.of(NUM_CLAMP_EXP), Funcs.NUM_CLAMP),
+        entry(FuncId.of(LOAD_TEXT_EXP), Funcs.LOAD_TEXT),
+        entry(FuncId.of(GET_TEXT_FILES_EXP), Funcs.GET_TEXT_FILES),
+        entry(FuncId.of(GET_AUDIO_VOLUME_EXP), Funcs.GET_AUDIO_VOLUME),
+        entry(FuncId.of(GET_AUDIO_FILES_EXP), Funcs.GET_AUDIO_FILES),
+        entry(FuncId.of(MEASURE_SOUND_PRESSURE_EXP, OPT_PEAK), Funcs.FIND_SOUND_PRESSURE_PEAK),
+        entry(FuncId.of(MEASURE_SOUND_PRESSURE_EXP, OPT_AVERAGE),
+            Funcs.FIND_SOUND_PRESSURE_AVERAGE),
+        entry(FuncId.of(OUT_ARG_TEST_EXP), Funcs.OUT_ARG_TEST),
+        entry(FuncId.of(MOVE_STAT, OPT_MOVE_FORWARD), Funcs.MOVE_FORWARD),
+        entry(FuncId.of(MOVE_STAT, OPT_MOVE_BACKWARD), Funcs.MOVE_BACKWARD),
+        entry(FuncId.of(MOVE_STAT, OPT_TURN_RIGHT), Funcs.TURN_RIGHT),
+        entry(FuncId.of(MOVE_STAT, OPT_TURN_LEFT), Funcs.TURN_LEFT),
+        entry(FuncId.of(STOP_RASPI_CAR_STAT), Funcs.STOP_RASPI_CAR),
+        entry(FuncId.of(SLEEP_STAT), Funcs.SLEEP),
+        entry(FuncId.of(PLAY_MELODY_STAT), Funcs.PLAY_MELODIES),
+        entry(FuncId.of(PLAY_SOUND_LIST_STAT), Funcs.PLAY_MELODIES),
+        entry(FuncId.of(SAY_STAT), Funcs.SAY),
+        entry(FuncId.of(LIGHT_EYE_STAT), Funcs.LIGHT_EYE),
+        entry(FuncId.of(GlobalData.MUTEX_BLOCK_DECL), Funcs.NEW_LOCK_OBJ),
+        entry(FuncId.of(GlobalData.SYNC_TIMER_DECL), Funcs.NEW_SYNC_TIMER),
+        entry(FuncId.of(GlobalData.SEMAPHORE_DECL), Funcs.NEW_SEMAPHORE),
+        entry(FuncId.of(SAVE_TEXT_STAT), Funcs.SAVE_TEXT),
+        entry(FuncId.of(DELETE_TEXT_FILE_STAT), Funcs.DELETE_TEXT_FILE),
+        entry(FuncId.of(DELETE_TEXT_FILES_STAT), Funcs.DELETE_TEXT_FILES),
+        entry(FuncId.of(SET_AUDIO_VOLUME_STAT), Funcs.SET_AUDIO_VOLUME),
+        entry(FuncId.of(RECORD_AUDIO_STAT), Funcs.RECORD_AUDIO),
+        entry(FuncId.of(PLAY_AUDIO_STAT), Funcs.PLAY_AUDIO),
+        entry(FuncId.of(DELETE_AUDIO_FILE_STAT), Funcs.DELETE_AUDIO_FILE),
+        entry(FuncId.of(DELETE_AUDIO_FILES_STAT), Funcs.DELETE_AUDIO_FILES),
 
-        put(FuncId.of(List.ANY_LIST_PUSH_STAT), Funcs.LIST_PUSH);
-        put(FuncId.of(List.ANY_LIST_LEN_EXP), Funcs.LIST_LEN);
-        put(FuncId.of(List.ANY_LIST_INSERT_STAT), Funcs.LIST_INSERT);
-        put(FuncId.of(List.ANY_LIST_INSERT_ALL_STAT), Funcs.LIST_INSERT_ALL);
-        put(FuncId.of(List.ANY_LIST_SPLICE_STAT, OPT_REMOVE), Funcs.LIST_REMOVE);
-        put(FuncId.of(List.ANY_LIST_SPLICE_STAT, OPT_EXTRACT), Funcs.LIST_EXTRACT);
-        put(FuncId.of(List.ANY_LIST_SET_STAT), Funcs.LIST_SET);
-        put(FuncId.of(List.ANY_LIST_INDEX_OF_EXP, OPT_FIRST), Funcs.LIST_FIRST_INDEX_OF);
-        put(FuncId.of(List.ANY_LIST_INDEX_OF_EXP, OPT_LAST), Funcs.LIST_LAST_INDEX_OF);
-        put(FuncId.of(List.ANY_LIST_INCLUDES_EXP), Funcs.LIST_INCLUDES);
-        put(FuncId.of(List.ANY_LIST_COMP_EXP, OPT_EQ), Funcs.LIST_EQ);
-        put(FuncId.of(List.ANY_LIST_COMP_EXP, OPT_NEQ), Funcs.LIST_NEQ);
+        entry(FuncId.of(List.ANY_LIST_PUSH_STAT), Funcs.LIST_PUSH),
+        entry(FuncId.of(List.ANY_LIST_LEN_EXP), Funcs.LIST_LEN),
+        entry(FuncId.of(List.ANY_LIST_INSERT_STAT), Funcs.LIST_INSERT),
+        entry(FuncId.of(List.ANY_LIST_INSERT_ALL_STAT), Funcs.LIST_INSERT_ALL),
+        entry(FuncId.of(List.ANY_LIST_SPLICE_STAT, OPT_REMOVE), Funcs.LIST_REMOVE),
+        entry(FuncId.of(List.ANY_LIST_SPLICE_STAT, OPT_EXTRACT), Funcs.LIST_EXTRACT),
+        entry(FuncId.of(List.ANY_LIST_SET_STAT), Funcs.LIST_SET),
+        entry(FuncId.of(List.ANY_LIST_INDEX_OF_EXP, OPT_FIRST), Funcs.LIST_FIRST_INDEX_OF),
+        entry(FuncId.of(List.ANY_LIST_INDEX_OF_EXP, OPT_LAST), Funcs.LIST_LAST_INDEX_OF),
+        entry(FuncId.of(List.ANY_LIST_INCLUDES_EXP), Funcs.LIST_INCLUDES),
+        entry(FuncId.of(List.ANY_LIST_COMP_EXP, OPT_EQ), Funcs.LIST_EQ),
+        entry(FuncId.of(List.ANY_LIST_COMP_EXP, OPT_NEQ), Funcs.LIST_NEQ),
 
-        put(FuncId.of(List.ANY_SET_COMP_EXP, OPT_SUBSET), Funcs.IS_SUBSET);
-        put(FuncId.of(List.ANY_SET_COMP_EXP, OPT_PROPER_SUBSET), Funcs.IS_PROPER_SUBSET);
-        put(FuncId.of(List.ANY_SET_COMP_EXP, OPT_SUPERSET), Funcs.IS_SUPERSET);
-        put(FuncId.of(List.ANY_SET_COMP_EXP, OPT_PROPER_SUPERSET), Funcs.IS_PROPER_SUPERSET);
-        put(FuncId.of(List.ANY_SET_COMP_EXP, OPT_EQ), Funcs.SET_EQ);
-        put(FuncId.of(List.ANY_SET_COMP_EXP, OPT_NEQ), Funcs.SET_NEQ);
+        entry(FuncId.of(List.ANY_SET_COMP_EXP, OPT_SUBSET), Funcs.IS_SUBSET),
+        entry(FuncId.of(List.ANY_SET_COMP_EXP, OPT_PROPER_SUBSET), Funcs.IS_PROPER_SUBSET),
+        entry(FuncId.of(List.ANY_SET_COMP_EXP, OPT_SUPERSET), Funcs.IS_SUPERSET),
+        entry(FuncId.of(List.ANY_SET_COMP_EXP, OPT_PROPER_SUPERSET), Funcs.IS_PROPER_SUPERSET),
+        entry(FuncId.of(List.ANY_SET_COMP_EXP, OPT_EQ), Funcs.SET_EQ),
+        entry(FuncId.of(List.ANY_SET_COMP_EXP, OPT_NEQ), Funcs.SET_NEQ),
 
-        put(FuncId.of(List.STR_LIST_GET_EXP), Funcs.LIST_GET);
-        put(FuncId.of(List.STR_LIST_SLICE_EXP), Funcs.LIST_SLICE);
-        put(FuncId.of(List.STR_LIST_REVERSE_EXP, OPT_IN_PLACE), Funcs.LIST_REVERSE);
-        put(FuncId.of(List.STR_LIST_REVERSE_EXP, OPT_NOT_IN_PLACE), Funcs.LIST_REVERSED);
-        put(FuncId.of(List.STR_LIST_SORT_EXP, OPT_IN_PLACE), Funcs.LIST_SORT);
-        put(FuncId.of(List.STR_LIST_SORT_EXP, OPT_NOT_IN_PLACE), Funcs.LIST_SORTED);
-        put(FuncId.of(List.STR_LIST_MAX_MIN_EXP, OPT_MAX), Funcs.LIST_MAX);
-        put(FuncId.of(List.STR_LIST_MAX_MIN_EXP, OPT_MIN), Funcs.LIST_MIN);
+        entry(FuncId.of(List.STR_LIST_GET_EXP), Funcs.LIST_GET),
+        entry(FuncId.of(List.STR_LIST_SLICE_EXP), Funcs.LIST_SLICE),
+        entry(FuncId.of(List.STR_LIST_REVERSE_EXP, OPT_IN_PLACE), Funcs.LIST_REVERSE),
+        entry(FuncId.of(List.STR_LIST_REVERSE_EXP, OPT_NOT_IN_PLACE), Funcs.LIST_REVERSED),
+        entry(FuncId.of(List.STR_LIST_SORT_EXP, OPT_IN_PLACE), Funcs.LIST_SORT),
+        entry(FuncId.of(List.STR_LIST_SORT_EXP, OPT_NOT_IN_PLACE), Funcs.LIST_SORTED),
+        entry(FuncId.of(List.STR_LIST_MAX_MIN_EXP, OPT_MAX), Funcs.LIST_MAX),
+        entry(FuncId.of(List.STR_LIST_MAX_MIN_EXP, OPT_MIN), Funcs.LIST_MIN),
 
-        put(FuncId.of(List.NUM_LIST_GET_EXP), Funcs.LIST_GET);
-        put(FuncId.of(List.NUM_LIST_SLICE_EXP), Funcs.LIST_SLICE);
-        put(FuncId.of(List.NUM_LIST_REVERSE_EXP, OPT_IN_PLACE), Funcs.LIST_REVERSE);
-        put(FuncId.of(List.NUM_LIST_REVERSE_EXP, OPT_NOT_IN_PLACE), Funcs.LIST_REVERSED);
-        put(FuncId.of(List.NUM_LIST_SORT_EXP, OPT_IN_PLACE), Funcs.LIST_NUM_SORT);
-        put(FuncId.of(List.NUM_LIST_SORT_EXP, OPT_NOT_IN_PLACE), Funcs.LIST_NUM_SORTED);
-        put(FuncId.of(List.NUM_LIST_MAX_MIN_EXP, OPT_MAX), Funcs.LIST_NUM_MAX);
-        put(FuncId.of(List.NUM_LIST_MAX_MIN_EXP, OPT_MIN), Funcs.LIST_NUM_MIN);
+        entry(FuncId.of(List.NUM_LIST_GET_EXP), Funcs.LIST_GET),
+        entry(FuncId.of(List.NUM_LIST_SLICE_EXP), Funcs.LIST_SLICE),
+        entry(FuncId.of(List.NUM_LIST_REVERSE_EXP, OPT_IN_PLACE), Funcs.LIST_REVERSE),
+        entry(FuncId.of(List.NUM_LIST_REVERSE_EXP, OPT_NOT_IN_PLACE), Funcs.LIST_REVERSED),
+        entry(FuncId.of(List.NUM_LIST_SORT_EXP, OPT_IN_PLACE), Funcs.LIST_NUM_SORT),
+        entry(FuncId.of(List.NUM_LIST_SORT_EXP, OPT_NOT_IN_PLACE), Funcs.LIST_NUM_SORTED),
+        entry(FuncId.of(List.NUM_LIST_MAX_MIN_EXP, OPT_MAX), Funcs.LIST_NUM_MAX),
+        entry(FuncId.of(List.NUM_LIST_MAX_MIN_EXP, OPT_MIN), Funcs.LIST_NUM_MIN),
 
-        put(FuncId.of(List.BOOL_LIST_GET_EXP), Funcs.LIST_GET);
-        put(FuncId.of(List.BOOL_LIST_SLICE_EXP), Funcs.LIST_SLICE);
-        put(FuncId.of(List.BOOL_LIST_REVERSE_EXP, OPT_IN_PLACE), Funcs.LIST_REVERSE);
-        put(FuncId.of(List.BOOL_LIST_REVERSE_EXP, OPT_NOT_IN_PLACE), Funcs.LIST_REVERSED);
+        entry(FuncId.of(List.BOOL_LIST_GET_EXP), Funcs.LIST_GET),
+        entry(FuncId.of(List.BOOL_LIST_SLICE_EXP), Funcs.LIST_SLICE),
+        entry(FuncId.of(List.BOOL_LIST_REVERSE_EXP, OPT_IN_PLACE), Funcs.LIST_REVERSE),
+        entry(FuncId.of(List.BOOL_LIST_REVERSE_EXP, OPT_NOT_IN_PLACE), Funcs.LIST_REVERSED),
 
-        put(FuncId.of(List.COLOR_LIST_GET_EXP), Funcs.LIST_GET);
-        put(FuncId.of(List.COLOR_LIST_SLICE_EXP), Funcs.LIST_SLICE);
-        put(FuncId.of(List.COLOR_LIST_REVERSE_EXP, OPT_IN_PLACE), Funcs.LIST_REVERSE);
-        put(FuncId.of(List.COLOR_LIST_REVERSE_EXP, OPT_NOT_IN_PLACE), Funcs.LIST_REVERSED);
+        entry(FuncId.of(List.COLOR_LIST_GET_EXP), Funcs.LIST_GET),
+        entry(FuncId.of(List.COLOR_LIST_SLICE_EXP), Funcs.LIST_SLICE),
+        entry(FuncId.of(List.COLOR_LIST_REVERSE_EXP, OPT_IN_PLACE), Funcs.LIST_REVERSE),
+        entry(FuncId.of(List.COLOR_LIST_REVERSE_EXP, OPT_NOT_IN_PLACE), Funcs.LIST_REVERSED),
 
-        put(FuncId.of(List.SOUND_LIST_GET_EXP), Funcs.LIST_GET);
-        put(FuncId.of(List.SOUND_LIST_SLICE_EXP), Funcs.LIST_SLICE);
-        put(FuncId.of(List.SOUND_LIST_REVERSE_EXP, OPT_IN_PLACE), Funcs.LIST_REVERSE);
-        put(FuncId.of(List.SOUND_LIST_REVERSE_EXP, OPT_NOT_IN_PLACE), Funcs.LIST_REVERSED);
-      }};
+        entry(FuncId.of(List.SOUND_LIST_GET_EXP), Funcs.LIST_GET),
+        entry(FuncId.of(List.SOUND_LIST_SLICE_EXP), Funcs.LIST_SLICE),
+        entry(FuncId.of(List.SOUND_LIST_REVERSE_EXP, OPT_IN_PLACE), Funcs.LIST_REVERSE),
+        entry(FuncId.of(List.SOUND_LIST_REVERSE_EXP, OPT_NOT_IN_PLACE), Funcs.LIST_REVERSED)
+      ));
   }
 
   /** ユーザ定義関数に関するシンボル名. */
@@ -817,45 +818,24 @@ public class SymbolNames {
             SOUND_LIST_EXP_VOID));
 
     public static final Map<String, String> VALUE_MAP =
-        new HashMap<>() {{
-            put(ANY_EXP_VOID, Vars.NIL);
-            put(NUM_EXP_VOID, Vars.NIL);
-            put(STR_EXP_VOID, Vars.NIL);
-            put(BOOL_EXP_VOID, Vars.NIL);
-            put(COLOR_EXP_VOID, Vars.NIL);
-            put(SOUND_EXP_VOID, Vars.NIL);
-            put(MELODY_EXP_VOID, "[]");
-            put(SYNC_TIMER_VAR_VOID, Vars.NIL);
-            put(SEMAPHORE_VAR_VOID, Vars.NIL);
-            put(STR_CHAIN_LINK_VOID, "''");
-            put(LINE_FEED, "'\\n'");
-            put(ANY_LIST_EXP_VOID, "[]");
-            put(NUM_LIST_EXP_VOID, "[]");
-            put(STR_LIST_EXP_VOID, "[]");
-            put(BOOL_LIST_EXP_VOID, "[]");
-            put(COLOR_LIST_EXP_VOID, "[]");
-            put(SOUND_LIST_EXP_VOID, "[]");
-          }};
-  }
-
-  /** エントリポイントに関するシンボル一覧. */
-  public static class EntryPoint {
-
-    /** メインエントリポイント (プログラム開始時に自動で実行される処理) として指定可能なシンボル一覧. */
-    public static final Set<String> MAIN_LIST = new HashSet<>() {{
-        addAll(StatToBeIgnored.LIST);
-        addAll(AssignStat.LIST);
-        addAll(ControlStat.LIST);
-        addAll(BinaryExp.LIST);
-        addAll(UnaryExp.LIST);
-        addAll(PreDefFunc.EXP_LIST);
-        addAll(PreDefFunc.STAT_LIST);
-        add(UserDefFunc.VOID_FUNC_CALL);
-      }};
-
-    /** ワークスペースに存在していると自動的にエントリポイントとなるシンボル一覧. */
-    public static final Set<String> AUTO_LIST = new HashSet<>() {{
-        addAll(Event.LIST);
-      }};
+        new HashMap<>(Map.ofEntries(
+            entry(ANY_EXP_VOID, Vars.NIL),
+            entry(NUM_EXP_VOID, Vars.NIL),
+            entry(STR_EXP_VOID, Vars.NIL),
+            entry(BOOL_EXP_VOID, Vars.NIL),
+            entry(COLOR_EXP_VOID, Vars.NIL),
+            entry(SOUND_EXP_VOID, Vars.NIL),
+            entry(MELODY_EXP_VOID, "[]"),
+            entry(SYNC_TIMER_VAR_VOID, Vars.NIL),
+            entry(SEMAPHORE_VAR_VOID, Vars.NIL),
+            entry(STR_CHAIN_LINK_VOID, "''"),
+            entry(LINE_FEED, "'\\n'"),
+            entry(ANY_LIST_EXP_VOID, "[]"),
+            entry(NUM_LIST_EXP_VOID, "[]"),
+            entry(STR_LIST_EXP_VOID, "[]"),
+            entry(BOOL_LIST_EXP_VOID, "[]"),
+            entry(COLOR_LIST_EXP_VOID, "[]"),
+            entry(SOUND_LIST_EXP_VOID, "[]")
+        ));
   }
 }

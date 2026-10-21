@@ -46,8 +46,8 @@ import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeType;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.common.text.TextDefs;
+import net.seapanda.bunnyhop.compile.SourceNodeCollector;
 import net.seapanda.bunnyhop.compiler.SourceSet;
-import net.seapanda.bunnyhop.compiler.nodecollector.SourceNodeCollector;
 import net.seapanda.bunnyhop.debugger.control.DebugWindowController;
 import net.seapanda.bunnyhop.node.model.BhNode.Swapped;
 import net.seapanda.bunnyhop.node.model.event.CauseOfDeletion;
@@ -165,7 +165,7 @@ public class MenuViewController {
   /** アプリケーションのウィンドウを操作するためのオブジェクト. */
   private final WindowManager windowManager;
   /** 実行可能なノードを集めるためのオブジェクト. */
-  private final SourceNodeCollector executableNodeCollector;
+  private final SourceNodeCollector sourceNodeCollector;
 
   /** コンストラクタ. */
   public MenuViewController(
@@ -181,7 +181,7 @@ public class MenuViewController {
       MessageService msgService,
       DebugWindowController debugWindowCtrl,
       WindowManager windowManager,
-      SourceNodeCollector executableNodeCollector) {
+      SourceNodeCollector sourceNodeCollector) {
     this.wssCtrl = wssCtrl;
     this.notifService = notifService;
     this.wsFactory = wsFactory;
@@ -194,7 +194,7 @@ public class MenuViewController {
     this.msgService = msgService;
     this.debugWindowCtrl = debugWindowCtrl;
     this.windowManager = windowManager;
-    this.executableNodeCollector = executableNodeCollector;
+    this.sourceNodeCollector = sourceNodeCollector;
   }
 
   /** このコントローラを初期化する. */
@@ -208,6 +208,11 @@ public class MenuViewController {
   /** イベントハンドラを登録する. */
   private void setEventHandlers() {
     WorkspaceSet wss = wssCtrl.getWorkspaceSet();
+    WorkspaceSet.CallbackRegistry wssCbRegistry = wss.getCallbackRegistry();
+    wssCbRegistry.getOnRootNodeAdded().add(event -> changeExecuteButtonState());
+    wssCbRegistry.getOnRootNodeRemoved().add(event -> changeExecuteButtonState());
+    wssCbRegistry.getOnNodeSelectionStateChanged().add(event -> changeExecuteButtonState());
+
     copyBtn.setOnAction(action -> copy(wss));
     cutBtn.setOnAction(action -> cut(wss));
     pasteBtn.setOnAction(action -> paste(wss, wssCtrl.getTabPane()));
@@ -244,6 +249,7 @@ public class MenuViewController {
   /** 設定値に基づいて UI コンポーネントの初期状態を設定する. */
   private void initializeUiComponentStates() {
     pasteBtn.setDisable(true);
+    executeBtn.setDisable(true);
     focusSimBtn.setSelected(BhSettings.BhSimulator.focusOnSimulatorChanged);
     breakpointBtn.setSelected(BhSettings.Debug.canSetBreakpoint);
     debugBtn.setSelected(BhSettings.Debug.debugWindowVisible);
@@ -332,7 +338,7 @@ public class MenuViewController {
         swapped.newNode().findParentNode().getEventInvoker().onChildReplaced(
             swapped.oldNode(),
             swapped.newNode(),
-            swapped.newNode().getParentConnector(),
+            swapped.newNode().getParent(),
             context.userOpe());
       }
       pushViewpointChangeCmd(context.userOpe(), location);
@@ -547,7 +553,7 @@ public class MenuViewController {
     }
     Optional<SourceSet> nodeSet = Optional.empty();
     try {
-      nodeSet = executableNodeCollector.collect();
+      nodeSet = sourceNodeCollector.collect();
     } catch (Exception e) {
       LogManager.logger().error(e.toString());
     } finally {
@@ -651,6 +657,11 @@ public class MenuViewController {
   private void changePasteButtonState() {
     boolean disable = copyAndPaste.getList().isEmpty() && cutAndPaste.getList().isEmpty();
     pasteBtn.setDisable(disable);
+  }
+
+  /** 実行ボタンの有効/無効を切り替える. */
+  private void changeExecuteButtonState() {
+    executeBtn.setDisable(!sourceNodeCollector.hasEntryPoints());
   }
 
   /** 現在制御対象になっている BhRuntime の種類を返す. */

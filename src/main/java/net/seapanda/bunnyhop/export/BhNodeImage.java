@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import net.seapanda.bunnyhop.node.model.parameter.BhNodeId;
 import net.seapanda.bunnyhop.node.model.parameter.BhNodeVersion;
-import net.seapanda.bunnyhop.node.model.syntaxsymbol.InstanceId;
+import net.seapanda.bunnyhop.node.model.syntaxtree.NodeInstanceId;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 
 /**
@@ -31,8 +31,8 @@ import net.seapanda.bunnyhop.utility.math.Vec2D;
 public class BhNodeImage {
 
   final BhNodeId nodeId;
-  final InstanceId instanceId;
-  final ArrayList<InstanceId> derivativeIds;
+  final NodeInstanceId nodeInstanceId;
+  final ArrayList<NodeInstanceId> derivativeIds;
   final String text;
   final boolean isDefault;
   final boolean isBreakpointSet;
@@ -46,7 +46,7 @@ public class BhNodeImage {
    * 保存対象の 1 つの BhNode が持つ情報をこのオブジェクトに格納する.
    *
    * @param nodeId 対象の BhNode の ID
-   * @param instanceId 対象の BhNode のインスタンス ID
+   * @param nodeInstanceId 対象の BhNode のインスタンス ID
    * @param derivativeIds 対象の BhNode が持つ派生ノードのインスタンス ID
    * @param text 対象の BhNode が TextNode の場合に持っているテキスト
    * @param isDefault 対象の BhNode がデフォルトノードである場合 true
@@ -57,8 +57,8 @@ public class BhNodeImage {
    */
   public BhNodeImage(
       BhNodeId nodeId,
-      InstanceId instanceId,
-      Collection<InstanceId> derivativeIds,
+      NodeInstanceId nodeInstanceId,
+      Collection<NodeInstanceId> derivativeIds,
       String text,
       boolean isDefault,
       boolean isBreakpointSet,
@@ -66,7 +66,7 @@ public class BhNodeImage {
       BhNodeVersion version,
       Vec2D pos) {
     this.nodeId = nodeId;
-    this.instanceId = instanceId;
+    this.nodeInstanceId = nodeInstanceId;
     this.derivativeIds = new ArrayList<>(derivativeIds);
     this.text = (text == null) ? "" : text;
     this.isDefault = isDefault;
@@ -80,7 +80,7 @@ public class BhNodeImage {
   /** デフォルトコンストラクタ (デシリアライズ用). */
   public BhNodeImage() {
     this.nodeId = BhNodeId.NONE;
-    this.instanceId = InstanceId.NONE;
+    this.nodeInstanceId = NodeInstanceId.NONE;
     this.derivativeIds = new ArrayList<>();
     this.text = "";
     this.isDefault = false;

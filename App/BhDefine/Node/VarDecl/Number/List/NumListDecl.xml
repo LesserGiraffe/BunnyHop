@@ -4,6 +4,7 @@
   name="NumListDecl"
   nodeStyleID="NumListDecl.json"
   breakpoint="ignore"
+  entryPoint="none"
   onCompanionNodesCreating="CreateListDeclCompanions.js"
   onMovedFromChildToWS="OnVarDeclMovedToWS.js"
   onMovedFromWsToChild="OnVarDeclMovedToChild.js"

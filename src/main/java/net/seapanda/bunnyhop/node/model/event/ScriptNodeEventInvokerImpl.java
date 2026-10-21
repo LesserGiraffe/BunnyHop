@@ -91,9 +91,8 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     if (defined == null) {
       return;
     }
-    Map<String, Object> nameToObj = new HashMap<>() {{
-        put(BhConstants.JsIdName.BH_REPLACED_OLD_NODE, oldReplaced);
-      }};
+    Map<String, Object> nameToObj = new HashMap<>();
+    nameToObj.put(BhConstants.JsIdName.BH_REPLACED_OLD_NODE, oldReplaced);
     Context cx = Context.enter();
     ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
     try {
@@ -116,11 +115,10 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     if (defined == null) {
       return;
     }
-    Map<String, Object> nameToObj = new HashMap<>() {{
-        put(BhConstants.JsIdName.BH_OLD_PARENT, oldParent);
-        put(BhConstants.JsIdName.BH_OLD_ROOT, oldRoot);
-        put(BhConstants.JsIdName.BH_REPLACED_NEW_NODE, newReplaced);
-      }};
+    Map<String, Object> nameToObj = new HashMap<>();
+    nameToObj.put(BhConstants.JsIdName.BH_OLD_PARENT, oldParent);
+    nameToObj.put(BhConstants.JsIdName.BH_OLD_ROOT, oldRoot);
+    nameToObj.put(BhConstants.JsIdName.BH_REPLACED_NEW_NODE, newReplaced);
     Context cx = Context.enter();
     ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
     try {
@@ -143,11 +141,10 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     if (defined == null) {
       return;
     }
-    Map<String, Object> nameToObj = new HashMap<>() {{
-        put(BhConstants.JsIdName.BH_REPLACED_NEW_NODE, newChild);
-        put(BhConstants.JsIdName.BH_REPLACED_OLD_NODE, oldChild);
-        put(BhConstants.JsIdName.BH_PARENT_CONNECTOR, parentCnctr);
-      }};
+    Map<String, Object> nameToObj = new HashMap<>();
+    nameToObj.put(BhConstants.JsIdName.BH_REPLACED_NEW_NODE, newChild);
+    nameToObj.put(BhConstants.JsIdName.BH_REPLACED_OLD_NODE, oldChild);
+    nameToObj.put(BhConstants.JsIdName.BH_PARENT_CONNECTOR, parentCnctr);
     Context cx = Context.enter();
     ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
     try {
@@ -169,10 +166,9 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     if (defined == null) {
       return true;
     }
-    Map<String, Object> nameToObj = new HashMap<>() {{
-        put(BhConstants.JsIdName.BH_TARGET_NODES, new ArrayList<>(nodesToDelete));
-        put(BhConstants.JsIdName.BH_CAUSE_OF_DELETION, causeOfDeletion);
-      }};
+    Map<String, Object> nameToObj = new HashMap<>();
+    nameToObj.put(BhConstants.JsIdName.BH_TARGET_NODES, new ArrayList<>(nodesToDelete));
+    nameToObj.put(BhConstants.JsIdName.BH_CAUSE_OF_DELETION, causeOfDeletion);
     Context cx = Context.enter();
     ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
     try {
@@ -192,9 +188,8 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     if (defined == null) {
       return true;
     }
-    Map<String, Object> nameToObj = new HashMap<>() {{
-        put(BhConstants.JsIdName.BH_TARGET_NODES, new ArrayList<>(nodesToCut));
-      }};
+    Map<String, Object> nameToObj = new HashMap<>();
+    nameToObj.put(BhConstants.JsIdName.BH_TARGET_NODES, new ArrayList<>(nodesToCut));
     Context cx = Context.enter();
     ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
     try {
@@ -216,9 +211,8 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     if (defined == null) {
       return node -> true;
     }
-    Map<String, Object> nameToObj = new HashMap<>() {{
-        put(BhConstants.JsIdName.BH_TARGET_NODES, new ArrayList<>(nodesToCopy));
-      }};
+    Map<String, Object> nameToObj = new HashMap<>();
+    nameToObj.put(BhConstants.JsIdName.BH_TARGET_NODES, new ArrayList<>(nodesToCopy));
     Context cx = Context.enter();
     ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
     try {
@@ -282,9 +276,8 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     if (defined == null) {
       return;
     }
-    Map<String, Object> nameToObj = new HashMap<>() {{
-        put(BhConstants.JsIdName.BH_UI_EVENT, event);
-      }};
+    Map<String, Object> nameToObj = new HashMap<>();
+    nameToObj.put(BhConstants.JsIdName.BH_UI_EVENT, event);
     Context cx = Context.enter();
     ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
     try {
@@ -309,9 +302,8 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     if (defined == null) {
       return true;
     }
-    Map<String, Object> nameToObj = new HashMap<>() {{
-        put(BhConstants.JsIdName.BH_TEXT, text);
-      }};
+    Map<String, Object> nameToObj = new HashMap<>();
+    nameToObj.put(BhConstants.JsIdName.BH_TEXT, text);
     Context cx = Context.enter();
     ScriptableObject scope = createScriptScope(cx, target, nameToObj);
     try {
@@ -330,10 +322,9 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     if (defined == null) {
       return new FormatResult(false, addedText);
     }
-    Map<String, Object> nameToObj = new HashMap<>() {{
-        put(BhConstants.JsIdName.BH_TEXT, text);
-        put(BhConstants.JsIdName.BH_ADDED_TEXT, addedText);
-      }};
+    Map<String, Object> nameToObj = new HashMap<>();
+    nameToObj.put(BhConstants.JsIdName.BH_TEXT, text);
+    nameToObj.put(BhConstants.JsIdName.BH_ADDED_TEXT, addedText);
     Context cx = Context.enter();
     ScriptableObject scope = createScriptScope(cx, target, nameToObj);
     try {
@@ -380,9 +371,8 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     if (defined == null) {
       return new ArrayList<>();
     }
-    Map<String, Object> nameToObj = new HashMap<>() {{
-        put(BhConstants.JsIdName.BH_USER_OPE, userOpe);
-      }};
+    Map<String, Object> nameToObj = new HashMap<>();
+    nameToObj.put(BhConstants.JsIdName.BH_USER_OPE, userOpe);
     Context cx = Context.enter();
     ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
     try {
@@ -520,18 +510,17 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
    */
   private ScriptableObject createScriptScope(
       Context cx, BhNode target, UserOperation userOpe, Map<String, Object> nameToObj) {
+    Map<String, Object> allNameToObj = new HashMap<>(nameToObj);
+    allNameToObj.put(BhConstants.JsIdName.BH_THIS, target);
+    allNameToObj.put(BhConstants.JsIdName.BH_NODE_PLACER, nodePlacer);
+    allNameToObj.put(BhConstants.JsIdName.BH_UTIL, supplier.getCommonObj());
+    allNameToObj.put(BhConstants.JsIdName.BH_NODE_FACTORY, factory);
+    allNameToObj.put(BhConstants.JsIdName.BH_TEXT_DB, textDb);
+    if (userOpe != null) {
+      allNameToObj.put(BhConstants.JsIdName.BH_USER_OPE, userOpe);
+    }
     ScriptableObject scope = cx.initStandardObjects();
-    new HashMap<>(nameToObj) {{
-        put(BhConstants.JsIdName.BH_THIS, target);
-        put(BhConstants.JsIdName.BH_NODE_PLACER, nodePlacer);
-        put(BhConstants.JsIdName.BH_UTIL, supplier.getCommonObj());
-        put(BhConstants.JsIdName.BH_NODE_FACTORY, factory);
-        put(BhConstants.JsIdName.BH_TEXT_DB, textDb);
-        if (userOpe != null) {
-          put(BhConstants.JsIdName.BH_USER_OPE, userOpe);
-        }
-      }}
-      .forEach((key, val) -> scope.put(key, scope, Context.javaToJS(val, scope)));
+    allNameToObj.forEach((key, val) -> scope.put(key, scope, Context.javaToJS(val, scope)));
     return scope;
   }
 

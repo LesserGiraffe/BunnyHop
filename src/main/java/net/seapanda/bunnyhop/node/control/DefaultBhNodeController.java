@@ -273,7 +273,7 @@ public class DefaultBhNodeController implements BhNodeController {
       swapped.newNode().findParentNode().getEventInvoker().onChildReplaced(
           swapped.oldNode(),
           swapped.newNode(),
-          swapped.newNode().getParentConnector(),
+          swapped.newNode().getParent(),
           ddInfo.context.userOpe());
     }
     model.getEventInvoker().onMovedFromChildToWs(
@@ -316,7 +316,7 @@ public class DefaultBhNodeController implements BhNodeController {
       swapped.newNode().findParentNode().getEventInvoker().onChildReplaced(
           swapped.oldNode(),
           swapped.newNode(),
-          swapped.newNode().getParentConnector(),
+          swapped.newNode().getParent(),
           userOpe);
     }
   }
@@ -349,7 +349,7 @@ public class DefaultBhNodeController implements BhNodeController {
         swapped.newNode().findParentNode().getEventInvoker().onChildReplaced(
             swapped.oldNode(),
             swapped.newNode(),
-            swapped.newNode().getParentConnector(),
+            swapped.newNode().getParent(),
             userOpe);
       }
     }

@@ -27,7 +27,7 @@ import net.seapanda.bunnyhop.node.model.TextNode;
 import net.seapanda.bunnyhop.node.model.parameter.BhNodeId;
 import net.seapanda.bunnyhop.node.model.section.ConnectorSection;
 import net.seapanda.bunnyhop.node.model.section.Subsection;
-import net.seapanda.bunnyhop.node.model.syntaxsymbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.node.model.syntaxtree.SyntaxTreeNode;
 
 /**
  * シンボル名 or ノードIDと一致する識別子を持つコールバック関数を呼び出す.
@@ -94,17 +94,17 @@ public class CallbackInvoker implements BhNodeWalker {
   public static class CallbackRegistry {
 
     private final Map<BhNodeId, Consumer<? super BhNode>> nodeIdToCallback = new HashMap<>();
-    private final Map<String, Consumer<? super SyntaxSymbol>> symbolNameToCallback =
+    private final Map<String, Consumer<? super SyntaxTreeNode>> symbolNameToCallback =
         new HashMap<>();
     private Consumer<? super BhNode> callBackForAllNodes;
-    private Consumer<? super SyntaxSymbol> callBackForAllSymbols;
+    private Consumer<? super SyntaxTreeNode> callBackForAllSymbols;
     private boolean allNodes = false;
     private boolean allSymbols = false;
 
     private CallbackRegistry() {}
 
     /** シンボル名と一致したときに呼ばれるコールバック関数を登録する. */
-    public CallbackRegistry set(String symbolName, Consumer<? super SyntaxSymbol> callback) {
+    public CallbackRegistry set(String symbolName, Consumer<? super SyntaxTreeNode> callback) {
       symbolNameToCallback.put(symbolName, callback);
       return this;
     }
@@ -122,8 +122,8 @@ public class CallbackInvoker implements BhNodeWalker {
       return this;
     }
 
-    /** 全 {@link SyntaxSymbol} に対して呼ぶコールバック関数を登録する. */
-    public CallbackRegistry setForAllSyntaxSymbols(Consumer<? super SyntaxSymbol> callback) {
+    /** 全 {@link SyntaxTreeNode} に対して呼ぶコールバック関数を登録する. */
+    public CallbackRegistry setForAllSyntaxSymbols(Consumer<? super SyntaxTreeNode> callback) {
       allSymbols = true;
       callBackForAllSymbols = callback;
       return this;
@@ -143,7 +143,7 @@ public class CallbackInvoker implements BhNodeWalker {
           .ifPresent(callback -> callback.accept(node));
     }
 
-    void call(SyntaxSymbol symbol) {
+    void call(SyntaxTreeNode symbol) {
       if (allSymbols) {
         callBackForAllSymbols.accept(symbol);
       }

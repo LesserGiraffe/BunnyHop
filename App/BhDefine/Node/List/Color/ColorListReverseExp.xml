@@ -4,6 +4,7 @@
   name="ColorListReverseExp"
   nodeStyleID="ColorListReverseExp.json"
   breakpoint="ignore"
+  entryPoint="selectable"
   onChildReplaced="OnChildOfListCtrlReplaced.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
@@ -24,6 +25,7 @@
         name="InPlaceOpts"
         nodeStyleID="WordComboBox.json"
         breakpoint="specifyParent"
+        entryPoint="none"
         onTextOptionsCreating="CreateListReverseInPlaceOpts.js"
         version="bhn-0.1.0">
       </Node>

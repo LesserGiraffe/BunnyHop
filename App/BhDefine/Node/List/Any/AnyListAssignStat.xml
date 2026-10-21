@@ -4,6 +4,7 @@
   name="AnyListAssignStat"
   nodeStyleID="AnyListAssignStat.json"
   breakpoint="set"
+  entryPoint="selectable"
   onMovedFromChildToWS="OnStatMovedToWS.js"
   onMovedFromWsToChild="OnStatMovedToChild.js"
   onChildReplaced="OnChildOfListCtrlReplaced.js"

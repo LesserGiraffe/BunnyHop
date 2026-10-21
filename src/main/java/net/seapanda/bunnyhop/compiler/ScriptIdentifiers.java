@@ -17,7 +17,7 @@
 package net.seapanda.bunnyhop.compiler;
 
 /** 変数, 関数, プロパティ等の定義. */
-public class ScriptIdentifiers {
+class ScriptIdentifiers {
 
   /** BhProgram で使用される関数名. (JavaScript の組み込み関数は除く) */
   public static class Funcs {
@@ -92,7 +92,6 @@ public class ScriptIdentifiers {
     public static final String LOCK = "_lock";
     public static final String UNLOCK = "_unlock";
     public static final String ADD_EVENT = "_addEvent";
-    public static final String GET_EVENT_HANDLER_NAMES = "_getEventHandlerNames";
     public static final String BH_MAIN = "_bhMain";
     public static final String CREATE_SOUND = "_createSound";
     public static final String CREATE_COLOR_FROM_NAME = "_createColorFromName";

@@ -4,6 +4,7 @@
   name="LoadTextExp"
   nodeStyleID="LoadTextExp.json"
   breakpoint="ignore"
+  entryPoint="selectable"
   onCreatedAsTemplate="OnLoadTextExpCreatedAsTemplate.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">

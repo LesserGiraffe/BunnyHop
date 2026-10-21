@@ -28,7 +28,6 @@ import net.seapanda.bunnyhop.node.model.parameter.BhNodeParameters;
 import net.seapanda.bunnyhop.node.model.parameter.ConnectorId;
 import net.seapanda.bunnyhop.node.model.parameter.DerivationId;
 import net.seapanda.bunnyhop.node.model.section.Section;
-import net.seapanda.bunnyhop.node.model.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.node.model.traverse.BhNodeWalker;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 
@@ -101,6 +100,14 @@ public class ConnectiveNode extends Derivative<ConnectiveNode> {
   }
 
   @Override
+  public List<Section> getChildren() {
+    if (childSection == null) {
+      return List.of();
+    }
+    return List.of(childSection);
+  }
+
+  @Override
   public BhNode findOuterNode(int generation) {
     if (generation == 0) {
       return this;
@@ -124,27 +131,6 @@ public class ConnectiveNode extends Derivative<ConnectiveNode> {
    */
   public Connector findConnector(ConnectorId id) {
     return childSection.findConnector(id);
-  }
-
-
-  @Override
-  public void findDescendantOf(
-      int generation,
-      boolean toBottom,
-      List<SyntaxSymbol> foundSymbolList,
-      String... symbolNames) {
-    if (generation == 0) {
-      for (String symbolName : symbolNames) {
-        if (symbolNameMatches(symbolName)) {
-          foundSymbolList.add(this);
-        }
-      }
-      if (!toBottom) {
-        return;
-      }
-    }
-    childSection.findDescendantOf(
-        Math.max(0, generation - 1), toBottom, foundSymbolList, symbolNames);
   }
 
   @Override

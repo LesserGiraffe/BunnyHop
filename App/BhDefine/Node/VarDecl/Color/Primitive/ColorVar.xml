@@ -4,6 +4,7 @@
   name="ColorVar"
   nodeStyleID="ColorVar.json"
   breakpoint="ignore"
+  entryPoint="selectable"
   onRelatedNodesRequired="GetDerivationFamily.js"
   onJumpTargetRequired="GetOriginalNode.js"
   onCompileErrorChecking="CheckCompileErrorOfVariable.js"

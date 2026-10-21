@@ -16,8 +16,8 @@
 
 package net.seapanda.bunnyhop.compiler;
 
+import java.util.Map;
 import java.util.Set;
-import net.seapanda.bunnyhop.node.model.BhNode;
 
 /**
  * コンパイルの対象となるノード一覧を提供する機能を規定したインタフェース.
@@ -27,16 +27,23 @@ import net.seapanda.bunnyhop.node.model.BhNode;
 public interface SourceSet {
   
   /**
-   * プログラム開始時に実行されるノードを取得する.
+   * エントリポイントとして選択されたノードを取得する.
    *
-   * @return プログラム開始時に実行されるノード.  存在しない場合は null.
+   * @return エントリポイントとして選択されたノード.  存在しない場合は null.
    */
-  BhNode getMainEntryPoint();
+  CompilableSyntaxTreeNode getSelectedEntryPoint();
 
   /**
    * コンパイルの対象となるノード群のうち, ルートノードであるものの一覧を取得する.
    *
    * @return コンパイルの対象となるノード群うち, ルートノードであるものの一覧
    */
-  Set<BhNode> getRootNodes();
+  Set<CompilableSyntaxTreeNode> getRootNodes();
+
+  /**
+   * コンパイルの対象となるノード群のインスタンス ID とその ID に対応するノードのマップを取得する.
+   *
+   * @return コンパイルの対象となるノード群のインスタンス ID とその ID に対応するノードのマップ
+   */
+  Map<String, CompilableSyntaxTreeNode> getInstanceIdToNode();
 }

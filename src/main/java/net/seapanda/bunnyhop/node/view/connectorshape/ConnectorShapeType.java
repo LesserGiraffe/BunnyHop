@@ -1,6 +1,5 @@
 package net.seapanda.bunnyhop.node.view.connectorshape;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -29,28 +28,26 @@ public enum ConnectorShapeType {
 
   public final String name;
   public final ConnectorShape shape;
-  private static final Map<String, ConnectorShapeType> shapeNameToConnectorShape =
-      new HashMap<>() {{
-          put(ConnectorShapeType.ARROW.name, ConnectorShapeType.ARROW);
-          put(ConnectorShapeType.CHAR_T.name, ConnectorShapeType.CHAR_T);
-          put(ConnectorShapeType.CHAR_U.name, ConnectorShapeType.CHAR_U);
-          put(ConnectorShapeType.CHAR_V.name, ConnectorShapeType.CHAR_V);
-          put(ConnectorShapeType.CROSS.name, ConnectorShapeType.CROSS);
-          put(ConnectorShapeType.DIAMOND.name, ConnectorShapeType.DIAMOND);
-          put(ConnectorShapeType.HEXAGON.name, ConnectorShapeType.HEXAGON);
-          put(ConnectorShapeType.INV_PENTAGON.name, ConnectorShapeType.INV_PENTAGON);
-          put(ConnectorShapeType.INV_TRAPEZOID.name, ConnectorShapeType.INV_TRAPEZOID);
-          put(ConnectorShapeType.INV_TRIANGLE.name, ConnectorShapeType.INV_TRIANGLE);
-          put(ConnectorShapeType.NONE.name, ConnectorShapeType.NONE);
-          put(ConnectorShapeType.OCTAGON.name, ConnectorShapeType.OCTAGON);
-          put(ConnectorShapeType.PENTAGON.name, ConnectorShapeType.PENTAGON);
-          put(ConnectorShapeType.SQUARE.name, ConnectorShapeType.SQUARE);
-          put(ConnectorShapeType.STAR.name, ConnectorShapeType.STAR);
-          put(ConnectorShapeType.TRAPEZOID.name, ConnectorShapeType.TRAPEZOID);
-          put(ConnectorShapeType.TRIANGLE.name, ConnectorShapeType.TRIANGLE);
-          put(ConnectorShapeType.LIGHTNING.name, ConnectorShapeType.LIGHTNING);
-          put(ConnectorShapeType.SANDGLASS.name, ConnectorShapeType.SANDGLASS);
-        }};
+  private static final Map<String, ConnectorShapeType> shapeNameToConnectorShape = Map.ofEntries(
+      Map.entry(ConnectorShapeType.ARROW.name, ConnectorShapeType.ARROW),
+      Map.entry(ConnectorShapeType.CHAR_T.name, ConnectorShapeType.CHAR_T),
+      Map.entry(ConnectorShapeType.CHAR_U.name, ConnectorShapeType.CHAR_U),
+      Map.entry(ConnectorShapeType.CHAR_V.name, ConnectorShapeType.CHAR_V),
+      Map.entry(ConnectorShapeType.CROSS.name, ConnectorShapeType.CROSS),
+      Map.entry(ConnectorShapeType.DIAMOND.name, ConnectorShapeType.DIAMOND),
+      Map.entry(ConnectorShapeType.HEXAGON.name, ConnectorShapeType.HEXAGON),
+      Map.entry(ConnectorShapeType.INV_PENTAGON.name, ConnectorShapeType.INV_PENTAGON),
+      Map.entry(ConnectorShapeType.INV_TRAPEZOID.name, ConnectorShapeType.INV_TRAPEZOID),
+      Map.entry(ConnectorShapeType.INV_TRIANGLE.name, ConnectorShapeType.INV_TRIANGLE),
+      Map.entry(ConnectorShapeType.NONE.name, ConnectorShapeType.NONE),
+      Map.entry(ConnectorShapeType.OCTAGON.name, ConnectorShapeType.OCTAGON),
+      Map.entry(ConnectorShapeType.PENTAGON.name, ConnectorShapeType.PENTAGON),
+      Map.entry(ConnectorShapeType.SQUARE.name, ConnectorShapeType.SQUARE),
+      Map.entry(ConnectorShapeType.STAR.name, ConnectorShapeType.STAR),
+      Map.entry(ConnectorShapeType.TRAPEZOID.name, ConnectorShapeType.TRAPEZOID),
+      Map.entry(ConnectorShapeType.TRIANGLE.name, ConnectorShapeType.TRIANGLE),
+      Map.entry(ConnectorShapeType.LIGHTNING.name, ConnectorShapeType.LIGHTNING),
+      Map.entry(ConnectorShapeType.SANDGLASS.name, ConnectorShapeType.SANDGLASS));
 
   ConnectorShapeType(String shapeName, ConnectorShape shape) {
     name = shapeName;

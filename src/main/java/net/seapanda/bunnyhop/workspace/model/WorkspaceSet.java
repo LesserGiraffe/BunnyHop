@@ -109,7 +109,7 @@ public class WorkspaceSet {
       swapped.newNode().findParentNode().getEventInvoker().onChildReplaced(
           swapped.oldNode(),
           swapped.newNode(),
-          swapped.newNode().getParentConnector(),
+          swapped.newNode().getParent(),
           userOpe);
     }
   }

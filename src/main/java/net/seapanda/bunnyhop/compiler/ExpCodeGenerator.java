@@ -16,12 +16,14 @@
 
 package net.seapanda.bunnyhop.compiler;
 
+import static net.seapanda.bunnyhop.compiler.Keywords.Js;
+import static net.seapanda.bunnyhop.compiler.Keywords.newLine;
+import static net.seapanda.bunnyhop.compiler.SymbolNames.UserDefFunc.ARG;
+import static net.seapanda.bunnyhop.compiler.SymbolNames.UserDefFunc.OUT_ARG;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import net.seapanda.bunnyhop.node.model.BhNode;
-import net.seapanda.bunnyhop.node.model.TextNode;
-import net.seapanda.bunnyhop.node.model.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.utility.Utility;
 
 /**
@@ -48,36 +50,36 @@ class ExpCodeGenerator {
    * @param option コンパイルオプション
    * @return 式もしくは式の評価結果を格納した変数. {@code expNode} に該当する式ノードが見つからなかった場合 null.
    */
-  String genExpression(
-      SyntaxSymbol expNode,
+  String generateExpression(
+      CompilableSyntaxTreeNode expNode,
       StringBuilder code,
       int nestLevel,
       CompileOption option) {
     String expSymbolName = expNode.getSymbolName();
     if (SymbolNames.BinaryExp.LIST.contains(expSymbolName)) {
-      return genBinaryExp(expNode, code, nestLevel, option);
+      return generateBinaryExp(expNode, code, nestLevel, option);
 
     } else if (SymbolNames.UnaryExp.LIST.contains(expSymbolName)) {
-      return genUnaryExp(expNode, code, nestLevel, option);
+      return generateUnaryExp(expNode, code, nestLevel, option);
 
     } else if (SymbolNames.VarDecl.VAR_LIST.contains(expSymbolName)) {
-      return genVarExp(expNode);
+      return generateVarExp(expNode);
 
     } else if (SymbolNames.GlobalData.VAR_LIST.contains(expSymbolName)) {
-      var varNode = (BhNode) expNode;
-      return common.genVarName(varNode.getOriginal());
+      return common.generateVarName(expNode.getOriginal());
 
     } else if (SymbolNames.Literal.LIST.contains(expSymbolName)) {
-      return genLiteral(code, expNode, nestLevel, option);
+      return generateLiteral(code, expNode, nestLevel, option);
 
     } else if (SymbolNames.Literal.EXP_LIST.contains(expSymbolName)) {
-      return genExpression(expNode.findDescendantOf("*", "Literal", "*"), code, nestLevel, option);
+      return generateExpression(
+          expNode.findDescendantOf("*", "Literal", "*"), code, nestLevel, option);
 
     } else if (SymbolNames.PreDefFunc.EXP_LIST.contains(expSymbolName)) {
-      return genPreDefFuncCallExp(expNode, code, nestLevel, option, true);
+      return generatePreDefFuncCallExp(expNode, code, nestLevel, option, true);
 
     } else if (SymbolNames.ConstantValue.LIST.contains(expSymbolName)) {
-      return genConstValExp(expNode);
+      return generateConstValExp(expNode);
     }
     return null;
   }
@@ -91,15 +93,15 @@ class ExpCodeGenerator {
    * @param option コンパイルオプション
    * @return 式もしくは式の評価結果を格納した変数
    */
-  String genBinaryExp(
-      SyntaxSymbol binaryExpNode,
+  String generateBinaryExp(
+      CompilableSyntaxTreeNode binaryExpNode,
       StringBuilder code,
       int nestLevel,
       CompileOption option) {
     if (SymbolNames.BinaryExp.NONLOGICAL_LIST.contains(binaryExpNode.getSymbolName())) {
-      return genNonlogicalBinaryExp(binaryExpNode, code, nestLevel, option);
+      return generateNonlogicalBinaryExp(binaryExpNode, code, nestLevel, option);
     } else if (SymbolNames.BinaryExp.LOGICAL_LIST.contains(binaryExpNode.getSymbolName())) {
-      return genLogicalBinaryExp(binaryExpNode, code, nestLevel, option);
+      return generateLogicalBinaryExp(binaryExpNode, code, nestLevel, option);
     }
     throw new AssertionError(
         "Unknown binary expression.  (%s)".formatted(binaryExpNode.getSymbolName()));
@@ -114,33 +116,34 @@ class ExpCodeGenerator {
    * @param option コンパイルオプション
    * @return 式もしくは式の評価結果を格納した変数
    */
-  String genNonlogicalBinaryExp(
-      SyntaxSymbol binaryExpNode,
+  String generateNonlogicalBinaryExp(
+      CompilableSyntaxTreeNode binaryExpNode,
       StringBuilder code,
       int nestLevel,
       CompileOption option) {
-    SyntaxSymbol leftExp =
+    CompilableSyntaxTreeNode leftExp =
         binaryExpNode.findDescendantOf("*",  SymbolNames.BinaryExp.LEFT_EXP, "*");
-    String leftExpCode = genExpression(leftExp, code, nestLevel, option);
+    String leftExpCode = generateExpression(leftExp, code, nestLevel, option);
 
-    SyntaxSymbol rightExp =
+    CompilableSyntaxTreeNode rightExp =
         binaryExpNode.findDescendantOf("*", SymbolNames.BinaryExp.RIGHT_EXP, "*");
-    String rightExpCode = genExpression(rightExp, code, nestLevel, option);
+    String rightExpCode = generateExpression(rightExp, code, nestLevel, option);
 
-    TextNode operator =
-        (TextNode) binaryExpNode.findDescendantOf("*", SymbolNames.BinaryExp.OPERATOR, "*");
-    String operatorCode = SymbolNames.BinaryExp.OPERATOR_MAP.get(operator.getText());    
+    CompilableSyntaxTreeNode operator =
+        binaryExpNode.findDescendantOf("*", SymbolNames.BinaryExp.OPERATOR, "*");
+    String operatorCode = SymbolNames.BinaryExp.OPERATOR_MAP.get(operator.getLexeme());
 
-    String tmpVar = common.genVarName(binaryExpNode);
-    genDebugCode(binaryExpNode, code, nestLevel, option);
+    String tmpVar = common.generateVarName(binaryExpNode);
+    generateDebugCode(binaryExpNode, code, nestLevel, option);
     code.append(common.indent(nestLevel))
-        .append(Keywords.Js._const_)
+        .append(Js._const_)
         .append(tmpVar)
         .append(" = ")
         .append(leftExpCode)
         .append(operatorCode)
         .append(rightExpCode)
-        .append(";" + Keywords.newLine);
+        .append(";")
+        .append(newLine);
 
     return tmpVar;
   }
@@ -155,45 +158,49 @@ class ExpCodeGenerator {
    * @param option コンパイルオプション
    * @return 式もしくは式の評価結果を格納した変数
    */
-  String genLogicalBinaryExp(
-      SyntaxSymbol binaryExpNode,
+  String generateLogicalBinaryExp(
+      CompilableSyntaxTreeNode binaryExpNode,
       StringBuilder code,
       int nestLevel,
       CompileOption option) {
-    SyntaxSymbol leftExp =
+    CompilableSyntaxTreeNode leftExp =
         binaryExpNode.findDescendantOf("*",  SymbolNames.BinaryExp.LEFT_EXP, "*");
-    String leftExpCode = genExpression(leftExp, code, nestLevel, option);
-    String tmpVar = common.genVarName(binaryExpNode);
-    TextNode operator =
-        (TextNode) binaryExpNode.findDescendantOf("*", SymbolNames.BinaryExp.OPERATOR, "*");
+    String leftExpCode = generateExpression(leftExp, code, nestLevel, option);
+    String tmpVar = common.generateVarName(binaryExpNode);
+    CompilableSyntaxTreeNode operator =
+        binaryExpNode.findDescendantOf("*", SymbolNames.BinaryExp.OPERATOR, "*");
     String cond =
-        operator.getText().equals(SymbolNames.BinaryExp.OP_AND) ? tmpVar : ("!" + tmpVar);
+        operator.getLexeme().equals(SymbolNames.BinaryExp.OP_AND) ? tmpVar : ("!" + tmpVar);
 
     code.append(common.indent(nestLevel))
-        .append(Keywords.Js._let_) // 再代入するので const 不可
+        .append(Js._let_) // 再代入するので const 不可
         .append(tmpVar)
         .append(" = ")
         .append(leftExpCode)
-        .append(";" + Keywords.newLine)
+        .append(";")
+        .append(newLine)
         .append(common.indent(nestLevel))
-        .append(Keywords.Js._if_)
+        .append(Js._if_)
         .append("(")
         .append(cond)
-        .append(") {" + Keywords.newLine);
+        .append(") {")
+        .append(newLine);
 
-    SyntaxSymbol rightExp =
+    CompilableSyntaxTreeNode rightExp =
         binaryExpNode.findDescendantOf("*", SymbolNames.BinaryExp.RIGHT_EXP, "*");
-    String rightExpCode = genExpression(rightExp, code, nestLevel + 1, option);
-    genDebugCode(binaryExpNode, code, nestLevel + 1, option);
+    String rightExpCode = generateExpression(rightExp, code, nestLevel + 1, option);
+    generateDebugCode(binaryExpNode, code, nestLevel + 1, option);
     code.append(common.indent(nestLevel + 1))
         .append(tmpVar)
         .append(" = ")
         .append(tmpVar)
-        .append(SymbolNames.BinaryExp.OPERATOR_MAP.get(operator.getText()))
+        .append(SymbolNames.BinaryExp.OPERATOR_MAP.get(operator.getLexeme()))
         .append(rightExpCode)
-        .append(";" + Keywords.newLine)
+        .append(";")
+        .append(newLine)
         .append(common.indent(nestLevel))
-        .append("}" + Keywords.newLine);
+        .append("}")
+        .append(newLine);
 
     return tmpVar;
   }
@@ -207,24 +214,25 @@ class ExpCodeGenerator {
    * @param option コンパイルオプション
    * @return 式もしくは式の評価結果を格納した変数
    */
-  String genUnaryExp(
-      SyntaxSymbol unaryExpNode,
+  String generateUnaryExp(
+      CompilableSyntaxTreeNode unaryExpNode,
       StringBuilder code,
       int nestLevel,
       CompileOption option) {
-    SyntaxSymbol primaryExp =
+    CompilableSyntaxTreeNode primaryExp =
         unaryExpNode.findDescendantOf("*",  SymbolNames.UnaryExp.PRIMARY_EXP, "*");
-    String primaryExpCode = genExpression(primaryExp, code, nestLevel, option);
+    String primaryExpCode = generateExpression(primaryExp, code, nestLevel, option);
     String operatorCode = SymbolNames.UnaryExp.OPERATOR_MAP.get(unaryExpNode.getSymbolName());
-    String tmpVar = common.genVarName(unaryExpNode);
-    genDebugCode(unaryExpNode, code, nestLevel, option);
+    String tmpVar = common.generateVarName(unaryExpNode);
+    generateDebugCode(unaryExpNode, code, nestLevel, option);
     code.append(common.indent(nestLevel))
-        .append(Keywords.Js._const_)
+        .append(Js._const_)
         .append(tmpVar)
         .append(" = ")
         .append(operatorCode)
         .append(primaryExpCode)
-        .append(";" + Keywords.newLine);
+        .append(";")
+        .append(newLine);
 
     return tmpVar;
   }
@@ -238,15 +246,12 @@ class ExpCodeGenerator {
    * @param option コンパイルオプション
    * @return リテラル式
    */
-  private String genLiteral(
+  private String generateLiteral(
       StringBuilder code,
-      SyntaxSymbol literal,
+      CompilableSyntaxTreeNode literal,
       int nestLevel,
       CompileOption option) {
-    String inputText = "";
-    if (literal instanceof TextNode textNode) {
-      inputText = textNode.getText();
-    }
+    String inputText = literal.getLexeme();
     return switch (literal.getSymbolName()) {
       case SymbolNames.Literal.NUM_LITERAL -> "(" + common.toJsNumber(inputText) + ")";
       case SymbolNames.Literal.BOOL_LITERAL -> "(" + inputText + ")";
@@ -254,10 +259,10 @@ class ExpCodeGenerator {
 
       case SymbolNames.Literal.FREQ_SOUND_LITERAL,
            SymbolNames.Literal.SCALE_SOUND_LITERAL ->
-          genSoundLiteralExp(literal, code, nestLevel, option);
+          generateSoundLiteralExp(literal, code, nestLevel, option);
 
       case SymbolNames.Literal.COLOR_LITERAL ->
-          genColorLiteralExp(literal, code, nestLevel);
+          generateColorLiteralExp(literal, code, nestLevel);
 
       default -> throw new AssertionError("Invalid literal " + literal.getSymbolName());
     };
@@ -273,24 +278,25 @@ class ExpCodeGenerator {
    * @param storeRetVal 戻り値を変数に格納するコードを出力する場合true.
    * @return 式もしくは式の評価結果を格納した変数. storeRetVal が false の場合は null.
    */
-  String genPreDefFuncCallExp(
-      SyntaxSymbol funcCallNode,
+  String generatePreDefFuncCallExp(
+      CompilableSyntaxTreeNode funcCallNode,
       StringBuilder code,
       int nestLevel,
       CompileOption option,
       boolean storeRetVal) {
-    List<String> argList = genPreDefFuncArgs(funcCallNode, code, false, nestLevel, option);
-    List<String> outArgList = genPreDefFuncArgs(funcCallNode, code, true, nestLevel, option);
+    List<String> argList = generatePreDefFuncArgs(funcCallNode, code, false, nestLevel, option);
+    List<String> outArgList = generatePreDefFuncArgs(funcCallNode, code, true, nestLevel, option);
     argList.addAll(outArgList);
     String retValName = null;
     if (storeRetVal) {
-      retValName = common.genVarName(funcCallNode);
+      retValName = common.generateVarName(funcCallNode);
       code.append(common.indent(nestLevel))
-          .append(Keywords.Js._const_)
+          .append(Js._const_)
           .append(retValName)
-          .append(";" + Keywords.newLine);
+          .append(";")
+          .append(newLine);
     }
-    genDebugCode(funcCallNode, code, nestLevel, option);
+    generateDebugCode(funcCallNode, code, nestLevel, option);
     String[] argArray = argList.toArray(new String[0]);
     String funcCallCode;
     // 恒等写像は最初の引数を結果の変数に代入するだけ
@@ -298,13 +304,13 @@ class ExpCodeGenerator {
     if (funcName.equals(ScriptIdentifiers.Funcs.IDENTITY)) {
       funcCallCode = argArray[0];
     } else {
-      funcCallCode = common.genFuncCall(funcName, argArray);
+      funcCallCode = common.generateFuncCall(funcName, argArray);
     }
     code.append(common.indent(nestLevel));
     if (storeRetVal) {
       code.append(retValName).append(" = ");
     }
-    code.append(funcCallCode).append(";").append(Keywords.newLine);
+    code.append(funcCallCode).append(";").append(newLine);
     return retValName;
   }
 
@@ -318,8 +324,8 @@ class ExpCodeGenerator {
    * @param option コンパイルオプション
    * @return 実引数を格納したリスト
    */
-  List<String> genPreDefFuncArgs(
-      SyntaxSymbol funcCallNode,
+  List<String> generatePreDefFuncArgs(
+      CompilableSyntaxTreeNode funcCallNode,
       StringBuilder code,
       boolean outArg,
       int nestLevel,
@@ -329,14 +335,14 @@ class ExpCodeGenerator {
     while (true) {
       String argCnctrName = outArg ? SymbolNames.PreDefFunc.OUT_ARG : SymbolNames.PreDefFunc.ARG;
       argCnctrName += idArg;
-      SyntaxSymbol argExp = funcCallNode.findDescendantOf("*", argCnctrName, "*");
+      CompilableSyntaxTreeNode argExp = funcCallNode.findDescendantOf("*", argCnctrName, "*");
       if (argExp == null) {
         break;
       }
       if (outArg) {
-        argList.add(genOutArg(argExp, code, nestLevel, option));
+        argList.add(generateOutArg(argExp, code, nestLevel, option));
       } else {
-        argList.add(genExpression(argExp, code, nestLevel, option));
+        argList.add(generateExpression(argExp, code, nestLevel, option));
       }
       ++idArg;
     }
@@ -348,19 +354,17 @@ class ExpCodeGenerator {
    *
    * @return 関数ID
    */
-  FuncId createFuncId(SyntaxSymbol funcCallNode) {
+  FuncId createFuncId(CompilableSyntaxTreeNode funcCallNode) {
     //呼び出しオプションを探す
     int idOption = 0;
     List<String> funcIdentifier = new ArrayList<>(List.of(funcCallNode.getSymbolName()));
     while (true) {
       String optionCnctrName = SymbolNames.PreDefFunc.OPTION + idOption;
-      SyntaxSymbol optionExp = funcCallNode.findDescendantOf("*", optionCnctrName, "*");
+      CompilableSyntaxTreeNode optionExp = funcCallNode.findDescendantOf("*", optionCnctrName, "*");
       if (optionExp == null) {
         break;
       }
-      if (optionExp instanceof TextNode textNode) {
-        funcIdentifier.add(textNode.getText());
-      }
+      funcIdentifier.add(optionExp.getLexeme());
       ++idOption;
     }
     return FuncId.of(funcIdentifier.toArray(new String[0]));
@@ -376,37 +380,39 @@ class ExpCodeGenerator {
    * @param storeRetVal 戻り値を変数に格納するコードを出力する場合true.
    * @return 式もしくは式の評価結果を格納した変数. storeRetVal が false の場合は null.
    */
-  String genUserDefFuncCallExp(
-      SyntaxSymbol funcCallNode,
+  String generateUserDefFuncCallExp(
+      CompilableSyntaxTreeNode funcCallNode,
       StringBuilder code,
       int nestLevel,
       CompileOption option,
       boolean storeRetVal) {
-    SyntaxSymbol arg = funcCallNode.findDescendantOf("*", SymbolNames.UserDefFunc.ARG, "*");
-    SyntaxSymbol outArg = funcCallNode.findDescendantOf("*", SymbolNames.UserDefFunc.OUT_ARG, "*");
-    List<String> argList = genArgList(arg, code, false, nestLevel, option);
-    List<String> outArgList = genArgList(outArg, code, true, nestLevel, option);
+    CompilableSyntaxTreeNode arg = funcCallNode.findDescendantOf("*", ARG, "*");
+    CompilableSyntaxTreeNode outArg = funcCallNode.findDescendantOf("*", OUT_ARG, "*");
+    List<String> argList = generateArgList(arg, code, false, nestLevel, option);
+    List<String> outArgList = generateArgList(outArg, code, true, nestLevel, option);
     argList.addAll(outArgList);
     argList.addFirst(ScriptIdentifiers.Vars.THREAD_CONTEXT);
-    String funcName = common.genFuncName(((BhNode) funcCallNode).getOriginal());
+    String funcName = common.generateFuncName(funcCallNode.getOriginal());
     String[] argArray = argList.toArray(new String[0]);
-    final String funcCallCode = common.genFuncCall(funcName, argArray);
+    final String funcCallCode = common.generateFuncCall(funcName, argArray);
 
     String retValName = null;
     if (storeRetVal) {
-      retValName = common.genVarName(funcCallNode);
+      retValName = common.generateVarName(funcCallNode);
       code.append(common.indent(nestLevel))
-          .append(Keywords.Js._const_)
+          .append(Js._const_)
           .append(retValName)
-          .append(";" + Keywords.newLine);
+          .append(";")
+          .append(newLine);
     }
-    genDebugCode(funcCallNode, code, nestLevel, option);
+    generateDebugCode(funcCallNode, code, nestLevel, option);
     code.append(common.indent(nestLevel));
     if (storeRetVal) {
       code.append(retValName).append(" = ");
     }
     code.append(funcCallCode)
-        .append(";" + Keywords.newLine);
+        .append(";")
+        .append(newLine);
     return retValName;
   }
 
@@ -420,26 +426,26 @@ class ExpCodeGenerator {
    * @param option コンパイルオプション
    * @return 実引数を格納したリスト
    */
-  private LinkedList<String> genArgList(
-      SyntaxSymbol argNode,
+  private LinkedList<String> generateArgList(
+      CompilableSyntaxTreeNode argNode,
       StringBuilder code,
       boolean assignToOutParams,
       int nestLevel,
       CompileOption option) {
     LinkedList<String> argList;
-    SyntaxSymbol nextArg =
+    CompilableSyntaxTreeNode nextArg =
         argNode.findDescendantOf("*", SymbolNames.UserDefFunc.NEXT_ARG, "*");
     if (nextArg != null && !nextArg.getSymbolName().equals(SymbolNames.UserDefFunc.ARG_VOID)) {
-      argList = genArgList(nextArg, code, assignToOutParams, nestLevel, option);
+      argList = generateArgList(nextArg, code, assignToOutParams, nestLevel, option);
     } else {
       argList = new LinkedList<>();
     }
-    SyntaxSymbol argument = argNode.findDescendantOf("*", SymbolNames.UserDefFunc.ARG, "*");
+    CompilableSyntaxTreeNode argument = argNode.findDescendantOf("*", ARG, "*");
     if (argument != null) {
       if (assignToOutParams) {
-        argList.addFirst(genOutArg(argument, code, nestLevel, option));
+        argList.addFirst(generateOutArg(argument, code, nestLevel, option));
       } else {
-        argList.addFirst(genExpression(argument, code, nestLevel, option));
+        argList.addFirst(generateExpression(argument, code, nestLevel, option));
       }
     }
     return argList;
@@ -454,21 +460,21 @@ class ExpCodeGenerator {
    * @param option コンパイルオプション
    * @return 出力変数
    */
-  private String genOutArg(
-      SyntaxSymbol varNode,
+  private String generateOutArg(
+      CompilableSyntaxTreeNode varNode,
       StringBuilder code,
       int nestLevel,
       CompileOption option) {
     if (SymbolNames.VarDecl.VAR_LIST.contains(varNode.getSymbolName())) {
-      BhNode varDecl = ((BhNode) varNode).getOriginal();
+      CompilableSyntaxTreeNode varDecl = varNode.getOriginal();
       if (common.isOutputParam(varDecl)) {
-        return common.genVarName(varDecl); // out -> out
+        return common.generateVarName(varDecl); // out -> out
       } else {
-        return common.genVarAccessorName(varDecl); // in -> out
+        return common.generateVarAccessorName(varDecl); // in -> out
       }
     } else if (SymbolNames.VarDecl.VAR_VOID_LIST.contains(varNode.getSymbolName())) {
       // 出力引数に変数指定がなかった場合
-      List<String> vars = varDeclCodeGen.genVarDeclAndAccessor(
+      List<String> vars = varDeclCodeGen.generateVarDeclAndAccessor(
           varNode,
           SymbolNames.VarDecl.INIT_VAL_MAP.get(varNode.getSymbolName()),
           code,
@@ -488,17 +494,17 @@ class ExpCodeGenerator {
    * @param option コンパイルオプション
    * @return 音リテラルを格納した変数.
    */
-  private String genSoundLiteralExp(
-      SyntaxSymbol soundLiteral,
+  private String generateSoundLiteralExp(
+      CompilableSyntaxTreeNode soundLiteral,
       StringBuilder code,
       int nestLevel,
       CompileOption option) {
     return switch (soundLiteral.getSymbolName()) {
       case SymbolNames.Literal.FREQ_SOUND_LITERAL ->
-          genFreqSoundLiteralExp(soundLiteral, code, nestLevel, option);
+          generateFreqSoundLiteralExp(soundLiteral, code, nestLevel, option);
 
       case SymbolNames.Literal.SCALE_SOUND_LITERAL ->
-          genScaleSoundLiteralExp(soundLiteral, code, nestLevel, option);
+          generateScaleSoundLiteralExp(soundLiteral, code, nestLevel, option);
 
       default ->
           throw new AssertionError("Invalid sound literal " + soundLiteral.getSymbolName());
@@ -514,31 +520,32 @@ class ExpCodeGenerator {
    * @param option コンパイルオプション
    * @return 音リテラルを格納した変数.
    */
-  private String genFreqSoundLiteralExp(
-      SyntaxSymbol freqSoundLiteral,
+  private String generateFreqSoundLiteralExp(
+      CompilableSyntaxTreeNode freqSoundLiteral,
       StringBuilder code,
       int nestLevel,
       CompileOption option) {
-    SyntaxSymbol volumeNode = 
+    CompilableSyntaxTreeNode volumeNode =
         freqSoundLiteral.findDescendantOf(SymbolNames.Literal.Sound.VOLUME, "*");
-    SyntaxSymbol durationNode =
+    CompilableSyntaxTreeNode durationNode =
         freqSoundLiteral.findDescendantOf(SymbolNames.Literal.Sound.DURATION, "*");
-    SyntaxSymbol frequencyNode =
+    CompilableSyntaxTreeNode frequencyNode =
         freqSoundLiteral.findDescendantOf(SymbolNames.Literal.Sound.FREQUENCY, "*");
-    String volume = genExpression(volumeNode, code, nestLevel, option);
-    String duration = genExpression(durationNode, code, nestLevel, option);
-    String frequency = genExpression(frequencyNode, code, nestLevel, option);
+    String volume = generateExpression(volumeNode, code, nestLevel, option);
+    String duration = generateExpression(durationNode, code, nestLevel, option);
+    String frequency = generateExpression(frequencyNode, code, nestLevel, option);
     // 音オブジェクト作成
-    String soundVar = common.genVarName(freqSoundLiteral);
-    String rightExp = common.genFuncCall(
+    String soundVar = common.generateVarName(freqSoundLiteral);
+    String rightExp = common.generateFuncCall(
         ScriptIdentifiers.Funcs.CREATE_SOUND, volume, frequency, duration);
-    genDebugCode(freqSoundLiteral, code, nestLevel, option);
+    generateDebugCode(freqSoundLiteral, code, nestLevel, option);
     code.append(common.indent(nestLevel))
-        .append(Keywords.Js._const_)
+        .append(Js._const_)
         .append(soundVar)
         .append(" = ")
         .append(rightExp)
-        .append(";" + Keywords.newLine);
+        .append(";")
+        .append(newLine);
     return soundVar;
   }
 
@@ -551,40 +558,41 @@ class ExpCodeGenerator {
    * @param option コンパイルオプション
    * @return 音リテラルを格納した変数.
    */
-  private String genScaleSoundLiteralExp(
-      SyntaxSymbol scaleSoundLiteral,
+  private String generateScaleSoundLiteralExp(
+      CompilableSyntaxTreeNode scaleSoundLiteral,
       StringBuilder code,
       int nestLevel,
       CompileOption option) {
-    SyntaxSymbol volumeNode =
+    CompilableSyntaxTreeNode volumeNode =
         scaleSoundLiteral.findDescendantOf(SymbolNames.Literal.Sound.VOLUME, "*");
-    SyntaxSymbol durationNode =
+    CompilableSyntaxTreeNode durationNode =
         scaleSoundLiteral.findDescendantOf(SymbolNames.Literal.Sound.DURATION, "*");
-    SyntaxSymbol octaveNode =
+    CompilableSyntaxTreeNode octaveNode =
         scaleSoundLiteral.findDescendantOf(SymbolNames.Literal.Sound.OCTAVE, "*");
-    SyntaxSymbol scaleSoundNode =
+    CompilableSyntaxTreeNode scaleSoundNode =
         scaleSoundLiteral.findDescendantOf(SymbolNames.Literal.Sound.SCALE_SOUND, "*");
 
     // 音階の音から周波数を計算する
-    final String volume = genExpression(volumeNode, code, nestLevel, option);
-    final String duration = genExpression(durationNode, code, nestLevel, option);
-    String octave = genExpression(octaveNode, code, nestLevel, option);
-    String scaleSound = genExpression(scaleSoundNode, code, nestLevel, option);
+    final String volume = generateExpression(volumeNode, code, nestLevel, option);
+    final String duration = generateExpression(durationNode, code, nestLevel, option);
+    String octave = generateExpression(octaveNode, code, nestLevel, option);
+    String scaleSound = generateExpression(scaleSoundNode, code, nestLevel, option);
     octave = octave.replaceAll("[^\\d\\-]", "");
     scaleSound = scaleSound.replaceAll("[^\\d\\-]", "");
     double frequency =
         440 * Math.pow(2, (Double.parseDouble(octave) + Double.parseDouble(scaleSound)) / 12);
     // 音オブジェクト作成
-    String soundVar = common.genVarName(scaleSoundLiteral);
-    String rightExp = common.genFuncCall(
+    String soundVar = common.generateVarName(scaleSoundLiteral);
+    String rightExp = common.generateFuncCall(
         ScriptIdentifiers.Funcs.CREATE_SOUND, volume, "(%.3f)".formatted(frequency), duration);
-    genDebugCode(scaleSoundLiteral, code, nestLevel, option);
+    generateDebugCode(scaleSoundLiteral, code, nestLevel, option);
     code.append(common.indent(nestLevel))
-        .append(Keywords.Js._const_)
+        .append(Js._const_)
         .append(soundVar)
         .append(" = ")
         .append(rightExp)
-        .append(";" + Keywords.newLine);
+        .append(";")
+        .append(newLine);
     return soundVar;
   }
 
@@ -596,20 +604,21 @@ class ExpCodeGenerator {
    * @param nestLevel ソースコードのネストレベル
    * @return 色リテラルを格納した変数.
    */
-  private String genColorLiteralExp(
-      SyntaxSymbol colorLiteralNode,
+  private String generateColorLiteralExp(
+      CompilableSyntaxTreeNode colorLiteralNode,
       StringBuilder code,
       int nestLevel) {
-    String colorName = "'" + ((TextNode) colorLiteralNode).getText() + "'";
-    String colorVar = common.genVarName(colorLiteralNode);
-    String rightExp = common.genFuncCall(
+    String colorName = "'" + colorLiteralNode.getLexeme() + "'";
+    String colorVar = common.generateVarName(colorLiteralNode);
+    String rightExp = common.generateFuncCall(
         ScriptIdentifiers.Funcs.CREATE_COLOR_FROM_NAME, colorName);
     code.append(common.indent(nestLevel))
-        .append(Keywords.Js._const_)
+        .append(Js._const_)
         .append(colorVar)
         .append(" = ")
         .append(rightExp)
-        .append(";" + Keywords.newLine);
+        .append(";")
+        .append(newLine);
     return colorVar;
   }
 
@@ -619,17 +628,17 @@ class ExpCodeGenerator {
    * @param constValNode 識別子のノード
    * @return 定数の文字列
    */
-  private String genConstValExp(SyntaxSymbol constValNode) {
+  private String generateConstValExp(CompilableSyntaxTreeNode constValNode) {
     return "(" + SymbolNames.ConstantValue.VALUE_MAP.get(constValNode.getSymbolName()) + ")";
   }
 
   /** 変数ノードから式を生成する. */
-  private String genVarExp(SyntaxSymbol expNode) {
-    var varNode = (BhNode) expNode;
-    if (common.isOutputParam(varNode.getOriginal())) {
-      return "(" + common.genGetOutputParamVal(varNode.getOriginal()) + ")";
+  private String generateVarExp(CompilableSyntaxTreeNode expNode) {
+    CompilableSyntaxTreeNode varDeclNode = expNode.getOriginal();
+    if (common.isOutputParam(varDeclNode)) {
+      return "(" + common.generateGetOutputParamVal(varDeclNode) + ")";
     } else {
-      return common.genVarName(varNode.getOriginal());
+      return common.generateVarName(varDeclNode);
     }
   }
 
@@ -640,18 +649,15 @@ class ExpCodeGenerator {
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
-  public void genDebugCode(
-      SyntaxSymbol symbol,
+  public void generateDebugCode(
+      CompilableSyntaxTreeNode node,
       StringBuilder code,
       int nestLevel,
       CompileOption option) {
-    String instVar = common.genAssignNodeInstId(symbol, code, nestLevel, option);
-    common.genSetInstIdToThreadContext(instVar, code, nestLevel, option);
-    if (!(symbol instanceof BhNode node)) {
-      return;
-    }
-    if (node.isBreakpointGroupLeader()) {
-      common.genConditionalWait(instVar, code, nestLevel, option);
+    String instVar = common.generateAssignNodeInstId(node, code, nestLevel, option);
+    common.generateSetInstIdToThreadContext(instVar, code, nestLevel, option);
+    if (node.canSetBreakpoint()) {
+      common.generateConditionalWait(instVar, code, nestLevel, option);
     }
   }
 }

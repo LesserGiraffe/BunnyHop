@@ -24,8 +24,8 @@ import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.ConnectiveNode;
 import net.seapanda.bunnyhop.node.model.Connector;
 import net.seapanda.bunnyhop.node.model.TextNode;
-import net.seapanda.bunnyhop.node.model.syntaxsymbol.InstanceId;
-import net.seapanda.bunnyhop.node.model.syntaxsymbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.node.model.syntaxtree.NodeInstanceId;
+import net.seapanda.bunnyhop.node.model.syntaxtree.SyntaxTreeNode;
 import net.seapanda.bunnyhop.node.model.traverse.BhNodeWalker;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 
@@ -52,9 +52,9 @@ public class NodeImageBuilder implements BhNodeWalker {
 
   @Override
   public void visit(ConnectiveNode node) {
-    List<InstanceId> derivativeIds = node.getDerivatives().stream()
+    List<NodeInstanceId> derivativeIds = node.getDerivatives().stream()
         .filter(NodeImageBuilder::shouldSave)
-        .map(SyntaxSymbol::getInstanceId)
+        .map(SyntaxTreeNode::getInstanceId)
         .toList();
     Vec2D pos = node.getView()
         .map(view -> view.getGeometry().getPosition())
@@ -76,9 +76,9 @@ public class NodeImageBuilder implements BhNodeWalker {
 
   @Override
   public void visit(TextNode node) {
-    List<InstanceId> derivativeIds = node.getDerivatives().stream()
+    List<NodeInstanceId> derivativeIds = node.getDerivatives().stream()
         .filter(NodeImageBuilder::shouldSave)
-        .map(SyntaxSymbol::getInstanceId)
+        .map(SyntaxTreeNode::getInstanceId)
         .toList();
     Vec2D pos = node.getView()
         .map(view -> view.getGeometry().getPosition())

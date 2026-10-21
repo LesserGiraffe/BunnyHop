@@ -138,7 +138,7 @@ public class BhNodeViewGroup {
    * @return 追加に成功した場合 true. 失敗した場合 false.
    */
   boolean addNodeView(BhNodeViewBase view) {
-    Connector cnctr = view.getModel().map(BhNode::getParentConnector).orElse(null);
+    Connector cnctr = view.getModel().map(BhNode::getParent).orElse(null);
     if (cnctr == null) {
       return false;
     }

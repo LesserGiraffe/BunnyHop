@@ -37,7 +37,6 @@ import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.common.text.TextDefs;
-import net.seapanda.bunnyhop.compiler.ScriptIdentifiers;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.message.MessageService;
 import net.seapanda.bunnyhop.service.script.BhScriptRepository;
@@ -206,8 +205,7 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
   /** BhProgram の開始時に実行する処理を呼ぶ. */
   private void invokeStartMethod(Path filePath) {
     msgService.info(TextDefs.BhRuntime.Remote.hasStarted.get());
-    var startEvent = new BhProgramEvent(
-        BhProgramEvent.Name.PROGRAM_START, ScriptIdentifiers.Funcs.GET_EVENT_HANDLER_NAMES);
+    var startEvent = new BhProgramEvent(BhProgramEvent.Name.PROGRAM_START);
     // プログラムスタートイベントを送信する
     send(startEvent);
     cbRegistry.onBhProgramStarted.invoke(new StartEvent(this, filePath));

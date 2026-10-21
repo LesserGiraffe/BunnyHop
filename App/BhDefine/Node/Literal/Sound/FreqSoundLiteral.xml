@@ -4,6 +4,7 @@
   name="FreqSoundLiteralExp"
   nodeStyleID="FreqSoundLiteralExp.json"
   breakpoint="ignore"
+  entryPoint="selectable"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onCreatedAsTemplate="OnSoundLiteralCreatedAsTemplate.js"
   onAliasAsked="OnAliasAsked.js"

@@ -4,6 +4,7 @@
   name="CommentPart"
   nodeStyleID="CommentPart.json"
   breakpoint="ignore"
+  entryPoint="selectable"
   onMovedFromChildToWS="OnStatMovedToWS.js"
   onMovedFromWsToChild="OnStatMovedToChild.js"
   onDeletionRequested="OnStatOrDeclDeletionRequested.js"
@@ -25,6 +26,7 @@
         name="Comment"
         nodeStyleID="DefaultTextArea.json"
         breakpoint="specifyParent"
+        entryPoint="none"
         text="${node}{comment-part}{text}"
         version="bhn-0.1.0"/>
     </Connector>

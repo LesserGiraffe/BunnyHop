@@ -16,10 +16,11 @@
 
 package net.seapanda.bunnyhop.node.model.event;
 
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.JsIdName;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.Connector;
 import net.seapanda.bunnyhop.node.model.parameter.ConnectorId;
@@ -65,10 +66,9 @@ public class ScriptConnectorEventInvokerImpl implements ScriptConnectorEventInvo
     if (defined == null) {
       return false;
     }
-    Map<String, Object> nameToObj = new HashMap<>() {{
-        put(BhConstants.JsIdName.BH_CURRENT_NODE, target.getConnectedNode());
-        put(BhConstants.JsIdName.BH_NODE_TO_CONNECT, node);
-      }};
+    Map<String, Object> nameToObj = new HashMap<>();
+    nameToObj.put(JsIdName.BH_CURRENT_NODE, target.getConnectedNode());
+    nameToObj.put(JsIdName.BH_NODE_TO_CONNECT, node);
     Context cx = Context.enter();
     ScriptableObject scriptScope = createScriptScope(cx, target, nameToObj);
     try {
@@ -91,11 +91,10 @@ public class ScriptConnectorEventInvokerImpl implements ScriptConnectorEventInvo
   private ScriptableObject createScriptScope(
       Context cx, Connector target, Map<String, Object> nameToObj) {
     ScriptableObject scope = cx.initStandardObjects();
-    new HashMap<>(nameToObj) {{
-        put(BhConstants.JsIdName.BH_THIS, target);
-        put(BhConstants.JsIdName.BH_UTIL, supplier.getCommonObj());
-      }}
-      .forEach((key, val) -> scope.put(key, scope, Context.javaToJS(val, scope)));
+    Map<String, Object> allNameToObj = new HashMap<>(nameToObj);
+    allNameToObj.put(JsIdName.BH_THIS, target);
+    allNameToObj.put(JsIdName.BH_UTIL, supplier.getCommonObj());
+    allNameToObj.forEach((key, val) -> scope.put(key, scope, Context.javaToJS(val, scope)));
     return scope;
   }
 

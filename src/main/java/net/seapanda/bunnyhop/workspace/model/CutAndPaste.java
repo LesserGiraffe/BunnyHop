@@ -127,12 +127,14 @@ public class CutAndPaste {
         ? new BhNodeLocation() : new BhNodeLocation(nodesToPaste.getLast());
     // 貼り付け処理
     for (var node : nodesToPaste) {
+      node.deselect(userOpe);
       SequencedSet<Swapped> swappedNodes = BhNodePlacer.moveToWs(
           destination,
           node,
           basePos.x,
           basePos.y + pastePosOffsetCount.getValue() * BhConstants.Ui.REPLACED_NODE_SHIFT * 2,
           userOpe);
+      node.select(userOpe);
       Vec2D size = node.getView()
           .map(view -> view.getGeometry().getNodeTreeSize(true))
           .orElse(new Vec2D());
@@ -162,7 +164,7 @@ public class CutAndPaste {
       swapped.newNode().findParentNode().getEventInvoker().onChildReplaced(
           node,
           swapped.newNode(),
-          swapped.newNode().getParentConnector(),
+          swapped.newNode().getParent(),
           userOpe);
     }
   }

@@ -31,7 +31,6 @@ import static net.seapanda.bunnyhop.utility.function.ThrowingConsumer.unchecked;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.Map;
 import javafx.application.Application;
 import javafx.fxml.FXML;
@@ -63,10 +62,9 @@ public class BhConfigurator extends Application {
   private Button resetWindowStatesButton;
 
   /** 設定ファイルとその設定を反映するクラスのクラスオブジェクト. */
-  private final Map<Path, Class<?>> pathToClass = new HashMap<>() {{
-      put(Paths.get(execPath, SETTINGS, BH_SETTINGS_JSON), BhSettings.class);
-      put(Paths.get(execPath, SETTINGS, BH_SIM_SETTINGS_JSON), BhSimSettings.class);
-    }};
+  private final Map<Path, Class<?>> pathToClass = Map.of(
+      Paths.get(execPath, SETTINGS, BH_SETTINGS_JSON), BhSettings.class,
+      Paths.get(execPath, SETTINGS, BH_SIM_SETTINGS_JSON), BhSimSettings.class);
 
   public static void main(String[] args) {
     launch(args);

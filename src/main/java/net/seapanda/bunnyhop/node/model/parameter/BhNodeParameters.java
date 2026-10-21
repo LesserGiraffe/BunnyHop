@@ -17,10 +17,10 @@
 package net.seapanda.bunnyhop.node.model.parameter;
 
 import java.io.Serializable;
-import net.seapanda.bunnyhop.node.model.Connector;
+import net.seapanda.bunnyhop.node.model.BhNode;
 
 /**
- * {@link Connector} のパラメータをまとめたレコード.
+ * {@link BhNode} のパラメータをまとめたレコード.
  *
  * @param nodeId ノード ID
  * @param name ノードの名前
@@ -36,4 +36,5 @@ public record BhNodeParameters(
     BhNodeViewStyleId styleId,
     BhNodeVersion version,
     boolean hasCompanionNodes,
-    BreakpointSetting breakpointSetting) implements Serializable {}
+    BreakpointSetting breakpointSetting,
+    EntryPointSetting entryPointSetting) implements Serializable {}

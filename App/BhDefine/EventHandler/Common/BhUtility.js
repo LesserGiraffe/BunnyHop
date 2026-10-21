@@ -105,7 +105,7 @@
     let position = getPosition(node) ?? {x: 0, y: 0};
     bhNodePlacer.moveToWs(node.getWorkspace(), node, position.x, position.y, userOpe);
     // node と toBeReplaced が入れ替え可能かチェック
-    if (toBeReplaced === null || !canConnect(toBeReplaced.getParentConnector(), node)) {
+    if (toBeReplaced === null || !canConnect(toBeReplaced.getParent(), node)) {
       return;
     }
     // node と toBeReplaced を入れ替え

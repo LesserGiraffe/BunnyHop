@@ -45,7 +45,7 @@ import net.seapanda.bunnyhop.debugger.model.variable.Variable;
 import net.seapanda.bunnyhop.debugger.model.variable.VariableInfo;
 import net.seapanda.bunnyhop.debugger.service.EntryPointPresenter;
 import net.seapanda.bunnyhop.node.model.BhNode;
-import net.seapanda.bunnyhop.node.model.syntaxsymbol.InstanceId;
+import net.seapanda.bunnyhop.node.model.syntaxtree.NodeInstanceId;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
 
@@ -58,12 +58,12 @@ public class DebugMessageProcessorImpl implements DebugMessageProcessor {
 
   private final Debugger debugger;
   private final EntryPointPresenter entryPointPresenter;
-  private final Collection<InstanceId> mainRoutineIds;
+  private final Collection<NodeInstanceId> mainRoutineIds;
   /**
    * key: {@link BhNode} のインスタンス ID.
    * value: key に対応する {@link BhNode}.
    */
-  private final Map<InstanceId, BhNode> instIdToNode = new ConcurrentHashMap<>();
+  private final Map<NodeInstanceId, BhNode> instIdToNode = new ConcurrentHashMap<>();
 
   /**
    * コンストラクタ.
@@ -74,7 +74,7 @@ public class DebugMessageProcessorImpl implements DebugMessageProcessor {
       WorkspaceSet wss,
       Debugger debugger,
       EntryPointPresenter presenter,
-      Collection<InstanceId> mainRoutineIds) {
+      Collection<NodeInstanceId> mainRoutineIds) {
     this.debugger = debugger;
     this.mainRoutineIds = new HashSet<>(mainRoutineIds);
     this.entryPointPresenter = presenter;
@@ -87,7 +87,7 @@ public class DebugMessageProcessorImpl implements DebugMessageProcessor {
   @Override
   public void process(BhThreadContext context) {
     logErrMsg(context.getException());
-    var cache = new HashMap<InstanceId, String>();
+    var cache = new HashMap<NodeInstanceId, String>();
     List<CallStackItem> callStack = context.getCallStack().stream()
         .map(item ->
             createCallStackItem(item.symbolId(), item.frameIdx(), context.getThreadId(), cache))
@@ -168,10 +168,10 @@ public class DebugMessageProcessorImpl implements DebugMessageProcessor {
       BhSymbolId symbolId,
       int frameIdx,
       long threadId,
-      Map<InstanceId, String> funcNameCache,
+      Map<NodeInstanceId, String> funcNameCache,
       boolean isNext,
       boolean isError) {
-    var instId = InstanceId.of(symbolId.toString());
+    var instId = NodeInstanceId.of(symbolId.toString());
     BhNode node = instIdToNode.get(instId);
     String name = getFuncName(node, instId, funcNameCache);
     return new CallStackItem(frameIdx, threadId, name, node, isNext, isError);
@@ -181,7 +181,7 @@ public class DebugMessageProcessorImpl implements DebugMessageProcessor {
       BhSymbolId symbolId,
       int frameIdx,
       long threadId,
-      Map<InstanceId, String> funcNameCache) {
+      Map<NodeInstanceId, String> funcNameCache) {
     return createCallStackItem(symbolId, frameIdx, threadId, funcNameCache, false, false);
   }
 
@@ -190,7 +190,7 @@ public class DebugMessageProcessorImpl implements DebugMessageProcessor {
       BhThreadContext context,
       int frameIdx,
       long threadId,
-      HashMap<InstanceId, String> cache,
+      HashMap<NodeInstanceId, String> cache,
       boolean isNextStep) {
     BhSymbolId symbolId = isNextStep ? context.getNextStep() : context.getErrorStep();
     return symbolId.equals(BhSymbolId.NONE)
@@ -204,7 +204,8 @@ public class DebugMessageProcessorImpl implements DebugMessageProcessor {
    * メインルーチンのエイリアスを返す.
    * 一致しない場合, 不明なノードの共通の関数名を返す.
    */
-  private String getFuncName(BhNode node, InstanceId instId, Map<InstanceId, String> cache) {
+  private String getFuncName(
+      BhNode node, NodeInstanceId instId, Map<NodeInstanceId, String> cache) {
     if (node == null) {
       return mainRoutineIds.contains(instId)
           ? TextDefs.Debugger.CallStack.mainRoutine.get()
@@ -233,7 +234,7 @@ public class DebugMessageProcessorImpl implements DebugMessageProcessor {
 
   /** {@link BhVariable} オブジェクトから {@link Variable} オブジェクトを作成する. */
   private Variable createVariable(BhVariable bhVar) {
-    BhNode node = instIdToNode.get(InstanceId.of(bhVar.id.toString()));
+    BhNode node = instIdToNode.get(NodeInstanceId.of(bhVar.id.toString()));
     String name = (node == null)
         ? TextDefs.Debugger.VarInspection.unknownVar.get()
         : node.getUserDefinedName().orElse("");

@@ -4,6 +4,7 @@
   name="SoundListVoid"
   nodeStyleID="SoundListVoid.json"
   breakpoint="ignore"
+  entryPoint="none"
   onMovedFromChildToWS="DeleteNode.js"
   onAliasAsked="OnAliasAsked.js"
   text="${node}{list-label}"

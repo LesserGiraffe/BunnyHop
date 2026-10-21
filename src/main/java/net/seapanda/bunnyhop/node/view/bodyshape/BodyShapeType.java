@@ -1,6 +1,5 @@
 package net.seapanda.bunnyhop.node.view.bodyshape;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -12,11 +11,9 @@ public enum BodyShapeType {
 
   public final String name;
   public final BodyShape shape;
-  private static final Map<String, BodyShapeType> shapeNameToBodyShape =
-      new HashMap<>() {{
-          put(BodyShapeType.ROUND_RECT.name, BodyShapeType.ROUND_RECT);
-          put(BodyShapeType.NONE.name, BodyShapeType.NONE);
-        }};
+  private static final Map<String, BodyShapeType> shapeNameToBodyShape = Map.of(
+      BodyShapeType.ROUND_RECT.name, BodyShapeType.ROUND_RECT,
+      BodyShapeType.NONE.name, BodyShapeType.NONE);
 
   BodyShapeType(String shapeName, BodyShape shape) {
     name = shapeName;

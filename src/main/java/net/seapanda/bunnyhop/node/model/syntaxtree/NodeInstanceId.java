@@ -14,48 +14,48 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.node.model.syntaxsymbol;
+package net.seapanda.bunnyhop.node.model.syntaxtree;
 
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 
 /**
- * 各 {@link SyntaxSymbol} オブジェクト固有の ID.
+ * 各 {@link SyntaxTreeNode} オブジェクト固有の ID.
  *
  * @author K.Koike
  */
-public class InstanceId implements Serializable {
+public class NodeInstanceId implements Serializable {
 
   private final String id;
 
   /** この ID が存在しないことを表すオブジェクト. */
-  public static final InstanceId NONE = new InstanceId("");
+  public static final NodeInstanceId NONE = new NodeInstanceId("");
 
   /**
-   * {@link InstanceId} を作成する.
-   * このメソッドで作った {@link InstanceId} は重複しないことが保証される.
+   * {@link NodeInstanceId} を作成する.
+   * このメソッドで作った {@link NodeInstanceId} は重複しないことが保証される.
    */
-  public static InstanceId newId() {
-    return new InstanceId(UUID.randomUUID().toString());
+  public static NodeInstanceId newId() {
+    return new NodeInstanceId(UUID.randomUUID().toString());
   }
 
   /**
-   * {@link InstanceId} を作成する.
+   * {@link NodeInstanceId} を作成する.
    *
    * @param id 識別子名
-   * @return {@link InstanceId} オブジェクト.
+   * @return {@link NodeInstanceId} オブジェクト.
    */
-  public static InstanceId of(String id) {
-    return new InstanceId(id == null ? "" : id);
+  public static NodeInstanceId of(String id) {
+    return new NodeInstanceId(id == null ? "" : id);
   }
 
-  private InstanceId(String id) {
+  private NodeInstanceId(String id) {
     this.id = id;
   }
 
   /** デフォルトコンストラクタ. (デシリアライズ用) */
-  public InstanceId() {
+  public NodeInstanceId() {
     id = NONE.id;
   }
 
@@ -69,7 +69,7 @@ public class InstanceId implements Serializable {
     if (obj == null) {
       return false;
     }
-    return (getClass() == obj.getClass()) && (id.equals(((InstanceId) obj).id));
+    return (getClass() == obj.getClass()) && (id.equals(((NodeInstanceId) obj).id));
   }
 
   @Override

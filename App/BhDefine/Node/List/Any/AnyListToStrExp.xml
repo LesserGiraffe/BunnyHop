@@ -4,6 +4,7 @@
   name="AnyListToStrExp"
   nodeStyleID="AnyListToStrExp.json"
   breakpoint="ignore"
+  entryPoint="selectable"
   onChildReplaced="OnChildOfListCtrlReplaced.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
@@ -24,8 +25,10 @@
         bhNodeID="idAnyListToStrExp.node1"
         name="StrLiteral"
         breakpoint="specifyParent"
+        entryPoint="none"
         version="bhn-0.1.0"/>
     </Connector>
 
   </ConnectorSection>
 </Node>
+<!-- リスト定義のコンパニオンノードの方 -->

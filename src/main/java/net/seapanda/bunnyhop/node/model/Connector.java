@@ -29,7 +29,7 @@ import net.seapanda.bunnyhop.node.model.parameter.ConnectorParameters;
 import net.seapanda.bunnyhop.node.model.parameter.DerivationId;
 import net.seapanda.bunnyhop.node.model.parameter.DerivativeJointId;
 import net.seapanda.bunnyhop.node.model.section.ConnectorSection;
-import net.seapanda.bunnyhop.node.model.syntaxsymbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.node.model.syntaxtree.SyntaxTreeNode;
 import net.seapanda.bunnyhop.node.model.traverse.BhNodeWalker;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
@@ -40,7 +40,7 @@ import net.seapanda.bunnyhop.utility.event.SimpleConsumerInvoker;
  *
  * @author K.Koike
  */
-public class Connector extends SyntaxSymbol {
+public class Connector extends SyntaxTreeNode {
 
   // このコネクタの生成時のパラメータ
   private final ConnectorParameters params;
@@ -57,7 +57,7 @@ public class Connector extends SyntaxSymbol {
   /** このコネクタ対して定義されたイベントハンドラの登録 / 削除を行う機能を提供するオブジェクト. */
   private final transient CallbackRegistry cbRegistry = new CallbackRegistry();
 
-  @Override
+  /** {@code visitor} にこのオブジェクトを渡す. */
   public void accept(BhNodeWalker visitor) {
     visitor.visit(this);
   }
@@ -296,7 +296,7 @@ public class Connector extends SyntaxSymbol {
    */
   DerivationId findDerivationIdUp() {    
     if (params.derivationId().equals(DerivationId.NONE)) {
-      Connector parentCnctr = getParentNode().getParentConnector();
+      Connector parentCnctr = getParentNode().getParent();
       if (parentCnctr != null) {
         return parentCnctr.findDerivationIdUp();
       }
@@ -335,45 +335,16 @@ public class Connector extends SyntaxSymbol {
   }
 
   @Override
-  public void findDescendantOf(
-      int generation,
-      boolean toBottom,
-      List<SyntaxSymbol> foundSymbolList,
-      String... symbolNames) {
-    if (generation == 0) {
-      for (String symbolName : symbolNames) {
-        if (symbolNameMatches(symbolName)) {
-          foundSymbolList.add(this);
-        }
-      }
-      if (!toBottom) {
-        return;
-      }
-    }
-    connectedNode.findDescendantOf(
-        Math.max(0, generation - 1), toBottom, foundSymbolList, symbolNames);
+  public ConnectorSection getParent() {
+    return parent;
   }
 
   @Override
-  public SyntaxSymbol findAncestorOf(String symbolName, int generation, boolean toTop) {
-
-    if (generation == 0) {
-      if (symbolNameMatches(symbolName)) {
-        return this;
-      }
-      if (!toTop) {
-        return null;
-      }
+  public List<BhNode> getChildren() {
+    if (connectedNode == null) {
+      return List.of();
     }
-    return parent.findAncestorOf(symbolName, Math.max(0, generation - 1), toTop);
-  }
-
-  @Override
-  public boolean isDescendantOf(SyntaxSymbol ancestor) {
-    if (this == ancestor) {
-      return true;
-    }
-    return parent.isDescendantOf(ancestor);
+    return List.of(connectedNode);
   }
 
   /** イベントハンドラの登録 / 削除を行う機能を提供するクラス. */

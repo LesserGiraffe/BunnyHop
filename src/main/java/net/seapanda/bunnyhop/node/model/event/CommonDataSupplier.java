@@ -16,7 +16,8 @@
 
 package net.seapanda.bunnyhop.node.model.event;
 
-import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.node.model.service.BhNodePlacer;
@@ -45,6 +46,9 @@ public class CommonDataSupplier {
       BhScriptRepository repository,
       BhNodeFactory factory,
       TextDatabase textDb) {
+    Objects.requireNonNull(repository);
+    Objects.requireNonNull(factory);
+    Objects.requireNonNull(textDb);
     this.repository = repository;
     this.factory = factory;
     this.textDb = textDb;
@@ -86,12 +90,11 @@ public class CommonDataSupplier {
 
   private ScriptableObject createScriptScope(Context cx) {
     ScriptableObject scope = cx.initStandardObjects();
-    new HashMap<String, Object>() {{
-        put(BhConstants.JsIdName.BH_NODE_FACTORY, factory);
-        put(BhConstants.JsIdName.BH_NODE_PLACER, new BhNodePlacer());
-        put(BhConstants.JsIdName.BH_TEXT_DB, textDb);
-      }}
-      .forEach((key, val) -> scope.put(key, scope, Context.javaToJS(val, scope)));
+    Map.of(
+        BhConstants.JsIdName.BH_NODE_FACTORY, factory,
+        BhConstants.JsIdName.BH_NODE_PLACER, new BhNodePlacer(),
+        BhConstants.JsIdName.BH_TEXT_DB, textDb)
+        .forEach((key, val) -> scope.put(key, scope, Context.javaToJS(val, scope)));
     return scope;
   }
 }

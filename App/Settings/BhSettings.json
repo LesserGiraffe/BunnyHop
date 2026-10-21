@@ -15,20 +15,20 @@
   "Window": {
     "main": {
       "width": 1360,
-      "height": 762,
-      "posX": 280,
-      "posY": 90,
+      "height": 1048,
+      "posX": 684,
+      "posY": 327,
       "maximized": false
     },
     "debug": {
       "width": 150,
       "height": 187,
-      "posX": 885,
-      "posY": 282,
+      "posX": 1878,
+      "posY": 892,
       "maximized": false
     },
     "nodeSelectionSplitPos": 0.8904619970193741,
-    "notificationSplitPos": 0.8493589743589743
+    "notificationSplitPos": 0.5813186813186814
   },
   "Ui": {
     "trackNodeInCurrentWorkspace": false,
@@ -38,8 +38,8 @@
   },
   "Debug": {
     "maxCallStackItems": 32,
-    "canSetBreakpoint": false,
-    "debugWindowVisible": false,
+    "canSetBreakpoint": true,
+    "debugWindowVisible": true,
     "maxListTreeChildren": 100,
     "maxErrMsgChars": 4096
   },

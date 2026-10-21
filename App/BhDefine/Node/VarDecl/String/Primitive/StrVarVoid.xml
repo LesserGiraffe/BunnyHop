@@ -4,6 +4,7 @@
   name="StrVarVoid"
   nodeStyleID="StrVarVoid.json"
   breakpoint="ignore"
+  entryPoint="none"
   onMovedFromChildToWS="DeleteNode.js"
   onAliasAsked="OnAliasAsked.js"
   onUserDefinedNameAsked="OnUserDefinedNameAsked.js"

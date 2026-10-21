@@ -23,7 +23,7 @@ import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
 /**
  * プロジェクトをワークスペースセットに追加する機能を規定したインタフェース.
  *
- * @author K.KOike
+ * @author K.Koike
  */
 public interface ProjectImporter {
 

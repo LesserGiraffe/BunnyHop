@@ -4,6 +4,7 @@
   name="StrLineFeedChainLinkExp"
   nodeStyleID="StrLineFeedChainLinkExp.json"
   breakpoint="specifyParent"
+  entryPoint="none"
   onChildReplaced="OnChildExpInChainReplaced.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">

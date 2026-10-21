@@ -16,7 +16,12 @@
 
 package net.seapanda.bunnyhop.bhprogram;
 
+import static net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent.Name.PROGRAM_START;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File;
+
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 import javafx.scene.control.Alert;
 import net.seapanda.bunnyhop.bhprogram.runtime.LocalBhRuntimeController;
@@ -24,9 +29,11 @@ import net.seapanda.bunnyhop.common.text.TextDefs;
 import net.seapanda.bunnyhop.compiler.BhCompiler;
 import net.seapanda.bunnyhop.compiler.CompileError;
 import net.seapanda.bunnyhop.compiler.CompileOption;
+import net.seapanda.bunnyhop.compiler.RuntimeEnvironment;
 import net.seapanda.bunnyhop.compiler.SourceSet;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.message.MessageService;
+import net.seapanda.bunnyhop.utility.Utility;
 
 /**
  * BhProgram の起動とその実行環境の制御用オブジェクトを取得する機能を提供するクラス.
@@ -67,7 +74,11 @@ public class LocalBhProgramLauncherImpl implements LocalBhProgramLauncher {
    * @return ノードをコンパイルしてできたソースファイルのパス
    */
   private Optional<Path> compile(SourceSet sourceSet) {
-    CompileOption option = new CompileOption.Builder().build();
+    CompileOption option = CompileOption.builder()
+        .outFile(Paths.get(Utility.execPath, Dir.COMPILED, File.APP_FILE_NAME_JS))
+        .mainRoutineLaunchEvent(PROGRAM_START.toString())
+        .runtimeEnvironment(RuntimeEnvironment.LOCAL)
+        .build();
     try {
       Path outFile = compiler.compile(sourceSet, option);
       msgService.info(TextDefs.Compile.succeeded.get());

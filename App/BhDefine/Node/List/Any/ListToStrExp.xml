@@ -4,6 +4,7 @@
   name="AnyListToStrExp"
   nodeStyleID="ListToStrExp.json"
   breakpoint="ignore"
+  entryPoint="selectable"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
 
@@ -23,6 +24,7 @@
         bhNodeID="idListToStrExp.node1"
         name="StrLiteral"
         breakpoint="specifyParent"
+        entryPoint="none"
         version="bhn-0.1.0"/>
     </Connector>
 

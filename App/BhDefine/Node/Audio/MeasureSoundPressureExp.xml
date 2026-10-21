@@ -4,6 +4,7 @@
   name="MeasureSoundPressureExp"
   nodeStyleID="MeasureSoundPressureExp.json"
   breakpoint="ignore"
+  entryPoint="selectable"
   onCreatedAsTemplate="OnMeasureSoundPressureExpCreatedAsTemplate.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
@@ -25,6 +26,7 @@
         name="MeasureOpe"
         nodeStyleID="WordComboBox.json"
         breakpoint="specifyParent"
+        entryPoint="none"
         onTextOptionsCreating="CreateSoundPressureOpts.js"
         version="bhn-0.1.0"/>
     </Connector>

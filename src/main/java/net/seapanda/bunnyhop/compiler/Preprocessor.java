@@ -16,14 +16,12 @@
 
 package net.seapanda.bunnyhop.compiler;
 
-import java.util.Collection;
-import java.util.HashMap;
+import static net.seapanda.bunnyhop.compiler.SymbolNames.PreDefFunc.ANY_LIST_TO_STR_EXP;
+import static net.seapanda.bunnyhop.compiler.SymbolNames.VarDecl.LIST_NAME;
+
 import java.util.Map;
 import java.util.function.Consumer;
-import net.seapanda.bunnyhop.node.model.BhNode;
-import net.seapanda.bunnyhop.node.model.TextNode;
-import net.seapanda.bunnyhop.node.model.syntaxsymbol.SyntaxSymbol;
-import net.seapanda.bunnyhop.node.model.traverse.CallbackInvoker;
+import org.apache.commons.lang3.mutable.MutableLong;
 
 /**
  * コード生成前の処理を行うクラス.
@@ -32,39 +30,40 @@ import net.seapanda.bunnyhop.node.model.traverse.CallbackInvoker;
  */
 class Preprocessor {
 
-  private static final Map<String, Consumer<SyntaxSymbol>> NODE_NAME_TO_PREPROCESSOR =
-      new HashMap<>() {{
-          put(SymbolNames.PreDefFunc.ANY_LIST_TO_STR_EXP, Preprocessor::procAnyListToStrExp);
-        }
-      };
+  private static final Map<String, Consumer<CompilableSyntaxTreeNode>> SYMBOL_NAME_TO_PREPROCESSOR =
+      Map.of(ANY_LIST_TO_STR_EXP, Preprocessor::preprocessAnyListToStrExp);
 
   /**
    * コンパイル前の処理を行う.
    *
-   * @param nodesToPreprocess 処理するノードのリスト
+   * @param instIdToNode 処理するノードとそのノードのインスタンス ID を格納したマップ.
    */
-  static void process(Collection<BhNode> nodesToPreprocess) {
+  static void process(Map<String, CompilableSyntaxTreeNode> instIdToNode) {
+    Consumer<CompilableSyntaxTreeNode> nop = n -> {};
+    instIdToNode.values().forEach(
+        node -> SYMBOL_NAME_TO_PREPROCESSOR.getOrDefault(node.getSymbolName(), nop).accept(node));
 
-    // コールバック登録
-    CallbackInvoker.CallbackRegistry callbacks = CallbackInvoker.newCallbackRegistry();
-    NODE_NAME_TO_PREPROCESSOR.forEach(callbacks::set);
-
-    // コールバック呼び出し
-    nodesToPreprocess.forEach(node -> CallbackInvoker.invoke(callbacks, node));
+    MutableLong serialNo = new MutableLong(0);
+    instIdToNode.values().forEach(
+        node -> node.setTag(Long.toHexString(serialNo.incrementAndGet())));
   }
 
 
   /**
    * AnyListToStrExp ノードの前処理を行う.
    *
+   * <p>文字列に変換するリストの名前を文字列化関数の引数に相当するノードにセットする.
+   *
    * @param node AnyListToStrExp ノード
    */
-  private static void procAnyListToStrExp(SyntaxSymbol node) {
-    SyntaxSymbol listNode = node.findDescendantOf("*", "Arg0", "*");
-    SyntaxSymbol listNameNode =
-        listNode.findDescendantOf("*", SymbolNames.VarDecl.LIST_NAME, "*");
-    String listName = (listNameNode instanceof TextNode textNode) ? textNode.getText() : "";
-    SyntaxSymbol dest = node.findDescendantOf("*", "Arg1", "*");
-    ((TextNode) dest).setText(listName);
+  private static void preprocessAnyListToStrExp(CompilableSyntaxTreeNode node) {
+    CompilableSyntaxTreeNode listNode = node.findDescendantOf("*", "Arg0", "*");
+    CompilableSyntaxTreeNode listNameNode = listNode.findDescendantOf("*", LIST_NAME, "*");
+    if (listNameNode == null) {
+      return;
+    }
+    String listName = listNameNode.getLexeme();
+    CompilableSyntaxTreeNode dest = node.findDescendantOf("*", "Arg1", "*");
+    dest.setLexeme(listName);
   }
 }

@@ -4,6 +4,7 @@
   name="StrOutArg"
   nodeStyleID="StrArg.json"
   breakpoint="ignore"
+  entryPoint="none"
   onRelatedNodesRequired="GetDerivationFamily.js"
   onJumpTargetRequired="GetOriginalNode.js"
   onCompileErrorChecking="CheckCompileErrorOfArgument.js"

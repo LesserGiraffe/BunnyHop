@@ -81,7 +81,7 @@ public class DerivativeBuilder implements BhNodeWalker {
       BhNode parent = parentStack.peekLast();
       //接続先を探す
       BhNode toBeReplaced =
-          DerivativeFinder.find(parent, node.getParentConnector().getDerivativeJoint());
+          DerivativeFinder.find(parent, node.getParent().getDerivativeJoint());
       if (toBeReplaced != null) {
         ConnectiveNode newDerivative = node.createDerivative(dervId, userOpe);
         toBeReplaced.replace(newDerivative, userOpe);
@@ -112,7 +112,7 @@ public class DerivativeBuilder implements BhNodeWalker {
       BhNode parent = parentStack.peekLast();
       //接続先を探す
       BhNode toBeReplaced =
-          DerivativeFinder.find(parent, node.getParentConnector().getDerivativeJoint());
+          DerivativeFinder.find(parent, node.getParent().getDerivativeJoint());
       if (toBeReplaced != null) {
         TextNode newDerivative = node.createDerivative(dervId, userOpe);
         toBeReplaced.replace(newDerivative, userOpe);

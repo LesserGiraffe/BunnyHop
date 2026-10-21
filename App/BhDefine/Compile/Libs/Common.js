@@ -155,22 +155,13 @@ function _fullWidthToHalf(str) {
 
 //イベント名とイベントハンドラを登録
 function _addEvent(eventHandler, event) {
-  if (_eventHandlers[event] === void 0)
+  if (_eventHandlers[event] === void 0) {
     _eventHandlers[event] = [];
+  }
   _eventHandlers[event].push(eventHandler);
 }
 
-//イベントに関連付けられたベントハンドラの名前を返す
-function _getEventHandlerNames(event) {
-  let nameList = [];
-  let handlers = _eventHandlers[event];
-  if (handlers !== void 0) {
-    for (let handler of handlers) {
-      nameList.push(handler.name);
-    }
-  }
-  return nameList;
-}
+bhScriptHelper.eventHandlerResolver = event => _eventHandlers[event] ?? [];
 
 function _truncateStr(str, len, suffix) {
   suffix = suffix || '';

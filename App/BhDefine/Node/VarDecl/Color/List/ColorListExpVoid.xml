@@ -4,6 +4,7 @@
   name="ColorListExpVoid"
   nodeStyleID="ColorListExpVoid.json"
   breakpoint="ignore"
+  entryPoint="none"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onAliasAsked="OnAliasAsked.js"
   text="${node}{list-label}"

@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.compiler.nodecollector;
+package net.seapanda.bunnyhop.compile;
 
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Optional;
+import java.util.SequencedCollection;
 import java.util.SequencedSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -26,11 +27,10 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import net.seapanda.bunnyhop.common.text.TextDefs;
 import net.seapanda.bunnyhop.compiler.SourceSet;
-import net.seapanda.bunnyhop.compiler.SymbolNames;
 import net.seapanda.bunnyhop.linter.model.CompileErrorNodeCache;
 import net.seapanda.bunnyhop.node.model.BhNode;
-import net.seapanda.bunnyhop.node.model.syntaxsymbol.InstanceId;
-import net.seapanda.bunnyhop.node.model.syntaxsymbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.node.model.parameter.EntryPointSetting;
+import net.seapanda.bunnyhop.node.model.syntaxtree.NodeInstanceId;
 import net.seapanda.bunnyhop.service.message.MessageService;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
 
@@ -45,7 +45,7 @@ public class SourceNodeCollector {
   private final WorkspaceSet wss;
   private final CompileErrorNodeCache compileErrorNodeCache;
   private final MessageService msgService;
-  private final SequencedSet<BhNode> selectedNodes = new LinkedHashSet<>();
+  private final SequencedSet<BhNode> orderedSelectedNode = new LinkedHashSet<>();
 
   /**
    * コンストラクタ.
@@ -68,12 +68,11 @@ public class SourceNodeCollector {
     WorkspaceSet.CallbackRegistry cbRegistry = wss.getCallbackRegistry();
     cbRegistry.getOnNodeSelectionStateChanged().add(event -> {
       if (event.isSelected()) {
-        selectedNodes.add(event.node());
+        orderedSelectedNode.add(event.node());
       } else {
-        selectedNodes.remove(event.node());
+        orderedSelectedNode.remove(event.node());
       }
     });
-    cbRegistry.getOnNodeRemoved().add(event -> selectedNodes.remove(event.node()));
   }
 
   /**
@@ -83,21 +82,12 @@ public class SourceNodeCollector {
    * @return コンパイル対象の全ノードとプログラム開始時に実行されるノードのセット
    */
   public Optional<SourceSet> collect() {
-    return collectNodes();
-  }
-
-  /** コンパイルの対象となるノード一式のスナップショットを作成する. */
-  private Optional<SourceSet> collectNodes() {
     if (compileErrorNodesExit()) {
       return Optional.empty();
     }
-    BhNode mainEntryPoint = findMainEntryPoint();
+    BhNode selectedEntryPoint = findSelectedEntryPoint(orderedSelectedNode);
     Set<BhNode> rootNodes = collectRootNodes(wss);
-    boolean executableNodesExist =
-        mainEntryPoint != null
-        || rootNodes.stream()
-        .map(SyntaxSymbol::getSymbolName)
-        .anyMatch(SymbolNames.EntryPoint.AUTO_LIST::contains);
+    boolean executableNodesExist = selectedEntryPoint != null || hasBuiltInEntryPoints(rootNodes);
 
     if (!executableNodesExist) {
       msgService.alert(
@@ -107,8 +97,9 @@ public class SourceNodeCollector {
           TextDefs.Compile.InformSelectNodeToExecute.body.get());
       return Optional.empty();
     }
-    InstanceId mainEntryPointId = (mainEntryPoint == null) ? null : mainEntryPoint.getInstanceId();
-    return Optional.of(new SourceSetSnapshot(mainEntryPointId, rootNodes));
+    NodeInstanceId selectedEntryPointId =
+        (selectedEntryPoint == null) ? null : selectedEntryPoint.getInstanceId();
+    return Optional.of(new SourceSetSnapshot(selectedEntryPointId, rootNodes));
   }
 
   /**
@@ -130,23 +121,47 @@ public class SourceNodeCollector {
   }
   
   /**
-   * プログラム開始時に実行するノードを探す.
+   * エントリポイントとして選択されたノードを探す.
    *
-   * @return プログラム開始時に実行するノード.  存在しない場合 null.
+   * @return エントリポイントとして選択されたノード.  存在しない場合 null.
    */
-  private BhNode findMainEntryPoint() {
-    if (selectedNodes.isEmpty()) {
-      return null;
+  private static BhNode findSelectedEntryPoint(SequencedCollection<BhNode> selectedNodes) {
+    for (BhNode selectedNode : selectedNodes.reversed()) {
+      BhNode root = selectedNode.findRootNode();
+      if (root.getEntryPointSetting() == EntryPointSetting.SELECTABLE) {
+        return root;
+      }
     }
-    BhNode rootOfLastSelected = selectedNodes.getLast().findRootNode();
-    return SymbolNames.EntryPoint.MAIN_LIST.contains(rootOfLastSelected.getSymbolName())
-        ? rootOfLastSelected : null;
+    return null;
   }
 
   /** {@code wss} 以下のルートノードを集めて返す. */
-  private Set<BhNode> collectRootNodes(WorkspaceSet wss) {
+  private static Set<BhNode> collectRootNodes(WorkspaceSet wss) {
     return wss.getWorkspaces().stream()
         .flatMap(ws -> ws.getRootNodes().stream())
         .collect(Collectors.toCollection(HashSet::new));
+  }
+
+  /** {@code wss} 以下の選択されたノードを集めて返す. */
+  private SequencedSet<BhNode> collectSelectedNodes(WorkspaceSet wss) {
+    return wss.getWorkspaces().stream()
+        .flatMap(ws -> ws.getSelectedNodes().stream())
+        .collect(Collectors.toCollection(LinkedHashSet::new));
+  }
+
+  /**
+   * エントリポイントとなるノードが 1 つ以上存在しているか調べる.
+   *
+   * @return エントリポイントとなるノードが 1 つ以上存在している場合 true
+   */
+  public boolean hasEntryPoints() {
+    return findSelectedEntryPoint(collectSelectedNodes(wss)) != null
+        || hasBuiltInEntryPoints(collectRootNodes(wss));
+  }
+
+  /** エントリポイントとして定義されたノードが {@code nodes} の中にあるか調べる. */
+  private static boolean hasBuiltInEntryPoints(Set<BhNode> nodes) {
+    return nodes.stream()
+        .anyMatch(node -> node.getEntryPointSetting() == EntryPointSetting.SET);
   }
 }

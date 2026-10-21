@@ -26,7 +26,7 @@ import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
 /**
   * ワークスペースセットの情報を JSON 形式で出力する機能を規定したインタフェース.
   *
-  * @author K.KOike
+  * @author K.Koike
   */
 public class JsonProjectExporter implements ProjectExporter {
 

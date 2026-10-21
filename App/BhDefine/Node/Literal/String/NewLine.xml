@@ -4,6 +4,7 @@
   name="NewLine"
   nodeStyleID="NewLine.json"
   breakpoint="ignore"
+  entryPoint="selectable"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
@@ -19,6 +20,7 @@
         bhNodeID="idNewLine.node0"
         name="LineFeed"
         breakpoint="specifyParent"
+        entryPoint="none"
         version="bhn-0.1.0"/>
     </Connector>
   </ConnectorSection>

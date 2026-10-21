@@ -32,7 +32,6 @@ import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
 import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeType;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.common.configuration.BhSettings;
-import net.seapanda.bunnyhop.compiler.ScriptIdentifiers;
 import net.seapanda.bunnyhop.service.KeyCodeConverter;
 import net.seapanda.bunnyhop.ui.model.NodeManipulationMode;
 import net.seapanda.bunnyhop.workspace.control.WorkspaceSetController;
@@ -194,7 +193,7 @@ public class FoundationController {
       return;
     }
     pressedKey.add(keyCode);
-    var bhEvent = new BhProgramEvent(eventName, ScriptIdentifiers.Funcs.GET_EVENT_HANDLER_NAMES);
+    var bhEvent = new BhProgramEvent(eventName);
     if (BhSettings.BhRuntime.currentBhRuntimeType == BhRuntimeType.LOCAL) {
       localCtrl.getBhRuntimeCtrl().send(bhEvent);
     } else {

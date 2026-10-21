@@ -4,6 +4,7 @@
   name="StrAddAssignStat"
   nodeStyleID="StrAddAssignStat.json"
   breakpoint="set"
+  entryPoint="selectable"
   onMovedFromChildToWS="OnStatMovedToWS.js"
   onMovedFromWsToChild="OnStatMovedToChild.js"
   onChildReplaced="OnChildOfPrimVarCtrlReplaced.js"

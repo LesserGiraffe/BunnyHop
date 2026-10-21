@@ -4,6 +4,7 @@
   name="StrLiteralExp"
   nodeStyleID="StrLiteralExp.json"
   breakpoint="ignore"
+  entryPoint="selectable"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
@@ -20,6 +21,7 @@
         name="StrLiteral"
         nodeStyleID="StrLiteral.json"
         breakpoint="specifyParent"
+        entryPoint="none"
         onTextChecking="CheckTextFormat.js"
         text="${node}{str-literal}{text}"
         version="bhn-0.1.0"/>

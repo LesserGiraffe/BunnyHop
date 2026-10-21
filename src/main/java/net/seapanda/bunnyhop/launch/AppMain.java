@@ -89,10 +89,9 @@ import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.common.text.TextDefs;
 import net.seapanda.bunnyhop.common.text.TextFetcher;
+import net.seapanda.bunnyhop.compile.SourceNodeCollector;
 import net.seapanda.bunnyhop.compiler.BhCompiler;
 import net.seapanda.bunnyhop.compiler.BhCompilerImpl;
-import net.seapanda.bunnyhop.compiler.ScriptIdentifiers;
-import net.seapanda.bunnyhop.compiler.nodecollector.SourceNodeCollector;
 import net.seapanda.bunnyhop.debugger.model.BhDebugger;
 import net.seapanda.bunnyhop.debugger.model.DebugMessageProcessorImpl;
 import net.seapanda.bunnyhop.debugger.model.breakpoint.BreakpointCache;
@@ -113,6 +112,7 @@ import net.seapanda.bunnyhop.node.model.factory.BhNodeRepository;
 import net.seapanda.bunnyhop.node.model.factory.ModelGenerator;
 import net.seapanda.bunnyhop.node.model.factory.XmlBhNodeRepository;
 import net.seapanda.bunnyhop.node.model.service.DerivativeCache;
+import net.seapanda.bunnyhop.node.model.syntaxtree.NodeInstanceId;
 import net.seapanda.bunnyhop.node.view.factory.BhNodeViewFactoryImpl;
 import net.seapanda.bunnyhop.node.view.factory.PrivateTemplateButtonFactoryImpl;
 import net.seapanda.bunnyhop.node.view.service.BhNodeViewSupervisor;
@@ -277,8 +277,9 @@ public class AppMain extends Application {
       new ThreadContextPresenter(debugger, msgService, nodeViewSuperVisor);
       final var entryPointPresenter = new EntryPointPresenter(
           wss, localRuntimeCtrl, remoteRuntimeCtrl, nodeViewSuperVisor);
-      final var mainRoutineIds =
-          List.of(localCompiler.mainRoutineId(), remoteCompiler.mainRoutineId());
+      final var mainRoutineIds = List.of(
+          NodeInstanceId.of(localCompiler.mainRoutineId()),
+          NodeInstanceId.of(remoteCompiler.mainRoutineId()));
       final var debugMsgProcessor =
           new DebugMessageProcessorImpl(wss, debugger, entryPointPresenter, mainRoutineIds);
       final var msgProcessor = new IoMessageProcessorImpl(msgService);
@@ -389,7 +390,7 @@ public class AppMain extends Application {
       RmiLocalBhRuntimeController localCtrl,
       RmiRemoteBhRuntimeController remoteCtrl) {
     KeyCodeConverter.toBhProgramEventName(keyCode)
-        .map(name -> new BhProgramEvent(name, ScriptIdentifiers.Funcs.GET_EVENT_HANDLER_NAMES))
+        .map(BhProgramEvent::new)
         .ifPresent(bhEvent -> {
           if (BhSettings.BhRuntime.currentBhRuntimeType == BhRuntimeType.LOCAL) {
             localCtrl.send(bhEvent);

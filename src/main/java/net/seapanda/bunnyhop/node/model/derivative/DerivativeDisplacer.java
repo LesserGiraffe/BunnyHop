@@ -106,7 +106,7 @@ public class DerivativeDisplacer implements BhNodeWalker {
   @Override
   public void visit(ConnectiveNode orgOfNewDervs) {
     DerivationId derivationId = orgOfNewDervs.findDerivationIdUp();
-    DerivativeJointId joint = orgOfNewDervs.getParentConnector().getDerivativeJoint();
+    DerivativeJointId joint = orgOfNewDervs.getParent().getDerivativeJoint();
     // orgOfNewDervs に対応する派生ノードがある場合
     if (orgOfNewDervs.hasDerivativeOf(derivationId)) {
       replaceChildren(orgOfNewDervs.findParentNode().getDerivatives(), orgOfNewDervs, joint);
@@ -118,7 +118,7 @@ public class DerivativeDisplacer implements BhNodeWalker {
   @Override
   public void visit(TextNode orgOfNewDervs) {
     DerivationId derivationId = orgOfNewDervs.findDerivationIdUp();
-    DerivativeJointId joint = orgOfNewDervs.getParentConnector().getDerivativeJoint();
+    DerivativeJointId joint = orgOfNewDervs.getParent().getDerivativeJoint();
     if (orgOfNewDervs.hasDerivativeOf(derivationId)) {
       replaceChildren(orgOfNewDervs.findParentNode().getDerivatives(), orgOfNewDervs, joint);
     } else {

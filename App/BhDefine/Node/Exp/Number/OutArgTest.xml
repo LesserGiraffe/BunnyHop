@@ -4,6 +4,7 @@
   name="OutArgTestExp"
   nodeStyleID="OutArgTestExp.json"
   breakpoint="ignore"
+  entryPoint="selectable"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
 
@@ -19,6 +20,7 @@
         name="OutArgTest"
         nodeStyleID="L1.json"
         breakpoint="specifyParent"
+        entryPoint="none"
         text="OutArgTest"
         version="bhn-0.1.0"/>
     </Connector>

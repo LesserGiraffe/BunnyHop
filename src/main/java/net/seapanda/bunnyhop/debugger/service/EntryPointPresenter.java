@@ -30,7 +30,7 @@ import net.seapanda.bunnyhop.bhprogram.common.message.debug.GetEntryPointsResp;
 import net.seapanda.bunnyhop.bhprogram.runtime.LocalBhRuntimeController;
 import net.seapanda.bunnyhop.bhprogram.runtime.RemoteBhRuntimeController;
 import net.seapanda.bunnyhop.node.model.BhNode;
-import net.seapanda.bunnyhop.node.model.syntaxsymbol.InstanceId;
+import net.seapanda.bunnyhop.node.model.syntaxtree.NodeInstanceId;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectType;
@@ -55,7 +55,7 @@ public class EntryPointPresenter {
    * key: {@link BhNode} のインスタンス ID.
    * value: key に対応する {@link BhNode}.
    */
-  private final Map<InstanceId, BhNode> instIdToNode = new ConcurrentHashMap<>();
+  private final Map<NodeInstanceId, BhNode> instIdToNode = new ConcurrentHashMap<>();
 
   /** コンストラクタ. */
   public EntryPointPresenter(
@@ -117,7 +117,7 @@ public class EntryPointPresenter {
     }
     var oldEntryPoints = new ArrayList<>(entryPoints);
     var newEntryPoints = resp.entryPoints.stream()
-            .map(entryPoint -> InstanceId.of(entryPoint.toString()))
+            .map(entryPoint -> NodeInstanceId.of(entryPoint.toString()))
             .map(instIdToNode::get)
             .filter(Objects::nonNull)
             .map(node -> node.getView().orElse(null))

@@ -4,6 +4,7 @@
   name="ColorVarDecl"
   nodeStyleID="ColorVarDecl.json"
   breakpoint="ignore"
+  entryPoint="none"
   onCompanionNodesCreating="CreateVarDeclCompanions.js"
   onMovedFromChildToWS="OnVarDeclMovedToWS.js"
   onMovedFromWsToChild="OnVarDeclMovedToChild.js"

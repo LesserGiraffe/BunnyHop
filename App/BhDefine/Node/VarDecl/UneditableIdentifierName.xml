@@ -4,6 +4,7 @@
   name="IdentifierName"
   nodeStyleID="UneditableIdentifier.json"
   breakpoint="specifyParent"
+  entryPoint="none"
   onDeletionRequested="CancelDeletionIfNotTemplate.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0"/>

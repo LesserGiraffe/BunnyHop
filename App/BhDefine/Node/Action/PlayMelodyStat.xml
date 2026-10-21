@@ -4,6 +4,7 @@
   name="PlayMelodyStat"
   nodeStyleID="PlayMelodyStat.json"
   breakpoint="set"
+  entryPoint="selectable"
   onMovedFromChildToWS="OnStatMovedToWS.js"
   onMovedFromWsToChild="OnStatMovedToChild.js"
   onDeletionRequested="OnStatOrDeclDeletionRequested.js"
@@ -29,6 +30,7 @@
         bhNodeID="idPlayMelodyStat.node1"
         name="BoolLiteral"
         breakpoint="specifyParent"
+        entryPoint="none"
         text="true"
         version="bhn-0.1.0"/>
     </Connector>

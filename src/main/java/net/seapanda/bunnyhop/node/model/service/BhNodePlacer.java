@@ -16,6 +16,8 @@
 
 package net.seapanda.bunnyhop.node.model.service;
 
+import static net.seapanda.bunnyhop.node.model.event.CauseOfDeletion.ORIGINAL_DELETED;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -27,7 +29,6 @@ import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.BhNode.Swapped;
 import net.seapanda.bunnyhop.node.model.derivative.DerivativeCollector;
 import net.seapanda.bunnyhop.node.model.derivative.DerivativeUnlinker;
-import net.seapanda.bunnyhop.node.model.event.CauseOfDeletion;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
@@ -119,10 +120,12 @@ public class BhNodePlacer {
   private static Set<BhNode> selectDeletableDerivatives(
       BhNode node, Set<BhNode> derivatives, UserOperation userOpe) {
     return derivatives.stream()
-        .filter(derv -> derv.getEventInvoker().onDeletionRequested(
-            new ArrayList<>(derivatives) {{ add(node); }},
-            CauseOfDeletion.ORIGINAL_DELETED,
-            userOpe))
+        .filter(derv -> {
+          List<BhNode> nodesToNotify = new ArrayList<>(derivatives);
+          nodesToNotify.add(node);
+          return derv.getEventInvoker().onDeletionRequested(
+              nodesToNotify, ORIGINAL_DELETED, userOpe);
+        })
         .collect(Collectors.toSet());
   }
 

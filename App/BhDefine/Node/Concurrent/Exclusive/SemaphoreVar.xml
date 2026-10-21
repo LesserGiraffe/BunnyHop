@@ -4,6 +4,7 @@
   name="SemaphoreVar"
   nodeStyleID="SemaphoreVar.json"
   breakpoint="ignore"
+  entryPoint="selectable"
   onRelatedNodesRequired="GetDerivationFamily.js"
   onJumpTargetRequired="GetOriginalNode.js"
   onCompileErrorChecking="CheckCompileErrorOfSemaphoreVar.js"

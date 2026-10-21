@@ -38,7 +38,9 @@ import net.seapanda.bunnyhop.node.model.parameter.BhNodeVersion;
 import net.seapanda.bunnyhop.node.model.parameter.BhNodeViewStyleId;
 import net.seapanda.bunnyhop.node.model.parameter.BreakpointSetting;
 import net.seapanda.bunnyhop.node.model.parameter.DerivationId;
-import net.seapanda.bunnyhop.node.model.syntaxsymbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.node.model.parameter.EntryPointSetting;
+import net.seapanda.bunnyhop.node.model.syntaxtree.SyntaxTreeNode;
+import net.seapanda.bunnyhop.node.model.traverse.BhNodeWalker;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
@@ -50,7 +52,7 @@ import net.seapanda.bunnyhop.workspace.model.Workspace;
  *
  * @author K.Koike
  */
-public abstract class BhNode extends SyntaxSymbol {
+public abstract class BhNode extends SyntaxTreeNode {
 
   private final BhNodeParameters params;
   /** このノードを繋いでいるコネクタ. */
@@ -105,18 +107,18 @@ public abstract class BhNode extends SyntaxSymbol {
   public abstract boolean isRemovable();
 
   /**
-   * 引数のノードをこのノードの代わりに置き換えることができる場合 true を返す.
+   * 引数のノードをこのノードの代わりに置き換えられる場合 true を返す.
    *
    * @param node 置き換え対象の BhNode
    * @return このノードの代わりに置き換えられる場合 true
    */
   public abstract boolean canBeReplacedWith(BhNode node);
 
+
   /**
    * このノードが派生ノードだった場合, そのオリジナルノードを返す.
-   * 派生ノードで無かった場合 null を返す.
    *
-   * @return このノードのオリジナルノード. このノードが派生ノードで無い場合は null を返す.
+   * @return このノードのオリジナルノード. 存在しない場合 null を返す.
    */
   public abstract BhNode getOriginal();
 
@@ -200,7 +202,10 @@ public abstract class BhNode extends SyntaxSymbol {
    * @return このノードに対するイベントハンドラの追加と削除を行うオブジェクト
    */
   public abstract CallbackRegistry getCallbackRegistry();
-  
+
+  /** {@code visitor} にこのオブジェクトを渡す. */
+  public abstract void accept(BhNodeWalker visitor);
+
   /** コンストラクタ. */
   protected BhNode(
       BhNodeParameters params,
@@ -300,6 +305,15 @@ public abstract class BhNode extends SyntaxSymbol {
    */
   public boolean isBreakpointSet() {
     return isBreakpointSet;
+  }
+
+  /**
+   * このノードがエントリポイントとして指定可能かどうかの設定を取得する.
+   *
+   * @return このノードのエントリポイントに関する設定.
+   */
+  public EntryPointSetting getEntryPointSetting() {
+    return params.entryPointSetting();
   }
 
   /**
@@ -503,12 +517,8 @@ public abstract class BhNode extends SyntaxSymbol {
     this.parentConnector = parentConnector;
   }
 
-  /**
-   * このノードの親コネクタを返す.
-   *
-   * @return 親コネクタ. 親コネクタが無い場合は null を返す.
-   */
-  public Connector getParentConnector() {
+  @Override
+  public Connector getParent() {
     return parentConnector;
   }
 
@@ -634,16 +644,15 @@ public abstract class BhNode extends SyntaxSymbol {
     return parentConnector.getParentNode();
   }
 
-  /**
-   * このノードのルートであるノードを返す <br> ルートノードの場合は自身を返す.
-   *
-   * @return このノードのルートノード
-   */
+  @Override
   public BhNode findRootNode() {
-    if (parentConnector == null) {
-      return this;
+    SyntaxTreeNode root = super.findRootNode();
+    if (root instanceof BhNode node) {
+      return node;
     }
-    return parentConnector.getParentNode().findRootNode();
+    // ルート要素が BhNode 以外になることは, プログラムの設計上ありえない.
+    throw new AssertionError(
+        "The root of a BhNode must be a BhNode.  (root = %s)".formatted(root.getSymbolName()));
   }
 
   /**
@@ -651,38 +660,10 @@ public abstract class BhNode extends SyntaxSymbol {
    * なければ, {@link DerivationId#NONE} を返す.
    */
   public DerivationId findDerivationIdUp() {
-    if (getParentConnector() == null) {
+    if (getParent() == null) {
       return DerivationId.NONE;
     }
-    return getParentConnector().findDerivationIdUp();
-  }
-
-  @Override
-  public boolean isDescendantOf(SyntaxSymbol ancestor) {
-    if (this == ancestor) {
-      return true;
-    }
-    if (parentConnector == null) {
-      return false;
-    }
-    return parentConnector.isDescendantOf(ancestor);
-  }
-
-  @Override
-  public SyntaxSymbol findAncestorOf(String symbolName, int generation, boolean toTop) {
-    if (generation == 0) {
-      if (symbolNameMatches(symbolName)) {
-        return this;
-      }
-      if (!toTop) {
-        return null;
-      }
-    }
-
-    if (parentConnector == null) {
-      return null;
-    }
-    return parentConnector.findAncestorOf(symbolName, Math.max(0, generation - 1), toTop);
+    return getParent().findDerivationIdUp();
   }
 
   /** このノードに登録されたイベントハンドラを呼び出すオブジェクトを返す. */

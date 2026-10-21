@@ -4,6 +4,7 @@
   name="SemaphoreTryAcquireExp"
   nodeStyleID="SemaphoreTryAcquireExp.json"
   breakpoint="ignore"
+  entryPoint="selectable"
   onChildReplaced="OnChildOfSemaphoreCtrlReplaced.js"
   onCreatedAsTemplate="OnSemaphoreCtrlCreatedAsTemplate.js"
   onAliasAsked="OnAliasAsked.js"

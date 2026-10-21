@@ -4,6 +4,7 @@
   name="SoundExpVoid"
   nodeStyleID="SoundExpVoid.json"
   breakpoint="ignore"
+  entryPoint="none"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0"/>

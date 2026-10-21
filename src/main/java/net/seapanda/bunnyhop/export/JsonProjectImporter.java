@@ -36,7 +36,7 @@ import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.common.text.TextDefs;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory;
-import net.seapanda.bunnyhop.node.model.syntaxsymbol.InstanceId;
+import net.seapanda.bunnyhop.node.model.syntaxtree.NodeInstanceId;
 import net.seapanda.bunnyhop.node.model.traverse.CallbackInvoker;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.message.MessageService;
@@ -162,15 +162,16 @@ public class JsonProjectImporter implements ProjectImporter {
   }
 
   /**
-   *  {@code instIdToNode} のキーが {@code wss} に存在する {@link BhNode} の {@link InstanceId} と一致する場合,
-   *  {@code instIdToNode} 上でそのキーに対応する {@link BhNode} の {@link InstanceId} を新規作成したものに変更する.
+   *  {@code instIdToNode} のキーが {@code wss} に存在する {@link BhNode} の {@link NodeInstanceId} と一致する場合,
+   *  {@code instIdToNode} 上でそのキーに対応する {@link BhNode} の {@link NodeInstanceId} を新規作成したものに変更する.
    *
-   * @return {@link InstanceId} の重複があった場合, その詳細なメッセージ.  そうでない場合 empty.
+   * @return {@link NodeInstanceId} の重複があった場合, その詳細なメッセージ.  そうでない場合 empty.
    */
   private static Optional<String> replaceDuplicateInstIds(
-      WorkspaceSet wss, Map<InstanceId, BhNode> instIdToNode) {
-    Set<InstanceId> instanceIds = collectInstIds(wss);
-    Map<InstanceId, BhNode> orgInstIdToNode = replaceDuplicateInstIds(instanceIds, instIdToNode);
+      WorkspaceSet wss, Map<NodeInstanceId, BhNode> instIdToNode) {
+    Set<NodeInstanceId> nodeInstanceIds = collectInstIds(wss);
+    Map<NodeInstanceId, BhNode> orgInstIdToNode =
+        replaceDuplicateInstIds(nodeInstanceIds, instIdToNode);
     if (orgInstIdToNode.isEmpty()) {
       return Optional.empty();
     }
@@ -179,25 +180,25 @@ public class JsonProjectImporter implements ProjectImporter {
 
   /**
    *  {@code instIdToNode} のキーが {@code existing} に含まれる場合,
-   * そのキーに対応する {@link BhNode} の {@link InstanceId} を新規作成したものに変更する.
+   * そのキーに対応する {@link BhNode} の {@link NodeInstanceId} を新規作成したものに変更する.
    *
-   * @return 変更前の {@link InstanceId} と {@link InstanceId} を変更された {@link BhNode} のマップ.
+   * @return 変更前の {@link NodeInstanceId} と {@link NodeInstanceId} を変更された {@link BhNode} のマップ.
    */
-  private static Map<InstanceId, BhNode> replaceDuplicateInstIds(
-      Set<InstanceId> existing, Map<InstanceId, BhNode> instIdToNode) {
-    var orgInstIdToNode = new HashMap<InstanceId, BhNode>();
-    for (Map.Entry<InstanceId, BhNode> instIdAndNode : instIdToNode.entrySet()) {
+  private static Map<NodeInstanceId, BhNode> replaceDuplicateInstIds(
+      Set<NodeInstanceId> existing, Map<NodeInstanceId, BhNode> instIdToNode) {
+    var orgInstIdToNode = new HashMap<NodeInstanceId, BhNode>();
+    for (Map.Entry<NodeInstanceId, BhNode> instIdAndNode : instIdToNode.entrySet()) {
       if (existing.contains(instIdAndNode.getKey())) {
-        instIdAndNode.getValue().setInstanceId(InstanceId.newId());
+        instIdAndNode.getValue().setInstanceId(NodeInstanceId.newId());
         orgInstIdToNode.put(instIdAndNode.getKey(), instIdAndNode.getValue());
       }
     }
     return orgInstIdToNode;
   }
 
-  /** {@code wss} に存在する全ての {@link BhNode} の {@link InstanceId} を取得する. */
-  private static Set<InstanceId> collectInstIds(WorkspaceSet wss) {
-    var symbolIds = new HashSet<InstanceId>();
+  /** {@code wss} に存在する全ての {@link BhNode} の {@link NodeInstanceId} を取得する. */
+  private static Set<NodeInstanceId> collectInstIds(WorkspaceSet wss) {
+    var symbolIds = new HashSet<NodeInstanceId>();
     var registry = CallbackInvoker.newCallbackRegistry()
         .setForAllNodes(node -> symbolIds.add(node.getInstanceId()));
 
@@ -208,18 +209,18 @@ public class JsonProjectImporter implements ProjectImporter {
   }
 
   /**
-   * {@link InstanceId} の重複に関する詳細を作成する.
+   * {@link NodeInstanceId} の重複に関する詳細を作成する.
    *
-   * @param instIdToNode 重複した {@link InstanceId} とそれを保持していた {@link BhNode} のマップ.
-   * @return {@link InstanceId} の重複に関する詳細
+   * @param instIdToNode 重複した {@link NodeInstanceId} とそれを保持していた {@link BhNode} のマップ.
+   * @return {@link NodeInstanceId} の重複に関する詳細
    */
-  private static String createDuplicateInstIdWarnDetails(Map<InstanceId, BhNode> instIdToNode) {
+  private static String createDuplicateInstIdWarnDetails(Map<NodeInstanceId, BhNode> instIdToNode) {
     if (instIdToNode.isEmpty()) {
       return "";
     }
     StringBuilder msg = new StringBuilder();
     msg.append(ImportWarning.DUPLICATE_INSTANCE_ID).append("\n");
-    for (Map.Entry<InstanceId, BhNode> orgInstIdAndNode : instIdToNode.entrySet()) {
+    for (Map.Entry<NodeInstanceId, BhNode> orgInstIdAndNode : instIdToNode.entrySet()) {
       msg.append("  instance id: %s,  node id %s\n".formatted(
           orgInstIdAndNode.getKey(), orgInstIdAndNode.getValue().getId()));
     }

@@ -17,6 +17,9 @@
 package net.seapanda.bunnyhop.compiler;
 
 
+import static net.seapanda.bunnyhop.compiler.Keywords.Prefix;
+import static net.seapanda.bunnyhop.compiler.Keywords.newLine;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
@@ -31,14 +34,11 @@ import java.util.Optional;
 import java.util.SequencedCollection;
 import java.util.Set;
 import java.util.stream.Collectors;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
-import net.seapanda.bunnyhop.node.model.BhNode;
-import net.seapanda.bunnyhop.node.model.syntaxsymbol.InstanceId;
-import net.seapanda.bunnyhop.node.model.syntaxsymbol.SyntaxSymbol;
-import net.seapanda.bunnyhop.node.model.traverse.BhNodeWalker;
+import net.seapanda.bunnyhop.compiler.ScriptIdentifiers.Funcs;
+
 
 /**
- * BhNode をコンパイルするクラス.
+ * {@link BhCompiler} の実装クラス.
  *
  * @author K.Koike
  */
@@ -52,7 +52,7 @@ public class BhCompilerImpl implements BhCompiler {
   private final CommonCodeGenerator common;
   private final GlobalDataDeclCodeGenerator globalDataDeclCodeGen;
   private final List<String> commonCodeList;
-  private final InstanceId mainRoutineId = InstanceId.of(ScriptIdentifiers.Funcs.BH_MAIN);
+  private final String mainRoutineId = Funcs.BH_MAIN;
 
   /**
    * コンストラクタ.
@@ -83,13 +83,13 @@ public class BhCompilerImpl implements BhCompiler {
   public Path compile(SourceSet sourceSet, CompileOption option)
       throws CompileError {
     var targets = new ArrayList<>(sourceSet.getRootNodes());
-    BhNode mainEntryPoint = sourceSet.getMainEntryPoint();
+    CompilableSyntaxTreeNode mainEntryPoint = sourceSet.getSelectedEntryPoint();
     if (mainEntryPoint != null && !targets.contains(mainEntryPoint)) {
       targets.add(mainEntryPoint);
     }
-    Preprocessor.process(targets);
+    Preprocessor.process(sourceSet.getInstanceIdToNode());
     StringBuilder code = new StringBuilder();
-    genCode(sourceSet, code, option);
+    generateCode(sourceSet, code, option);
 
     try {
       new File(option.outFile.getParent().toAbsolutePath().toString()).mkdirs();
@@ -112,28 +112,28 @@ public class BhCompilerImpl implements BhCompiler {
   /**
    * プログラム全体のコードを生成する.
    *
-   * @param sourceSet コンパイルの対象となる {@link BhNode} を提供するオブジェクト
+   * @param sourceSet コンパイル対象のノードを提供するオブジェクト
+   * @param code 生成したソースコードの格納先
    * @param option コンパイルオプション
    */
-  private void genCode(
+  private void generateCode(
       SourceSet sourceSet,
       StringBuilder code,
       CompileOption option) {
     String libCode = commonCodeList.stream().reduce("", (a, b) -> a + b);
-    code.append(libCode).append(Keywords.newLine);
-    var targets = sourceSet.getRootNodes();
-    SequencedCollection<SyntaxSymbol> globalVars =
-        varDeclCodeGen.genVarDecls(targets, code, 0, option);
-    genSetGlobalVars(globalVars, code, 0, option);
-    globalDataDeclCodeGen.genGlobalDataDecls(targets, code, 0, option);
-    genSetEntryPointIds(sourceSet, code, 0);
-    code.append(Keywords.newLine);
-    funcDefCodeGen.genFuncDefs(targets, code, 0, option);
-    eventHandlerCodeGen.genEventHandlers(targets, code, 0, option);
-    genMainMethod(sourceSet.getMainEntryPoint(), code, option);
-    genAddEventFuncCall(
-        BhProgramEvent.Name.PROGRAM_START, ScriptIdentifiers.Funcs.BH_MAIN, code, 0);
-    genFooterSnippet(code, 0);
+    code.append(libCode).append(newLine);
+    var rootNodes = sourceSet.getRootNodes();
+    SequencedCollection<CompilableSyntaxTreeNode> globalVars =
+        varDeclCodeGen.generateVarDecls(rootNodes, code, 0, option);
+    generateSetGlobalVars(globalVars, code, 0, option);
+    globalDataDeclCodeGen.generateGlobalDataDecls(rootNodes, code, 0, option);
+    generateEntryPointIdsRegistration(sourceSet, code, 0);
+    code.append(newLine);
+    funcDefCodeGen.generateFuncDefs(rootNodes, code, 0, option);
+    eventHandlerCodeGen.generateEventHandlers(rootNodes, code, 0, option);
+    generateMainMethod(sourceSet.getSelectedEntryPoint(), code, option);
+    generateAddEventFuncCall(option.mainRoutineLaunchEvent, Funcs.BH_MAIN, code, 0);
+    generateFooterSnippet(code, 0);
 
   }
 
@@ -144,33 +144,35 @@ public class BhCompilerImpl implements BhCompiler {
    * @param code 生成したソースコードの格納先
    * @param option コンパイルオプション
    */
-  private void genMainMethod(BhNode mainEntryPoint, StringBuilder code, CompileOption option) {
+  private void generateMainMethod(
+      CompilableSyntaxTreeNode mainEntryPoint, StringBuilder code, CompileOption option) {
     if (mainEntryPoint == null) {
-      code.append("function %s() {}\n".formatted(ScriptIdentifiers.Funcs.BH_MAIN));
+      code.append("function %s() {}\n".formatted(Funcs.BH_MAIN));
       return;
     }
-    String lockVar = Keywords.Prefix.lockVar + ScriptIdentifiers.Funcs.BH_MAIN;
-    SyntaxSymbol mainRoutineSymbol = createMainRoutineSymbol();
-    eventHandlerCodeGen.genHeaderSnippetOfEventCall(
-        code, mainRoutineSymbol, false, ScriptIdentifiers.Funcs.BH_MAIN, lockVar, 0, option);
-    expCodeGen.genExpression(mainEntryPoint, code, 4, option);
-    statCodeGen.genStatement(mainEntryPoint, code, 4, option);
-    eventHandlerCodeGen.genFooterSnippetOfEventCall(code, lockVar, 0, option);
+    String lockVar = Prefix.lockVar + Funcs.BH_MAIN;
+    CompilableSyntaxTreeNode mainRoutineSymbol = createMainRoutineNode();
+    eventHandlerCodeGen.generateHeaderSnippetOfEventCall(
+        code, mainRoutineSymbol, Funcs.BH_MAIN, lockVar, 0, option);
+    expCodeGen.generateExpression(mainEntryPoint, code, 4, option);
+    statCodeGen.generateStatement(mainEntryPoint, code, 4, option);
+    eventHandlerCodeGen.generateFooterSnippetOfEventCall(code, lockVar, 0, option);
   }
 
   /** イベントとそれに対応するメソッドを追加する関数を呼ぶコードを生成する. */
-  private void genAddEventFuncCall(
-      BhProgramEvent.Name event,
+  private void generateAddEventFuncCall(
+      String eventName,
       String funcName,
       StringBuilder code,
       int nestLevel) {
-    String addEventCallStat = common.genFuncCall(
-        ScriptIdentifiers.Funcs.ADD_EVENT,
+    String addEventCallStat = common.generateFuncCall(
+        Funcs.ADD_EVENT,
         funcName,
-        "'%s'".formatted(event));
+        "'%s'".formatted(eventName));
     code.append(common.indent(nestLevel))
-        .append(addEventCallStat + ";")
-        .repeat(Keywords.newLine, 2);
+        .append(addEventCallStat)
+        .append(";")
+        .repeat(newLine, 2);
   }
 
   /**
@@ -179,16 +181,18 @@ public class BhCompilerImpl implements BhCompiler {
    * @param code 生成したコードの格納先
    * @param nestLevel ソースコードのネストレベル
    */
-  private void genFooterSnippet(StringBuilder code, int nestLevel) {
+  private void generateFooterSnippet(StringBuilder code, int nestLevel) {
     // プログラム開始時刻の更新
     code.append(common.indent(nestLevel))
-        .append(common.genFuncCall(ScriptIdentifiers.Funcs.START_TIMER))
-        .append(";" + Keywords.newLine);
+        .append(common.generateFuncCall(Funcs.START_TIMER))
+        .append(";")
+        .append(newLine);
 
     // グローバル変数初期化スレッドのスレッドコンテキストをデバッガから削除する
     code.append(common.indent(nestLevel))
-        .append(common.genFuncCall(ScriptIdentifiers.Funcs.NOTIFY_THREAD_END))
-        .append(";" + Keywords.newLine);
+        .append(common.generateFuncCall(Funcs.NOTIFY_THREAD_END))
+        .append(";")
+        .append(newLine);
   }
 
   /**
@@ -199,20 +203,20 @@ public class BhCompilerImpl implements BhCompiler {
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
-  private void genSetGlobalVars(
-      SequencedCollection<SyntaxSymbol> variables,
+  private void generateSetGlobalVars(
+      SequencedCollection<CompilableSyntaxTreeNode> variables,
       StringBuilder code,
       int nestLevel,
       CompileOption option) {
     if (!option.addVarAccessorToVarStack) {
       return;
     }
-    List<String> varAccessors = variables.stream().map(common::genVarAccessorName).toList();
+    List<String> varAccessors = variables.stream().map(common::generateVarAccessorName).toList();
     String accessorElems = String.join(", ", varAccessors);
     if (!accessorElems.isEmpty()) {
       code.append(common.indent(nestLevel))
-          .append(ScriptIdentifiers.Funcs.SET_GLOBAL_VARIABLES)
-          .append("([%s]);%s".formatted(accessorElems, Keywords.newLine));
+          .append(Funcs.SET_GLOBAL_VARIABLES)
+          .append("([%s]);%s".formatted(accessorElems, newLine));
     }
   }
 
@@ -221,18 +225,18 @@ public class BhCompilerImpl implements BhCompiler {
    *
    * <p>この処理はデバッグオプションに関係なく行う.
    *
-   * @param sourceSet コンパイルの対象となる {@link BhNode} を提供するオブジェクト
+   * @param sourceSet コンパイル対象のノードを提供するオブジェクト
    * @param code 生成したソースコードの格納先
    * @param nestLevel ソースコードのネストレベル
    */
-  private void genSetEntryPointIds(
+  private void generateEntryPointIdsRegistration(
       SourceSet sourceSet,
       StringBuilder code,
       int nestLevel) {
-    Set<BhNode> entryPoints = sourceSet.getRootNodes().stream()
-        .filter(node -> SymbolNames.EntryPoint.AUTO_LIST.contains(node.getSymbolName()))
+    Set<CompilableSyntaxTreeNode> entryPoints = sourceSet.getRootNodes().stream()
+        .filter(CompilableSyntaxTreeNode::isBuiltInEntryPoint)
         .collect(Collectors.toCollection(HashSet::new));
-    Optional.ofNullable(sourceSet.getMainEntryPoint()).ifPresent(entryPoints::add);
+    Optional.ofNullable(sourceSet.getSelectedEntryPoint()).ifPresent(entryPoints::add);
 
     String entryPointIds = entryPoints.stream()
         .map(node -> "'" + node.getInstanceId() + "'")
@@ -240,41 +244,88 @@ public class BhCompilerImpl implements BhCompiler {
         .orElse("");
 
     code.append(common.indent(nestLevel))
-        .append(ScriptIdentifiers.Funcs.SET_ENTRY_POINT_IDS)
-        .append("([%s]);%s".formatted(entryPointIds, Keywords.newLine));
+        .append(Funcs.SET_ENTRY_POINT_IDS)
+        .append("([%s]);%s".formatted(entryPointIds, newLine));
   }
 
-  /** メインエントリポイントとなるノードの処理を呼ぶ関数の {@link SyntaxSymbol} を作成する. */
-  private SyntaxSymbol createMainRoutineSymbol() {
-    var symbol = new SyntaxSymbol("") {
+  /** メインルーチンに対応する {@link CompilableSyntaxTreeNode} を作成する. */
+  private CompilableSyntaxTreeNode createMainRoutineNode() {
+    return new CompilableSyntaxTreeNode() {
+
+      private String lexeme = mainRoutineId;
+      private String tag = mainRoutineId;
+
       @Override
-      public boolean isDescendantOf(SyntaxSymbol ancestor) {
-        return false;
+      public List<? extends CompilableSyntaxTreeNode> findDescendants(
+          int generation, boolean toBottom, String... symbolNames) {
+        return new ArrayList<>();
       }
 
       @Override
-      public void findDescendantOf(
-          int generation,
-          boolean toTerminal,
-          List<SyntaxSymbol> foundSymbolList,
-          String... symbolNames) {
-      }
-
-      @Override
-      public SyntaxSymbol findAncestorOf(String symbolName, int generation, boolean upToTop) {
+      public CompilableSyntaxTreeNode findDescendantOf(String... symbolNamePath) {
         return null;
       }
 
       @Override
-      public void accept(BhNodeWalker visitor) {
+      public CompilableSyntaxTreeNode findAncestor(
+          int generation, boolean toTop, String symbolName) {
+        return null;
+      }
+
+      @Override
+      public CompilableSyntaxTreeNode findAncestorOf(String... symbolNamePath) {
+        return null;
+      }
+
+      @Override
+      public String getSymbolName() {
+        return "";
+      }
+
+      @Override
+      public String getLexeme() {
+        return lexeme;
+      }
+
+      @Override
+      public void setLexeme(String val) {
+        lexeme = val;
+      }
+
+      @Override
+      public String getInstanceId() {
+        return mainRoutineId;
+      }
+
+      @Override
+      public String getTag() {
+        return tag;
+      }
+
+      @Override
+      public void setTag(String val) {
+        tag = val;
+      }
+
+      @Override
+      public CompilableSyntaxTreeNode getOriginal() {
+        return null;
+      }
+
+      @Override
+      public boolean isBuiltInEntryPoint() {
+        return false;
+      }
+
+      @Override
+      public boolean canSetBreakpoint() {
+        return false;
       }
     };
-    symbol.setInstanceId(mainRoutineId);
-    return symbol;
   }
 
   @Override
-  public InstanceId mainRoutineId() {
+  public String mainRoutineId() {
     return mainRoutineId;
   }
 }

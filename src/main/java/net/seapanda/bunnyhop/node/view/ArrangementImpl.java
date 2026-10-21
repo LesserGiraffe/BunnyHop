@@ -74,8 +74,8 @@ class ArrangementImpl implements BhNodeView.Arrange {
     BhNode model = view.getModel().orElse(null);
     boolean isUnfixedDefault = model != null
         && model.isDefault()
-        && model.getParentConnector() != null
-        && !model.getParentConnector().isFixed();
+        && model.getParent() != null
+        && !model.getParent().isFixed();
     view.getVisual().setPseudoClassState(isUnfixedDefault, UNFIXED_DEFAULT);
   }
 

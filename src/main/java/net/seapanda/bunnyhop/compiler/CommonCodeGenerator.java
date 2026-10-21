@@ -16,10 +16,13 @@
 
 package net.seapanda.bunnyhop.compiler;
 
+import static net.seapanda.bunnyhop.compiler.Keywords.Js;
+import static net.seapanda.bunnyhop.compiler.Keywords.Prefix;
+import static net.seapanda.bunnyhop.compiler.Keywords.newLine;
+import static net.seapanda.bunnyhop.compiler.SymbolNames.UserDefFunc;
+
 import java.util.ArrayList;
 import java.util.SequencedCollection;
-import net.seapanda.bunnyhop.node.model.syntaxsymbol.InstanceId;
-import net.seapanda.bunnyhop.node.model.syntaxsymbol.SyntaxSymbol;
 
 /**
  * 式や文のコード生成に必要な共通の機能を持つクラス.
@@ -31,31 +34,31 @@ class CommonCodeGenerator {
   /**
    * {@code varDecl} から変数名を生成する.
    *
-   * @param varDecl この {@link SyntaxSymbol} に対応する変数名を作成する
+   * @param varDecl この {@link CompilableSyntaxTreeNode} に対応する変数名を作成する
    * @return 変数名
    */
-  String genVarName(SyntaxSymbol varDecl) {
-    return Keywords.Prefix.var + varDecl.getSerialNo().hexStr();
+  String generateVarName(CompilableSyntaxTreeNode varDecl) {
+    return Prefix.var + varDecl.getTag();
   }
 
   /**
    * {@code varDecl} から, 変数アクセサを格納する変数の名前を生成する.
    *
-   * @param varDecl この {@link SyntaxSymbol} に対応する変数名を作成する
+   * @param varDecl この {@link CompilableSyntaxTreeNode} に対応する変数名を作成する
    * @return 変数名
    */
-  String genVarAccessorName(SyntaxSymbol varDecl) {
-    return Keywords.Prefix.outArg + varDecl.getSerialNo().hexStr();
+  String generateVarAccessorName(CompilableSyntaxTreeNode varDecl) {
+    return Prefix.outArg + varDecl.getTag();
   }
 
   /**
    * {@code funcDef} から関数名を生成する.
    *
-   * @param funcDef この {@link SyntaxSymbol} に対応する関数名を作成する
+   * @param funcDef この {@link CompilableSyntaxTreeNode} に対応する関数名を作成する
    * @return 関数名
    */
-  String genFuncName(SyntaxSymbol funcDef) {
-    return Keywords.Prefix.func + funcDef.getSerialNo().hexStr();
+  String generateFuncName(CompilableSyntaxTreeNode funcDef) {
+    return Prefix.func + funcDef.getTag();
   }
 
   /**
@@ -65,7 +68,7 @@ class CommonCodeGenerator {
    * @param argNames 引数名のリスト
    * @return 関数呼び出しのコード
    */
-  String genFuncCall(String funcName, String... argNames) {
+  String generateFuncCall(String funcName, String... argNames) {
     StringBuilder code = new StringBuilder();
     code.append(funcName)
         .append("(");
@@ -89,7 +92,7 @@ class CommonCodeGenerator {
    * @param properties root の下に続くプロパティ名のリスト
    * @return プロパティアクセス式
    */
-  String genPropertyAccess(String root, String... properties) {
+  String generatePropertyAccess(String root, String... properties) {
     StringBuilder code = new StringBuilder(root);
     for (String prop : properties) {
       code.append(".").append(prop);
@@ -103,20 +106,20 @@ class CommonCodeGenerator {
    * @param varDecl 変数宣言ノード
    * @return {@code varDecl} が出力引数である場合 true を返す.
    */
-  boolean isOutputParam(SyntaxSymbol varDecl) {
-    return varDecl.findAncestorOf(SymbolNames.UserDefFunc.OUT_PARAM_DECL, 1, true) != null;
+  boolean isOutputParam(CompilableSyntaxTreeNode varDecl) {
+    return varDecl.findAncestor(1, true, UserDefFunc.OUT_PARAM_DECL) != null;
   }
 
   /** 出力引数の値を取得するコードを生成する. */
-  String genGetOutputParamVal(SyntaxSymbol varDecl) {
-    return genPropertyAccess(
-        genVarName(varDecl), ScriptIdentifiers.Properties.GET) + "()";
+  String generateGetOutputParamVal(CompilableSyntaxTreeNode varDecl) {
+    return generatePropertyAccess(
+        generateVarName(varDecl), ScriptIdentifiers.Properties.GET) + "()";
   }
 
   /** 出力引数に値を設定するコードを生成する. */
-  String genSetOutputParamVal(SyntaxSymbol varDecl, String val) {
-    return genPropertyAccess(
-        genVarName(varDecl), ScriptIdentifiers.Properties.SET) + "(" + val + ")";
+  String generateSetOutputParamVal(CompilableSyntaxTreeNode varDecl, String val) {
+    return generatePropertyAccess(
+        generateVarName(varDecl), ScriptIdentifiers.Properties.SET) + "(" + val + ")";
   }
 
   /**
@@ -126,23 +129,25 @@ class CommonCodeGenerator {
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
-  void genPushToCallStack(
+  void generatePushToCallStack(
       StringBuilder code,
       int nestLevel,
       CompileOption option) {
     if (option.addNodeInstIdToCallStack) {
       code.append(indent(nestLevel))
-          .append(genGetCallStack())
-          .append(";" + Keywords.newLine);
+          .append(generateGetCallStack())
+          .append(";")
+          .append(newLine);
       
       code.append(indent(nestLevel))
-          .append(genPushToCallStack())
-          .append(";" + Keywords.newLine);
+          .append(generatePushToCallStack())
+          .append(";")
+          .append(newLine);
     }
   }
 
   /** コールスタックに関数呼び出しノードのインスタンス ID を追加するコードを生成する. */
-  private String genPushToCallStack() {
+  private String generatePushToCallStack() {
     return "%s[%s.%s] = %s[%s]".formatted(
         ScriptIdentifiers.Vars.CALL_STACK,
         ScriptIdentifiers.Vars.CALL_STACK,
@@ -152,10 +157,10 @@ class CommonCodeGenerator {
   }
 
   /** スレッドコンテキストからコールスタックを取り出して, 専用の変数に格納するコードを生成する. */
-  private String genGetCallStack() {
+  private String generateGetCallStack() {
     // let _callStack = _threadContext[_idxCallStack]
     return "%s%s = %s[%s]".formatted(
-        Keywords.Js._const_,
+        Js._const_,
         ScriptIdentifiers.Vars.CALL_STACK,
         ScriptIdentifiers.Vars.THREAD_CONTEXT,
         ScriptIdentifiers.Vars.IDX_CALL_STACK);
@@ -168,43 +173,44 @@ class CommonCodeGenerator {
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
-  void genPopFromCallStack(
+  void generatePopFromCallStack(
       StringBuilder code,
       int nestLevel,
       CompileOption option) {
     if (option.addNodeInstIdToCallStack) {      
       code.append(indent(nestLevel))
-          .append(genPopFromCallStack())
-          .append(";" + Keywords.newLine);
+          .append(generatePopFromCallStack())
+          .append(";")
+          .append(newLine);
     }
   }
 
   /** コールスタックから関数呼び出しノードのインスタンス ID を削除するコードを生成する. */
-  private String genPopFromCallStack() {
+  private String generatePopFromCallStack() {
     return "%s.%s()".formatted(
         ScriptIdentifiers.Vars.CALL_STACK,
         ScriptIdentifiers.JsFuncs.POP);
   }
 
   /**
-   * {@link SyntaxSymbol} のインスタンス ID を専用の変数に代入するコードを生成する.
+   * {@link CompilableSyntaxTreeNode} のインスタンス ID を専用の変数に代入するコードを生成する.
    *
-   * @param symbol この {@link SyntaxSymbol} のインスタンス ID を格納するコードを生成する.
+   * @param node この {@link CompilableSyntaxTreeNode} のインスタンス ID を格納するコードを生成する.
    * @param code 生成したコードの格納先
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    * @return ノードのインスタンス ID を格納した変数名. コードを作成しなかった場合は空の文字列.
    */
-  public String genAssignNodeInstId(
-      SyntaxSymbol symbol,
+  public String generateAssignNodeInstId(
+      CompilableSyntaxTreeNode node,
       StringBuilder code,
       int nestLevel,
       CompileOption option) {
     if (option.addNodeInstIdToContext || option.addConditionalWait) {
-      String instIdVar = Keywords.Prefix.instIdVar + symbol.getSerialNo();
+      String instIdVar = Prefix.instIdVar + node.getTag();
       code.append(indent(nestLevel))
-          .append("%s%s = '%s';".formatted(Keywords.Js._let_, instIdVar, symbol.getInstanceId()))
-          .append(Keywords.newLine);
+          .append("%s%s = '%s';".formatted(Js._let_, instIdVar, node.getInstanceId()))
+          .append(newLine);
       return instIdVar;
     }
     return "";
@@ -213,12 +219,12 @@ class CommonCodeGenerator {
   /**
    * 次に処理するノードのインスタンス ID をスレッドコンテキストに設定するコードを生成する.
    *
-   * @param instIdExp {@link InstanceId} に評価される式の文字列
+   * @param instIdExp 評価結果がノードのインスタンス ID になる式の文字列
    * @param code 生成したコードの格納先
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
-  public void genSetInstIdToThreadContext(
+  public void generateSetInstIdToThreadContext(
       String instIdExp,
       StringBuilder code,
       int nestLevel,
@@ -230,7 +236,7 @@ class CommonCodeGenerator {
           instIdExp);
       code.append(indent(nestLevel))
           .append(assignStat)
-          .append(Keywords.newLine);
+          .append(newLine);
     }
   }
 
@@ -239,12 +245,12 @@ class CommonCodeGenerator {
    *
    * <p>本メソッドで生成されるコードは, ブレークポイントなどで一時停止するための機能を実現する.
    *
-   * @param instIdExp {@link InstanceId} に評価される式の文字列
+   * @param instIdExp 評価結果がノードのインスタンス ID になる式の文字列
    * @param code 生成したコードの格納先
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
-  void genConditionalWait(
+  void generateConditionalWait(
       String instIdExp,
       StringBuilder code,
       int nestLevel,
@@ -252,8 +258,9 @@ class CommonCodeGenerator {
     // _condWait(inst-id-exp);
     if (option.addConditionalWait) {
       code.append(indent(nestLevel))
-          .append(genFuncCall(ScriptIdentifiers.Funcs.COND_WAIT, instIdExp))
-          .append(";" + Keywords.newLine);
+          .append(generateFuncCall(ScriptIdentifiers.Funcs.COND_WAIT, instIdExp))
+          .append(";")
+          .append(newLine);
     }
   }
 
@@ -264,11 +271,11 @@ class CommonCodeGenerator {
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
-  void genPushToVarStack(
+  void generatePushToVarStack(
       StringBuilder code,
       int nestLevel,
       CompileOption option) {
-    genPushToVarStack(new ArrayList<>(), new ArrayList<>(), code, nestLevel, option);
+    generatePushToVarStack(new ArrayList<>(), new ArrayList<>(), code, nestLevel, option);
   }
 
   /**
@@ -280,9 +287,9 @@ class CommonCodeGenerator {
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
-  void genPushToVarStack(
-      SequencedCollection<SyntaxSymbol> varDecls,
-      SequencedCollection<SyntaxSymbol> outParams,
+  void generatePushToVarStack(
+      SequencedCollection<CompilableSyntaxTreeNode> varDecls,
+      SequencedCollection<CompilableSyntaxTreeNode> outParams,
       StringBuilder code,
       int nestLevel,
       CompileOption option) {
@@ -290,33 +297,36 @@ class CommonCodeGenerator {
       return;
     }
     var varAccessors = new ArrayList<String>();
-    for (SyntaxSymbol varDecl : varDecls) {
-      varAccessors.add("%s".formatted(genVarAccessorName(varDecl)));
+    for (CompilableSyntaxTreeNode varDecl : varDecls) {
+      varAccessors.add("%s".formatted(generateVarAccessorName(varDecl)));
     }
-    for (SyntaxSymbol outParam : outParams) {
-      varAccessors.add("%s".formatted(genVarAccessorName(outParam)));
+    for (CompilableSyntaxTreeNode outParam : outParams) {
+      varAccessors.add("%s".formatted(generateVarAccessorName(outParam)));
     }
     // let _varFrame = [_vo123, ... ];
     code.append(indent(nestLevel))
-        .append(Keywords.Js._const_)
+        .append(Js._const_)
         .append(ScriptIdentifiers.Vars.VAR_FRAME)
         .append(" = [")
         .append(String.join(", ", varAccessors))
-        .append("];" + Keywords.newLine);
+        .append("];")
+        .append(newLine);
 
     // let _varStack = _threadContext[_idxVarStack];
     code.append(indent(nestLevel))
-        .append(genGetVarStack())
-        .append(";" + Keywords.newLine);
+        .append(generateGetVarStack())
+        .append(";")
+        .append(newLine);
 
     // _varStack[_varStack.length] = _varFrame;
     code.append(indent(nestLevel))
-        .append(genPushToVarStack())
-        .append(";" + Keywords.newLine);
+        .append(generatePushToVarStack())
+        .append(";")
+        .append(newLine);
   }
 
   /** 変数スタックに変数フレームを追加するコードを生成する. */
-  private String genPushToVarStack() {
+  private String generatePushToVarStack() {
     return "%s[%s.%s] = %s".formatted(
         ScriptIdentifiers.Vars.VAR_STACK,
         ScriptIdentifiers.Vars.VAR_STACK,
@@ -325,10 +335,10 @@ class CommonCodeGenerator {
   }  
 
   /** スレッドコンテキストから変数スタックを取り出して, 専用の変数に格納するコードを生成する. */
-  private String genGetVarStack() {
+  private String generateGetVarStack() {
     // let _varStack = _threadContext[_varStackIdx];
     return "%s%s = %s[%s]".formatted(
-        Keywords.Js._const_,
+        Js._const_,
         ScriptIdentifiers.Vars.VAR_STACK,
         ScriptIdentifiers.Vars.THREAD_CONTEXT,
         ScriptIdentifiers.Vars.IDX_VAR_STACK);
@@ -341,7 +351,7 @@ class CommonCodeGenerator {
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
-  void genPopFromVarStack(
+  void generatePopFromVarStack(
       StringBuilder code,
       int nestLevel,
       CompileOption option) {
@@ -349,12 +359,13 @@ class CommonCodeGenerator {
       return;
     }
     code.append(indent(nestLevel))
-        .append(genPopFromToVarStack())
-        .append(";" + Keywords.newLine);
+        .append(generatePopFromToVarStack())
+        .append(";")
+        .append(newLine);
   }
 
   /** 変数スタックから要素を取り除くコードを生成する. */
-  private String genPopFromToVarStack() {
+  private String generatePopFromToVarStack() {
     return "%s.%s()".formatted(
         ScriptIdentifiers.Vars.VAR_STACK,
         ScriptIdentifiers.JsFuncs.POP);
@@ -368,8 +379,8 @@ class CommonCodeGenerator {
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
-  void genPushToVarFrame(
-      SequencedCollection<SyntaxSymbol> varDecls,    
+  void generatePushToVarFrame(
+      SequencedCollection<CompilableSyntaxTreeNode> varDecls,
       StringBuilder code,
       int nestLevel,
       CompileOption option) {
@@ -377,22 +388,23 @@ class CommonCodeGenerator {
       return;
     }
     code.append(indent(nestLevel))
-        .append(genPushToVarFrame(varDecls))
-        .append(";" + Keywords.newLine);
+        .append(generatePushToVarFrame(varDecls))
+        .append(";")
+        .append(newLine);
   }
 
   /** 変数アクセサを専用のスタックフレームに追加するコードを生成する. */
-  private String genPushToVarFrame(SequencedCollection<SyntaxSymbol> varDecls) {
+  private String generatePushToVarFrame(SequencedCollection<CompilableSyntaxTreeNode> varDecls) {
     if (varDecls.size() == 1) {
       return "%s[%s.%s] = %s".formatted(
           ScriptIdentifiers.Vars.VAR_FRAME,
           ScriptIdentifiers.Vars.VAR_FRAME,
           ScriptIdentifiers.JsProperties.LENGTH,
-          genVarAccessorName(varDecls.getFirst()));
+          generateVarAccessorName(varDecls.getFirst()));
     }
     var varAccessors = new ArrayList<String>();
-    for (SyntaxSymbol varDecl : varDecls) {
-      varAccessors.add("%s".formatted(genVarAccessorName(varDecl)));
+    for (CompilableSyntaxTreeNode varDecl : varDecls) {
+      varAccessors.add("%s".formatted(generateVarAccessorName(varDecl)));
     }
     return "%s.%s(%s)".formatted(
         ScriptIdentifiers.Vars.VAR_FRAME,
@@ -408,7 +420,7 @@ class CommonCodeGenerator {
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
-  void genPopFromVarFrame(
+  void generatePopFromVarFrame(
       int numVars,
       StringBuilder code,
       int nestLevel,
@@ -418,12 +430,13 @@ class CommonCodeGenerator {
       return;
     }
     code.append(indent(nestLevel))
-        .append(genPopFromVarFrame(numVars))
-        .append(";" + Keywords.newLine);
+        .append(generatePopFromVarFrame(numVars))
+        .append(";")
+        .append(newLine);
   }
 
   /** 変数アクセサを専用のスタックフレームから削除するコードを生成する. */
-  private String genPopFromVarFrame(int numVars) {
+  private String generatePopFromVarFrame(int numVars) {
     if (numVars == 1) {
       return "%s.%s()".formatted(ScriptIdentifiers.Vars.VAR_FRAME, ScriptIdentifiers.JsFuncs.POP);
     }

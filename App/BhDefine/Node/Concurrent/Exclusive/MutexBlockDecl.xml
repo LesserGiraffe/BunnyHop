@@ -4,6 +4,7 @@
   name="MutexBlockDecl"
   nodeStyleID="MutexBlockDecl.json"
   breakpoint="ignore"
+  entryPoint="none"
   onCompanionNodesCreating="CreateMutexBlockCompanions.js"
   onMovedFromChildToWS="OnGlobalDataDeclMovedToWS.js"
   onMovedFromWsToChild="OnGlobalDataDeclMovedToChild.js"
@@ -37,6 +38,7 @@
         name="BoolLiteral"
         nodeStyleID="WordComboBox.json"
         breakpoint="specifyParent"
+        entryPoint="none"
         onTextOptionsCreating="CreateMutexBlockOpts.js"
         version="bhn-0.1.0">
       </Node>

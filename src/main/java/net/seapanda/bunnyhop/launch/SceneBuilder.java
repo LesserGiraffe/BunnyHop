@@ -40,7 +40,7 @@ import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramController;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.common.text.TextDefs;
-import net.seapanda.bunnyhop.compiler.nodecollector.SourceNodeCollector;
+import net.seapanda.bunnyhop.compile.SourceNodeCollector;
 import net.seapanda.bunnyhop.debugger.control.BreakpointListController;
 import net.seapanda.bunnyhop.debugger.control.DebugViewController;
 import net.seapanda.bunnyhop.debugger.control.DebugWindowController;

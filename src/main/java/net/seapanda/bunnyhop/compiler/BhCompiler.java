@@ -17,8 +17,6 @@
 package net.seapanda.bunnyhop.compiler;
 
 import java.nio.file.Path;
-import net.seapanda.bunnyhop.node.model.BhNode;
-import net.seapanda.bunnyhop.node.model.syntaxsymbol.InstanceId;
 
 /**
  * BhNode をコンパイル機能を規定したインタフェース.
@@ -28,9 +26,9 @@ import net.seapanda.bunnyhop.node.model.syntaxsymbol.InstanceId;
 public interface BhCompiler {
 
   /**
-   * {@link BhNode} をコンパイルし, 作成されたファイルのパスを返す.
+   * {@link SourceSet} に含まれるノードをコンパイルし, 作成されたファイルのパスを返す.
    *
-   * @param sourceSet コンパイルの対象となる {@link BhNode} を提供するオブジェクト
+   * @param sourceSet コンパイルの対象となるノードを提供するオブジェクト
    * @param option コンパイルオプション
    * @return コンパイルした結果作成されたファイルのパス
    * @throws CompileError コンパイル中にエラーが発生した場合
@@ -38,10 +36,6 @@ public interface BhCompiler {
   Path compile(SourceSet sourceSet, CompileOption option)
       throws CompileError;
 
-  /**
-   * メインエントリポイントとなるノードの処理を呼ぶ関数の ID.
-   *
-   * <p>メインエントリポイント: プログラムの開始時に自動で実行される処理のエントリポイントである.
-   */
-  InstanceId mainRoutineId();
+  /** メインルーチンとなる関数の ID を返す. */
+  String mainRoutineId();
 }

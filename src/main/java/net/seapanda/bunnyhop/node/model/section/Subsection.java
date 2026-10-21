@@ -18,12 +18,12 @@ package net.seapanda.bunnyhop.node.model.section;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.Connector;
 import net.seapanda.bunnyhop.node.model.parameter.ConnectorId;
-import net.seapanda.bunnyhop.node.model.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.node.model.traverse.BhNodeWalker;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 
@@ -34,7 +34,7 @@ import net.seapanda.bunnyhop.service.undo.UserOperation;
  */
 public class Subsection extends Section {
 
-  final List<Section> subsectionList = new ArrayList<>();
+  final List<Section> subsections = new ArrayList<>();
 
   /**
    * コンストラクタ.
@@ -44,7 +44,7 @@ public class Subsection extends Section {
    */
   public Subsection(String symbolName, Collection<Section> subsectionList) {
     super(symbolName);
-    this.subsectionList.addAll(subsectionList);
+    this.subsections.addAll(subsectionList);
   }
 
   /**
@@ -60,10 +60,10 @@ public class Subsection extends Section {
   public Subsection copy(
       Predicate<? super BhNode> fnIsNodeToBeCopied, UserOperation userOpe) {
     Subsection newSubsection = new Subsection(this);
-    subsectionList.forEach(section -> {
+    subsections.forEach(section -> {
       Section newSection = section.copy(fnIsNodeToBeCopied, userOpe);
       newSection.setParent(newSubsection);
-      newSubsection.subsectionList.add(newSection);
+      newSubsection.subsections.add(newSection);
     });
     return newSubsection;
   }
@@ -79,34 +79,18 @@ public class Subsection extends Section {
    * @param visitor サブグループに渡す visitor
    */
   public void sendToSubsections(BhNodeWalker visitor) {
-    subsectionList.forEach(subsection -> subsection.accept(visitor));
+    subsections.forEach(subsection -> subsection.accept(visitor));
   }
 
   @Override
-  public void findDescendantOf(
-      int generation, boolean toBottom, List<SyntaxSymbol> foundSymbolList, String... symbolNames) {
-    if (generation == 0) {
-      for (String symbolName : symbolNames) {
-        if (symbolNameMatches(symbolName)) {
-          foundSymbolList.add(this);
-        }
-      }
-      if (!toBottom) {
-        return;
-      }
-    }
-
-    int childLevel = generation - 1;
-    for (Section subsection : subsectionList) {
-      subsection.findDescendantOf(
-          Math.max(0, childLevel), toBottom, foundSymbolList, symbolNames);
-    }
+  public List<Section> getChildren() {
+    return Collections.unmodifiableList(subsections);
   }
 
   @Override
   public BhNode findOuterNode(int generation) {
-    for (int i = subsectionList.size() - 1; i >= 0; --i) {
-      BhNode outerNode = subsectionList.get(i).findOuterNode(generation);
+    for (int i = subsections.size() - 1; i >= 0; --i) {
+      BhNode outerNode = subsections.get(i).findOuterNode(generation);
       if (outerNode != null) {
         return outerNode;
       }
@@ -116,7 +100,7 @@ public class Subsection extends Section {
 
   @Override
   public Connector findConnector(ConnectorId id) {
-    for (var subsection : subsectionList) {
+    for (var subsection : subsections) {
       Connector cnctr = subsection.findConnector(id);
       if (cnctr != null) {
         return cnctr;

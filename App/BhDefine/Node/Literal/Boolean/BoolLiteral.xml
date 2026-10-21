@@ -4,6 +4,7 @@
   name="BoolLiteralExp"
   nodeStyleID="BoolLiteralExp.json"
   breakpoint="ignore"
+  entryPoint="selectable"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
@@ -20,6 +21,7 @@
         name="BoolLiteral"
         nodeStyleID="WordComboBox.json"
         breakpoint="specifyParent"
+        entryPoint="none"
         onTextOptionsCreating="CreateBoolLiteral.js"
         version="bhn-0.1.0"/>
     </Connector>

@@ -4,6 +4,7 @@
   name="BinaryColorExp"
   nodeStyleID="BinaryColorExp.json"
   breakpoint="ignore"
+  entryPoint="selectable"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
 
@@ -23,6 +24,7 @@
         name="BinaryColorOpe"
         nodeStyleID="DefaultComboBox.json"
         breakpoint="specifyParent"
+        entryPoint="none"
         onTextOptionsCreating="CreateAddSubOpts.js"
         version="bhn-0.1.0"/>
     </Connector>
