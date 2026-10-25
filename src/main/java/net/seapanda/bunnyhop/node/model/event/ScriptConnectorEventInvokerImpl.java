@@ -69,14 +69,11 @@ public class ScriptConnectorEventInvokerImpl implements ScriptConnectorEventInvo
     Map<String, Object> nameToObj = new HashMap<>();
     nameToObj.put(JsIdName.BH_CURRENT_NODE, target.getConnectedNode());
     nameToObj.put(JsIdName.BH_NODE_TO_CONNECT, node);
-    Context cx = Context.enter();
-    ScriptableObject scriptScope = createScriptScope(cx, target, nameToObj);
-    try {
+    try (Context cx = Context.enter()) {
+      ScriptableObject scriptScope = createScriptScope(cx, target, nameToObj);
       return (Boolean) defined.script().exec(cx, scriptScope);
     } catch (Exception e) {
       LogManager.logger().error("'%s' must return a boolean value.\n%s", defined.name(), e);
-    } finally {
-      Context.exit();
     }
     return false;
   }

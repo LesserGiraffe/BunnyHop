@@ -93,14 +93,11 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     }
     Map<String, Object> nameToObj = new HashMap<>();
     nameToObj.put(BhConstants.JsIdName.BH_REPLACED_OLD_NODE, oldReplaced);
-    Context cx = Context.enter();
-    ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
-    try {
+    try (Context cx = Context.enter()) {
+      ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
       defined.script().exec(cx, scope);
     } catch (Exception e) {
       LogManager.logger().error("%s\n%s", defined.name(), e);
-    } finally {
-      Context.exit();
     }
   }
 
@@ -119,14 +116,11 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     nameToObj.put(BhConstants.JsIdName.BH_OLD_PARENT, oldParent);
     nameToObj.put(BhConstants.JsIdName.BH_OLD_ROOT, oldRoot);
     nameToObj.put(BhConstants.JsIdName.BH_REPLACED_NEW_NODE, newReplaced);
-    Context cx = Context.enter();
-    ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
-    try {
+    try (Context cx = Context.enter()) {
+      ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
       defined.script().exec(cx, scope);
     } catch (Exception e) {
       LogManager.logger().error("%s\n%s", defined.name(), e);
-    } finally {
-      Context.exit();
     }
   }
 
@@ -145,14 +139,11 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     nameToObj.put(BhConstants.JsIdName.BH_REPLACED_NEW_NODE, newChild);
     nameToObj.put(BhConstants.JsIdName.BH_REPLACED_OLD_NODE, oldChild);
     nameToObj.put(BhConstants.JsIdName.BH_PARENT_CONNECTOR, parentCnctr);
-    Context cx = Context.enter();
-    ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
-    try {
+    try (Context cx = Context.enter()) {
+      ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
       defined.script().exec(cx, scope);
     } catch (Exception e) {
       LogManager.logger().error("%s\n%s", defined.name(), e);
-    } finally {
-      Context.exit();
     }
   }
 
@@ -169,14 +160,11 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     Map<String, Object> nameToObj = new HashMap<>();
     nameToObj.put(BhConstants.JsIdName.BH_TARGET_NODES, new ArrayList<>(nodesToDelete));
     nameToObj.put(BhConstants.JsIdName.BH_CAUSE_OF_DELETION, causeOfDeletion);
-    Context cx = Context.enter();
-    ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
-    try {
+    try (Context cx = Context.enter()) {
+      ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
       return (Boolean) defined.script().exec(cx, scope);
     } catch (Exception e) {
       LogManager.logger().error("%s\n%s", defined.name(), e);
-    } finally {
-      Context.exit();
     }
     return true;
   }
@@ -190,14 +178,11 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     }
     Map<String, Object> nameToObj = new HashMap<>();
     nameToObj.put(BhConstants.JsIdName.BH_TARGET_NODES, new ArrayList<>(nodesToCut));
-    Context cx = Context.enter();
-    ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
-    try {
+    try (Context cx = Context.enter()) {
+      ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
       return (Boolean) defined.script().exec(cx, scope);
     } catch (Exception e) {
       LogManager.logger().error("'%s' must return a boolean value.\n%s", defined.name(), e);
-    } finally {
-      Context.exit();
     }
     return true;
   }
@@ -213,9 +198,8 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     }
     Map<String, Object> nameToObj = new HashMap<>();
     nameToObj.put(BhConstants.JsIdName.BH_TARGET_NODES, new ArrayList<>(nodesToCopy));
-    Context cx = Context.enter();
-    ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
-    try {
+    try (Context cx = Context.enter()) {
+      ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
       Function copyCheckFunc = (Function) defined.script().exec(cx, scope);
       if (copyCheckFunc == null) {
         throw new Exception();
@@ -224,8 +208,6 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     } catch (Exception e) {
       LogManager.logger().error(
           "'%s' must return a function that returns a boolean value.\n%s", defined.name(), e);
-    } finally {
-      Context.exit();
     }
     return node -> true;
   }
@@ -239,16 +221,13 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
    * @return {@code node} をコピーする場合 true
    */
   private boolean isNodeToCopy(BhNode node, Function copyCheckFunc, String scriptName) {
-    Context cx = Context.enter();
-    ScriptableObject scope = cx.initStandardObjects();
-    try {
+    try (Context cx = Context.enter()) {
+      ScriptableObject scope = cx.initStandardObjects();
       return (Boolean) copyCheckFunc.call(cx, scope, scope, new Object[] {node});
     } catch (Exception e) {
       LogManager.logger().error(
           "'%s' must return null or a function that returns a boolean value.\n%s", scriptName, e);
       throw e;
-    } finally {
-      Context.exit();
     }
   }
 
@@ -259,14 +238,11 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
       return;
     }
     Map<String, Object> nameToObj = new HashMap<>();
-    Context cx = Context.enter();
-    ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
-    try {
+    try (Context cx = Context.enter()) {
+      ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
       defined.script().exec(cx, scope);
     } catch (Exception e) {
       LogManager.logger().error("%s\n%s", defined.name(), e);
-    } finally {
-      Context.exit();
     }
   }
 
@@ -278,14 +254,11 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     }
     Map<String, Object> nameToObj = new HashMap<>();
     nameToObj.put(BhConstants.JsIdName.BH_UI_EVENT, event);
-    Context cx = Context.enter();
-    ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
-    try {
+    try (Context cx = Context.enter()) {
+      ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
       defined.script().exec(cx, scope);
     } catch (Exception e) {
       LogManager.logger().error("%s\n%s", defined.name(), e);
-    } finally {
-      Context.exit();
     }
   }
 
@@ -304,14 +277,11 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     }
     Map<String, Object> nameToObj = new HashMap<>();
     nameToObj.put(BhConstants.JsIdName.BH_TEXT, text);
-    Context cx = Context.enter();
-    ScriptableObject scope = createScriptScope(cx, target, nameToObj);
-    try {
+    try (Context cx = Context.enter()) {
+      ScriptableObject scope = createScriptScope(cx, target, nameToObj);
       return (Boolean) defined.script().exec(cx, scope);
     } catch (Exception e) {
       LogManager.logger().error("'%s' must return a boolean value.\n%s", defined.name(), e);
-    } finally {
-      Context.exit();
     }
     return true;
   }
@@ -325,9 +295,8 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     Map<String, Object> nameToObj = new HashMap<>();
     nameToObj.put(BhConstants.JsIdName.BH_TEXT, text);
     nameToObj.put(BhConstants.JsIdName.BH_ADDED_TEXT, addedText);
-    Context cx = Context.enter();
-    ScriptableObject scope = createScriptScope(cx, target, nameToObj);
-    try {
+    try (Context cx = Context.enter()) {
+      ScriptableObject scope = createScriptScope(cx, target, nameToObj);
       NativeObject jsObj = (NativeObject) defined.script().exec(cx, scope);
       Boolean isWholeFormatted =
           (Boolean) jsObj.get(BhConstants.JsIdName.BH_IS_WHOLE_TEXT_FORMATTED);
@@ -335,8 +304,6 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
       return new FormatResult(isWholeFormatted, formattedText);
     } catch (Exception e) {
       LogManager.logger().error("Invalid text formatter  (%s).\n%s", defined.name(), e);
-    } finally {
-      Context.exit();
     }
     return new FormatResult(false, addedText);
   }
@@ -347,9 +314,8 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     if (defined == null) {
       return new ArrayList<>();
     }
-    Context cx = Context.enter();
-    ScriptableObject scope = createScriptScope(cx, target, new HashMap<>());
-    try {
+    try (Context cx = Context.enter()) {
+      ScriptableObject scope = createScriptScope(cx, target, new HashMap<>());
       List<?> contents = (List<?>) defined.script().exec(cx, scope);
       var options = new ArrayList<TextOption>();
       for (Object content : contents) {
@@ -359,8 +325,6 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
       return options;
     } catch (Exception e) {
       LogManager.logger().error("%s\n%s", defined.name(), e);
-    } finally {
-      Context.exit();
     }
     return new ArrayList<>();
   }
@@ -373,9 +337,8 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     }
     Map<String, Object> nameToObj = new HashMap<>();
     nameToObj.put(BhConstants.JsIdName.BH_USER_OPE, userOpe);
-    Context cx = Context.enter();
-    ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
-    try {
+    try (Context cx = Context.enter()) {
+      ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
       List<BhNode> companionNodes = ((Collection<?>) defined.script().exec(cx, scope)).stream()
           .filter(elem -> elem instanceof BhNode)
           .map(elem -> (BhNode) elem)
@@ -385,8 +348,6 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     } catch (Exception e) {
       LogManager.logger().error(
           "'%s' must return a collection of BhNode(s).\n%s", defined.name(), e);
-    } finally {
-      Context.exit();
     }
     return new ArrayList<>();    
   }
@@ -397,16 +358,13 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     if (defined == null) {
       return new ArrayList<>();
     }
-    Context cx = Context.enter();
-    ScriptableObject scope = createScriptScope(cx, target, new HashMap<>());
-    try {
+    try (Context cx = Context.enter()) {
+      ScriptableObject scope = createScriptScope(cx, target, new HashMap<>());
       return ((Collection<?>) defined.script().exec(cx, scope)).stream()
           .map(Object::toString)
           .collect(Collectors.toCollection(ArrayList::new));
     } catch (Exception e) {
       LogManager.logger().error("'%s' must return a collection.\n%s", defined.name(), e);
-    } finally {
-      Context.exit();
     }
     return new ArrayList<>();
   }
@@ -417,14 +375,11 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     if (defined == null) {
       return "";
     }
-    Context cx = Context.enter();
-    ScriptableObject scope = createScriptScope(cx, target, new HashMap<>());
-    try {
+    try (Context cx = Context.enter()) {
+      ScriptableObject scope = createScriptScope(cx, target, new HashMap<>());
       return (String) defined.script().exec(cx, scope);
     } catch (Exception e) {
       LogManager.logger().error("'%s' must return a string value.\n%s", defined.name(), e);
-    } finally {
-      Context.exit();
     }
     return "";
   }
@@ -435,14 +390,11 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     if (defined == null) {
       return Optional.empty();
     }
-    Context cx = Context.enter();
-    ScriptableObject scope = createScriptScope(cx, target, new HashMap<>());
-    try {
+    try (Context cx = Context.enter()) {
+      ScriptableObject scope = createScriptScope(cx, target, new HashMap<>());
       return Optional.of((String) defined.script().exec(cx, scope));
     } catch (Exception e) {
       LogManager.logger().error("'%s' must return a string value.\n%s", defined.name(), e);
-    } finally {
-      Context.exit();
     }
     return Optional.empty();
   }
@@ -453,9 +405,8 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     if (defined == null) {
       return new ArrayList<>();
     }
-    Context cx = Context.enter();
-    ScriptableObject scope = createScriptScope(cx, target, new HashMap<>());
-    try {
+    try (Context cx = Context.enter()) {
+      ScriptableObject scope = createScriptScope(cx, target, new HashMap<>());
       return ((Collection<?>) defined.script().exec(cx, scope)).stream()
           .filter(obj -> obj instanceof BhNode)
           .map(obj -> (BhNode) obj)
@@ -463,8 +414,6 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     } catch (Exception e) {
       LogManager.logger().error(
           "'%s' must return a collection of BhNode(s).\n%s", defined.name(), e);
-    } finally {
-      Context.exit();
     }
     return new ArrayList<>();
   }
@@ -475,15 +424,12 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     if (defined == null) {
       return null;
     }
-    Context cx = Context.enter();
-    ScriptableObject scope = createScriptScope(cx, target, new HashMap<>());
-    try {
+    try (Context cx = Context.enter()) {
+      ScriptableObject scope = createScriptScope(cx, target, new HashMap<>());
       // 外部スクリプトが null を返した場合 null が返る.
       return (BhNode) Context.jsToJava(defined.script().exec(cx, scope), BhNode.class);
     } catch (Exception e) {
       LogManager.logger().error("'%s' must return a BhNode or null.\n%s", defined.name(), e);
-    } finally {
-      Context.exit();
     }
     return null;
   }

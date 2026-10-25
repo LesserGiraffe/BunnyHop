@@ -16,6 +16,11 @@
 
 package net.seapanda.bunnyhop.bhprogram.runtime;
 
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.GEN_GET_PORT_CMD_JS;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.GEN_REMOTE_DEST_PATH_JS;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.GEN_REMOTE_KILL_CMD_JS;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.GEN_REMOTE_START_CMD_JS;
+
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.ChannelSftp;
@@ -71,20 +76,20 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
       throws IllegalStateException {
     this.msgService = msgService;
     boolean success = repository.allExist(
-        BhConstants.Path.File.GEN_REMOTE_EXEC_CMD_JS,
-        BhConstants.Path.File.GEN_REMOTE_KILL_CMD_JS,
-        BhConstants.Path.File.GEN_GET_PORT_CMD_JS,
-        BhConstants.Path.File.GEN_REMOTE_DEST_PATH_JS);
+        GEN_REMOTE_START_CMD_JS,
+        GEN_REMOTE_KILL_CMD_JS,
+        GEN_GET_PORT_CMD_JS,
+        GEN_REMOTE_DEST_PATH_JS);
     if (!success) {
       String msg = "Cannot find remote cmd scripts";
       LogManager.logger().error(msg);
       throw new IllegalStateException(msg);
     }
     scripts = new CmdGenScripts(
-        repository.getScript(BhConstants.Path.File.GEN_REMOTE_EXEC_CMD_JS),
-        repository.getScript(BhConstants.Path.File.GEN_REMOTE_KILL_CMD_JS),
-        repository.getScript(BhConstants.Path.File.GEN_GET_PORT_CMD_JS),
-        repository.getScript(BhConstants.Path.File.GEN_REMOTE_DEST_PATH_JS));
+        repository.getScript(GEN_REMOTE_START_CMD_JS),
+        repository.getScript(GEN_REMOTE_KILL_CMD_JS),
+        repository.getScript(GEN_GET_PORT_CMD_JS),
+        repository.getScript(GEN_REMOTE_DEST_PATH_JS));
   }
 
   @Override
@@ -401,17 +406,14 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
    * @return BhRuntime を起動するコマンド.
    */
   private Optional<String> genStartCmd(String host) {
-    Context cx = Context.enter();
-    Scriptable scope = cx.initStandardObjects();
-    scope.put(BhConstants.JsIdName.IP_ADDR, scope, Context.javaToJS(host, scope));
-    try {
+    try (Context cx = Context.enter()) {
+      Scriptable scope = cx.initStandardObjects();
+      scope.put(BhConstants.JsIdName.IP_ADDR, scope, Context.javaToJS(host, scope));
       return Optional.ofNullable((String) scripts.start().exec(cx, scope));
     } catch (Exception e) {
       LogManager.logger().error(
           "Failed to generate BhProgram start command  (%s).\n%s",
-          BhConstants.Path.File.GEN_REMOTE_EXEC_CMD_JS, e);
-    } finally {
-      Context.exit();
+          GEN_REMOTE_START_CMD_JS, e);
     }
     return Optional.empty();
   }
@@ -422,15 +424,12 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
    * @return BhRuntime を終了するコマンド. コマンドの生成に失敗した場合null.
    */
   private Optional<String> genKillCmd() {
-    Context cx = Context.enter();
-    try {
+    try (Context cx = Context.enter()) {
       return Optional.ofNullable((String) scripts.kill().exec(cx, cx.initStandardObjects()));
     } catch (Exception e) {
       LogManager.logger().error(
           "Failed to generate BhProgram kill command  (%s).\n%s",
-          BhConstants.Path.File.GEN_REMOTE_KILL_CMD_JS, e);
-    } finally {
-      Context.exit();
+          GEN_REMOTE_KILL_CMD_JS, e);
     }
     return Optional.empty();
   }
@@ -442,16 +441,13 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
    * @return BhProgram のコピー先のパスを生成する.
    */
   private Optional<String> genCopyDestPath(String userName) {
-    Context cx = Context.enter();
-    Scriptable scope = cx.initStandardObjects();
-    scope.put(BhConstants.JsIdName.UNAME, scope, Context.javaToJS(userName, scope));
-    try {
+    try (Context cx = Context.enter()) {
+      Scriptable scope = cx.initStandardObjects();
+      scope.put(BhConstants.JsIdName.UNAME, scope, Context.javaToJS(userName, scope));
       return Optional.ofNullable((String) scripts.destPath().exec(cx, scope));
     } catch (Exception e) {
       LogManager.logger().error(
           "Failed to generate the destination path to which BhProgram shuld be copied.\n%s", e);
-    } finally {
-      Context.exit();
     }
     return Optional.empty();
   }
@@ -462,15 +458,12 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
    * @return BhRuntime の TCP ポートを取得するコマンド.
    */
   private Optional<String> genGetRuntimePortCmd() {
-    Context cx = Context.enter();
-    try {
+    try (Context cx = Context.enter()) {
       return Optional.ofNullable((String) scripts.getPort().exec(cx, cx.initStandardObjects()));
     } catch (Exception e) {
       LogManager.logger().error(
           "Failed to generate Get BhRuntime Port command  (%s).\n%s",
-          BhConstants.Path.File.GEN_GET_PORT_CMD_JS, e);
-    } finally {
-      Context.exit();
+          GEN_GET_PORT_CMD_JS, e);
     }
     return Optional.empty();
   }

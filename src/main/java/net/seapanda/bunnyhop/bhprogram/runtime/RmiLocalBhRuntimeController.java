@@ -16,11 +16,15 @@
 
 package net.seapanda.bunnyhop.bhprogram.runtime;
 
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.JsIdName.EXEC_PATH;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.JsIdName.JAVA_PATH;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.GEN_LOCAL_START_CMD_JS;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
@@ -32,10 +36,14 @@ import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.common.text.TextDefs;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.message.MessageService;
+import net.seapanda.bunnyhop.service.script.BhScriptRepository;
 import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
 import net.seapanda.bunnyhop.utility.Utility;
 import net.seapanda.bunnyhop.utility.concurrent.event.ConcurrentConsumerInvoker;
 import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.Script;
+import org.mozilla.javascript.Scriptable;
 
 /**
  * ローカル環境で動作する BhRuntime 操作を行うクラス.
@@ -52,13 +60,25 @@ public class RmiLocalBhRuntimeController implements LocalBhRuntimeController {
   private volatile BhRuntimeTransceiver transceiver;
   /** BhProgram を実行中かどうかを表すフラグ. */
   private final AtomicReference<Boolean> programRunning = new AtomicReference<>(false);
+  /** BhRuntime をスタートするコマンドを生成するスクリプト. */
+  private final Script localStartScript;
   private final ReentrantLock lock = new ReentrantLock();
 
   /** コンストラクタ. */
   public RmiLocalBhRuntimeController(
-      SimulatorCmdProcessor simCmdProcessor, MessageService msgService) {
+      SimulatorCmdProcessor simCmdProcessor,
+      MessageService msgService,
+      BhScriptRepository repository)
+      throws IllegalStateException {
     this.simCmdProcessor = simCmdProcessor;
     this.msgService = msgService;
+    boolean success = repository.allExist(GEN_LOCAL_START_CMD_JS);
+    if (!success) {
+      String msg = "Cannot find a local runtime start script";
+      LogManager.logger().error(msg);
+      throw new IllegalStateException(msg);
+    }
+    localStartScript = repository.getScript(GEN_LOCAL_START_CMD_JS);
   }
 
   @Override
@@ -242,21 +262,36 @@ public class RmiLocalBhRuntimeController implements LocalBhRuntimeController {
    * @return スタートしたプロセスのオブジェクト.
    */
   private Optional<Process> startRuntimeProcess() {
-    // ""でパスを囲まない
-    Process proc = null;
-    var procBuilder = new ProcessBuilder(
-        Utility.javaPath,
-        "-cp",
-        Paths.get(Utility.execPath, "Jlib") + Utility.fs  + "*",
-        BhConstants.BhRuntime.BH_PROGRAM_EXEC_MAIN_CLASS);
-
-    procBuilder.redirectErrorStream(true);
     try {
-      proc = procBuilder.start();
+      String[] startCmd = genStartCmd().orElseThrow();
+      var procBuilder = new ProcessBuilder(startCmd);
+      procBuilder.redirectErrorStream(true);
+      return Optional.of(procBuilder.start());
     } catch (IOException e) {
       LogManager.logger().error("Failed to start BhRuntime\n%s", e);
     }
-    return Optional.ofNullable(proc);
+    return Optional.empty();
+  }
+
+  /**
+   * BhRuntime を起動するコマンドを生成する.
+   *
+   * @return BhRuntime を起動するコマンド.
+   */
+  private Optional<String[]> genStartCmd() {
+    try (Context cx = Context.enter()) {
+      Scriptable scope = cx.initStandardObjects();
+      scope.put(JAVA_PATH, scope, Context.javaToJS(Utility.javaPath, scope));
+      scope.put(EXEC_PATH, scope, Context.javaToJS(Utility.execPath, scope));
+      var result = (List<?>) localStartScript.exec(cx, scope);
+      String[] cmd = result.stream().map(Object::toString).toList().toArray(new String[0]);
+      return Optional.of(cmd);
+    } catch (Exception e) {
+      LogManager.logger().error(
+          "Failed to generate BhProgram start command  (%s).\n%s",
+          GEN_LOCAL_START_CMD_JS, e);
+    }
+    return Optional.empty();
   }
 
   /**

@@ -122,7 +122,7 @@ public class BhConstants {
       public static final String COMPILE = "Compile";
       /** コンパイルしたファイルを置くディレクトリ. */
       public static final String COMPILED = "Compiled";
-      public static final String REMOTE = "Remote";
+      public static final String BH_RUNTIME = "BhRuntime";
       /** 言語ファイルが格納されたディレクトリ. */
       public static final String LANGUAGE = "Language";
       /** ライセンスファイルが格納されたディレクトリ. */
@@ -164,13 +164,15 @@ public class BhConstants {
       /** BunnyHop が作成した BhProgram のスクリプト名. */
       public static final String APP_FILE_NAME_JS = "BhAppScript.js";
       /** リモートの BhProgram 実行環境をスタートさせるコマンドを生成するスクリプト名. */
-      public static final String GEN_REMOTE_EXEC_CMD_JS = "GenerateRemoteExecCmd.js";
+      public static final String GEN_REMOTE_START_CMD_JS = "GenerateRemoteStartCmd.js";
       /** リモートの BhProgram 実行環境を終わらせるコマンドを生成するスクリプト名. */
       public static final String GEN_REMOTE_KILL_CMD_JS = "GenerateRemoteKillCmd.js";
       /** リモートの BhProgram 実行環境の TCP ポートを取得するコマンドを生成するスクリプト名. */
       public static final String GEN_GET_PORT_CMD_JS = "GenerateGetPortCmd.js";
       /** BhProgram のコピー先パスを生成するスクリプト名. */
       public static final String GEN_REMOTE_DEST_PATH_JS = "GenerateRemoteDestPath.js";
+      /** ローカルの BhProgram 実行環境をスタートさせるコマンドを生成するスクリプト名. */
+      public static final String GEN_LOCAL_START_CMD_JS = "GenerateLocalStartCmd.js";
       /** BunnyHopのアイコン画像名. */
       public static final String BUNNY_HOP_ICON = "BunnyHop16.png";
       /** 言語ファイルの名前. */
@@ -263,6 +265,8 @@ public class BhConstants {
     public static final String BH_UI_EVENT = "bhUiEvent";
     public static final String IP_ADDR = "ipAddr";
     public static final String UNAME = "uname";
+    public static final String JAVA_PATH = "javaPath";
+    public static final String EXEC_PATH = "execPath";
   }
 
   /** ノードのスタイル定義のパラメータ. */
@@ -406,8 +410,6 @@ public class BhConstants {
 
   /** BhProgram の実行環境に関するパラメータ. */
   public static class BhRuntime {
-    public static final String BH_PROGRAM_EXEC_MAIN_CLASS = "net.seapanda.bunnyhop.runtime.AppMain";
-    
     /** タイムアウト. */
     public static class Timeout {
       /** SSH 接続のタイムアウト時間. (ms) */

@@ -21,6 +21,7 @@ import static net.seapanda.bunnyhop.common.configuration.BhConstants.Compile.Con
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Message.LOG_FILE_SIZE_LIMIT;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Message.MAX_LOG_FILE_NUM;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.BH_DEF;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.BH_RUNTIME;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.COMPILE;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.CONNECTOR_DEF;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.EVENT_HANDLERS;
@@ -29,7 +30,6 @@ import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.LA
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.LOG;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.NODE_DEF;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.NODE_STYLE_DEF;
-import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.REMOTE;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.SETTINGS;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.TEMPLATE_NODE_LIST;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.VIEW;
@@ -192,7 +192,7 @@ public class AppMain extends Application {
       final Path[] scriptDirs = new Path[] {
         Paths.get(execPath, BH_DEF, EVENT_HANDLERS),
         Paths.get(execPath, BH_DEF, TEMPLATE_NODE_LIST),
-        Paths.get(execPath, REMOTE)};
+        Paths.get(execPath, BH_RUNTIME)};
       final Path viewStyleDir = Paths.get(execPath, VIEW, NODE_STYLE_DEF, BhSettings.language);
       final Path nodeSelectionFile =
           Paths.get(execPath, BH_DEF, TEMPLATE_NODE_LIST, TEMPLATE_NODE_LIST_JSON);
@@ -259,7 +259,8 @@ public class AppMain extends Application {
       final CompileConfig localCompileConfig = idToCompileConfig.get(ID_LOCAL);
       final CompileConfig remoteCompileConfig = idToCompileConfig.get(ID_REMOTE);
 
-      final var localRuntimeCtrl = new RmiLocalBhRuntimeController(simCmdProcessor, msgService);
+      final var localRuntimeCtrl =
+          new RmiLocalBhRuntimeController(simCmdProcessor, msgService, scriptRepository);
       final var localBhProgramCtrl =
           new LocalBhProgramLauncherImpl(localCompileConfig, localRuntimeCtrl, msgService);
       final var remoteRuntimeCtrl =

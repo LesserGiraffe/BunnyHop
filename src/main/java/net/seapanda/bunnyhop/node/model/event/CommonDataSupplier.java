@@ -74,16 +74,13 @@ public class CommonDataSupplier {
     if (!repository.allExist(BhConstants.Path.File.BH_UTILITY_JS)) {
       return new NativeObject();
     }
-    try {
-      Context cx = Context.enter();
+    try (Context cx = Context.enter()) {
       Object jsObj = repository.getScript(BhConstants.Path.File.BH_UTILITY_JS)
             .exec(cx, createScriptScope(cx));
       return (jsObj instanceof NativeObject) ? jsObj : new NativeObject();
     } catch (Exception e) {
       LogManager.logger().error(
           "Failed to execute %s\n%s", BhConstants.Path.File.BH_UTILITY_JS, e);
-    } finally {
-      Context.exit();
     }
     return new NativeObject();
   }
