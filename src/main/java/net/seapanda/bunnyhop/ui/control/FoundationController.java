@@ -27,7 +27,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import net.seapanda.bunnyhop.bhprogram.LocalBhProgramLauncher;
-import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramController;
+import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramLauncher;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
 import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeType;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
@@ -55,10 +55,10 @@ public class FoundationController {
   /** 押下状態のキー. */
   private final Set<KeyCode> pressedKey = new HashSet<>();
   private final LocalBhProgramLauncher localCtrl;
-  private final RemoteBhProgramController remoteCtrl;
+  private final RemoteBhProgramLauncher remoteCtrl;
 
   public FoundationController(
-      LocalBhProgramLauncher localCtrl, RemoteBhProgramController remoteCtrl) {
+      LocalBhProgramLauncher localCtrl, RemoteBhProgramLauncher remoteCtrl) {
     this.localCtrl = localCtrl;
     this.remoteCtrl = remoteCtrl;
   }

@@ -39,7 +39,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import net.seapanda.bunnyhop.bhprogram.LocalBhProgramLauncher;
-import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramController;
+import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramLauncher;
 import net.seapanda.bunnyhop.bhprogram.common.message.io.InputTextCmd;
 import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeStatus;
 import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeType;
@@ -153,7 +153,7 @@ public class MenuViewController {
   /** ローカルマシン上での BhProgram の実行を制御するオブジェクト. */
   private final LocalBhProgramLauncher localCtrl;
   /** リモートマシン上での BhProgram の実行を制御するオブジェクト. */
-  private final RemoteBhProgramController remoteCtrl;
+  private final RemoteBhProgramLauncher remoteCtrl;
   /** コピー & ペーストの処理に使用するオブジェクト. */
   private final CopyAndPaste copyAndPaste;
   /** カット & ペーストの処理に使用するオブジェクト. */
@@ -175,7 +175,7 @@ public class MenuViewController {
       UndoRedoAgent undoRedoAgent,
       BhNodeSelectionViewProxy proxy,
       LocalBhProgramLauncher localCtrl,
-      RemoteBhProgramController remoteCtrl,
+      RemoteBhProgramLauncher remoteCtrl,
       CopyAndPaste copyAndPaste,
       CutAndPaste cutAndPaste,
       MessageService msgService,

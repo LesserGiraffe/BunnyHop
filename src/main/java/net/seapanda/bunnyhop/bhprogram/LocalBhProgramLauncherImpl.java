@@ -26,10 +26,10 @@ import java.util.Optional;
 import javafx.scene.control.Alert;
 import net.seapanda.bunnyhop.bhprogram.runtime.LocalBhRuntimeController;
 import net.seapanda.bunnyhop.common.text.TextDefs;
-import net.seapanda.bunnyhop.compiler.BhCompiler;
+import net.seapanda.bunnyhop.compile.CompileConfig;
+import net.seapanda.bunnyhop.compiler.BhCompilerFactory;
 import net.seapanda.bunnyhop.compiler.CompileError;
 import net.seapanda.bunnyhop.compiler.CompileOption;
-import net.seapanda.bunnyhop.compiler.RuntimeEnvironment;
 import net.seapanda.bunnyhop.compiler.SourceSet;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.message.MessageService;
@@ -41,23 +41,23 @@ import net.seapanda.bunnyhop.utility.Utility;
  * @author K.Koike
  */
 public class LocalBhProgramLauncherImpl implements LocalBhProgramLauncher {
-  
-  private final BhCompiler compiler;
+
+  private final CompileConfig compileConfig;
   private final LocalBhRuntimeController runtimeCtrl;
   private final MessageService msgService;
 
   /**
    * コンストラクタ.
    *
-   * @param compiler BhProgram の実行ファイルを作成するのに使うコンパイラ
+   * @param compileConfig コンパイルに関する設定を格納したオブジェクト
    * @param controller BhProgram の実行環境を操作するオブジェクト
    * @param msgService アプリケーションユーザにメッセージを出力するためのオブジェクト.
    */
   public LocalBhProgramLauncherImpl(
-      BhCompiler compiler,
+      CompileConfig compileConfig,
       LocalBhRuntimeController controller,
       MessageService msgService) {
-    this.compiler = compiler;
+    this.compileConfig = compileConfig;
     this.runtimeCtrl = controller;
     this.msgService = msgService;
   }
@@ -75,12 +75,13 @@ public class LocalBhProgramLauncherImpl implements LocalBhProgramLauncher {
    */
   private Optional<Path> compile(SourceSet sourceSet) {
     CompileOption option = CompileOption.builder()
+        .libPaths(compileConfig.getLibPaths())
         .outFile(Paths.get(Utility.execPath, Dir.COMPILED, File.APP_FILE_NAME_JS))
         .mainRoutineLaunchEvent(PROGRAM_START.toString())
-        .runtimeEnvironment(RuntimeEnvironment.LOCAL)
+        .mainRoutineName(compileConfig.getMainRoutineName())
         .build();
     try {
-      Path outFile = compiler.compile(sourceSet, option);
+      Path outFile = BhCompilerFactory.create().compile(sourceSet, option);
       msgService.info(TextDefs.Compile.succeeded.get());
       return Optional.of(outFile);
     } catch (CompileError e) {

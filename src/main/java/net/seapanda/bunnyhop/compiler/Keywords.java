@@ -20,7 +20,7 @@ package net.seapanda.bunnyhop.compiler;
  *
  * @author K.Koike
  */
-public class Keywords {
+class Keywords {
 
   public static final String newLine = "\r\n";
 

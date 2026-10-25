@@ -17,11 +17,13 @@
 package net.seapanda.bunnyhop.compiler;
 
 /**
- * プログラムの実行環境.
+ * {@link BhCompiler} のファクトリクラス.
  *
  * @author K.Koike
  */
-public enum RuntimeEnvironment {
-  LOCAL,
-  REMOTE
+public class BhCompilerFactory {
+
+  public static BhCompiler create() {
+    return new CodeGenerator();
+  }
 }

@@ -16,6 +16,8 @@
 
 package net.seapanda.bunnyhop.launch;
 
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Compile.ConfigFile.ID_LOCAL;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Compile.ConfigFile.ID_REMOTE;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Message.LOG_FILE_SIZE_LIMIT;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Message.MAX_LOG_FILE_NUM;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.BH_DEF;
@@ -24,7 +26,6 @@ import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.CO
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.EVENT_HANDLERS;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.FXML;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.LANGUAGE;
-import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.LIBS;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.LOG;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.NODE_DEF;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.NODE_STYLE_DEF;
@@ -33,8 +34,8 @@ import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.SE
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.TEMPLATE_NODE_LIST;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.VIEW;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.BH_SETTINGS_JSON;
-import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.BhLibs;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.CALL_STACK_VIEW_FXML;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.COMPILE_JSON;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.DEBUG_WINDOW_FXML;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.FOUNDATION_FXML;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.LANGUAGE_FILE;
@@ -63,6 +64,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -78,7 +80,7 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import net.seapanda.bunnyhop.bhprogram.LocalBhProgramLauncherImpl;
-import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramControllerImpl;
+import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramLauncherImpl;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
 import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageDispatcher;
 import net.seapanda.bunnyhop.bhprogram.message.IoMessageProcessorImpl;
@@ -89,9 +91,8 @@ import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.common.text.TextDefs;
 import net.seapanda.bunnyhop.common.text.TextFetcher;
+import net.seapanda.bunnyhop.compile.CompileConfig;
 import net.seapanda.bunnyhop.compile.SourceNodeCollector;
-import net.seapanda.bunnyhop.compiler.BhCompiler;
-import net.seapanda.bunnyhop.compiler.BhCompilerImpl;
 import net.seapanda.bunnyhop.debugger.model.BhDebugger;
 import net.seapanda.bunnyhop.debugger.model.DebugMessageProcessorImpl;
 import net.seapanda.bunnyhop.debugger.model.breakpoint.BreakpointCache;
@@ -112,7 +113,6 @@ import net.seapanda.bunnyhop.node.model.factory.BhNodeRepository;
 import net.seapanda.bunnyhop.node.model.factory.ModelGenerator;
 import net.seapanda.bunnyhop.node.model.factory.XmlBhNodeRepository;
 import net.seapanda.bunnyhop.node.model.service.DerivativeCache;
-import net.seapanda.bunnyhop.node.model.syntaxtree.NodeInstanceId;
 import net.seapanda.bunnyhop.node.view.factory.BhNodeViewFactoryImpl;
 import net.seapanda.bunnyhop.node.view.factory.PrivateTemplateButtonFactoryImpl;
 import net.seapanda.bunnyhop.node.view.service.BhNodeViewSupervisor;
@@ -198,6 +198,7 @@ public class AppMain extends Application {
           Paths.get(execPath, BH_DEF, TEMPLATE_NODE_LIST, TEMPLATE_NODE_LIST_JSON);
       final Path nodeDir = Paths.get(execPath, BH_DEF, NODE_DEF);
       final Path cnctrDir = Paths.get(execPath, BH_DEF, CONNECTOR_DEF);
+      final Path compileConfigFile = Paths.get(execPath, BH_DEF, COMPILE, COMPILE_JSON);
 
       final var simulator = createSimulator();
       final var debugStage = new Stage();
@@ -254,16 +255,17 @@ public class AppMain extends Application {
           nodeSelViewProxy,
           msgService,
           nodeViewSuperVisor);
-      final var localCompiler = genCompiler(true);
-      final var remoteCompiler = genCompiler(false);
+      Map<String, CompileConfig> idToCompileConfig = createCompileConfigs(compileConfigFile);
+      final CompileConfig localCompileConfig = idToCompileConfig.get(ID_LOCAL);
+      final CompileConfig remoteCompileConfig = idToCompileConfig.get(ID_REMOTE);
 
       final var localRuntimeCtrl = new RmiLocalBhRuntimeController(simCmdProcessor, msgService);
       final var localBhProgramCtrl =
-          new LocalBhProgramLauncherImpl(localCompiler, localRuntimeCtrl, msgService);
+          new LocalBhProgramLauncherImpl(localCompileConfig, localRuntimeCtrl, msgService);
       final var remoteRuntimeCtrl =
           new RmiRemoteBhRuntimeController(msgService, scriptRepository);
       final var remoteBhProgramCtrl =
-          new RemoteBhProgramControllerImpl(remoteCompiler, remoteRuntimeCtrl, msgService);
+          new RemoteBhProgramLauncherImpl(remoteCompileConfig, remoteRuntimeCtrl, msgService);
       final var sharedSearchBoxCtrl = new SharedSearchBoxController();
       final var breakpointCache = new BreakpointCache(wss);
       final var debugger = new BhDebugger(localRuntimeCtrl, remoteRuntimeCtrl, breakpointCache);
@@ -278,8 +280,7 @@ public class AppMain extends Application {
       final var entryPointPresenter = new EntryPointPresenter(
           wss, localRuntimeCtrl, remoteRuntimeCtrl, nodeViewSuperVisor);
       final var mainRoutineIds = List.of(
-          NodeInstanceId.of(localCompiler.mainRoutineId()),
-          NodeInstanceId.of(remoteCompiler.mainRoutineId()));
+          localCompileConfig.getMainRoutineName(), remoteCompileConfig.getMainRoutineName());
       final var debugMsgProcessor =
           new DebugMessageProcessorImpl(wss, debugger, entryPointPresenter, mainRoutineIds);
       final var msgProcessor = new IoMessageProcessorImpl(msgService);
@@ -344,13 +345,10 @@ public class AppMain extends Application {
         SplashScreen.getSplashScreen().close();
       }
     } catch (Throwable e) {
-      logger.error("Application Start Error.\n%s".formatted(e.toString()));
-      msgService.alert(
-          AlertType.ERROR,
-          "Application Start Error",
-          null,
-          e.toString(),
-          ButtonType.OK);
+      String cause = "\n  " + (e.getCause() == null ? "" : e.getCause());
+      String msg = "Application Start Error.\n  %s%s".formatted(e, cause);
+      logger.error(msg);
+      msgService.alert(AlertType.ERROR, msg, null, e.toString(), ButtonType.OK);
       System.exit(-1);
     }
   }
@@ -382,6 +380,30 @@ public class AppMain extends Application {
             windowManager.focusSimulator();
           }
         });
+  }
+
+  /**
+   * {@code configFilePath} で指定された設定ファイルからコンパイルに関する設定一覧を取得する.
+   *
+   * @param configFilePath コンパイルに関する設定が書かれたファイルのパス
+   * @return ID と {@link CompileConfig} の対応関係を格納したマップ
+   * @throws AppInitializationException 設定ファイルの読み込みに失敗した場合, もしくは,
+   *     ID が local と remote の項目が設定ファイルに存在しない場合
+   */
+  private static Map<String, CompileConfig> createCompileConfigs(Path configFilePath)
+      throws AppInitializationException {
+    Map<String, CompileConfig> idToCompileConfig;
+    try {
+      idToCompileConfig = CompileConfig.readConfig(configFilePath);
+    } catch (Exception e) {
+      throw new AppInitializationException("Failed to read a compile configuration file.", e);
+    }
+    if (idToCompileConfig.containsKey(ID_LOCAL) && idToCompileConfig.containsKey(ID_REMOTE)) {
+      return idToCompileConfig;
+    }
+    throw new AppInitializationException(
+        "The compile configuration must contain entries whose IDs are 'local' and 'remote'.\n  (%s)"
+            .formatted(configFilePath.toAbsolutePath()));
   }
 
   /** シミュレータがフォーカスを持っているときにキーが押されたときの処理. */
@@ -545,41 +567,6 @@ public class AppMain extends Application {
     config.setWindowedMode(width, height);
     config.setForegroundFPS(60);
     new Lwjgl3Application(simulator, config);
-  }
-
-  /** {@link BhCompiler} オブジェクトを作成する. */
-  private BhCompiler genCompiler(boolean isLocal) throws IOException {
-    var languageFilePath = Paths.get(
-        execPath,
-        BH_DEF,
-        COMPILE,
-        LIBS,
-        LANGUAGE,
-        BhSettings.language,
-        BhLibs.TEXT_DB_JS);
-
-    var commonLibPath = Paths.get(
-        execPath,
-        BH_DEF,
-        COMPILE,
-        LIBS,
-        BhLibs.COMMON_JS);
-  
-    var fileName = isLocal
-        ? BhLibs.LOCAL_COMMON_JS
-        : BhLibs.REMOTE_COMMON_JS;
-    var localOrRemoteLibPath = Paths.get(
-        execPath,
-        BH_DEF,
-        COMPILE,
-        LIBS,
-        fileName);
-    try {
-      return new BhCompilerImpl(languageFilePath, commonLibPath, localOrRemoteLibPath);
-    } catch (IOException e) {
-      LogManager.logger().error("Failed to initialize Compiler.\n%s", e);
-      throw e;
-    }
   }
 
   private boolean validateNodeViewStyles(

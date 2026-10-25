@@ -19,10 +19,10 @@ package net.seapanda.bunnyhop.debugger.model;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.SequencedCollection;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import net.seapanda.bunnyhop.bhprogram.common.BhSymbolId;
@@ -58,7 +58,7 @@ public class DebugMessageProcessorImpl implements DebugMessageProcessor {
 
   private final Debugger debugger;
   private final EntryPointPresenter entryPointPresenter;
-  private final Collection<NodeInstanceId> mainRoutineIds;
+  private final Set<NodeInstanceId> mainRoutineIds;
   /**
    * key: {@link BhNode} のインスタンス ID.
    * value: key に対応する {@link BhNode}.
@@ -68,15 +68,16 @@ public class DebugMessageProcessorImpl implements DebugMessageProcessor {
   /**
    * コンストラクタ.
    *
-   * @param mainRoutineIds BhProgram のエントリポイントとなるノードの処理を呼ぶ関数の ID 一覧.
+   * @param mainRoutineNames BhProgram のエントリポイントとなるノードの処理を呼ぶ関数の名前一覧.
    */
   public DebugMessageProcessorImpl(
       WorkspaceSet wss,
       Debugger debugger,
       EntryPointPresenter presenter,
-      Collection<NodeInstanceId> mainRoutineIds) {
+      Collection<String> mainRoutineNames) {
     this.debugger = debugger;
-    this.mainRoutineIds = new HashSet<>(mainRoutineIds);
+    this.mainRoutineIds =
+        mainRoutineNames.stream().map(NodeInstanceId::of).collect(Collectors.toSet());
     this.entryPointPresenter = presenter;
     wss.getCallbackRegistry().getOnNodeAdded().add(
         event -> instIdToNode.put(event.node().getInstanceId(), event.node()));

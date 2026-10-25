@@ -92,7 +92,6 @@ class ScriptIdentifiers {
     public static final String LOCK = "_lock";
     public static final String UNLOCK = "_unlock";
     public static final String ADD_EVENT = "_addEvent";
-    public static final String BH_MAIN = "_bhMain";
     public static final String CREATE_SOUND = "_createSound";
     public static final String CREATE_COLOR_FROM_NAME = "_createColorFromName";
     public static final String PUSH_SOUND = "_pushSound";

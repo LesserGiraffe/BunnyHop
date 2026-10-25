@@ -9,7 +9,7 @@ import net.seapanda.bunnyhop.compiler.SourceSet;
  *
  * @author K.Koike
  */
-public interface RemoteBhProgramController {
+public interface RemoteBhProgramLauncher {
   
   /**
    * BhProgram を実行する.

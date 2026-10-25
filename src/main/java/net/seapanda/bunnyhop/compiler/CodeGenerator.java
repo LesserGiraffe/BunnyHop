@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -42,7 +43,7 @@ import net.seapanda.bunnyhop.compiler.ScriptIdentifiers.Funcs;
  *
  * @author K.Koike
  */
-public class BhCompilerImpl implements BhCompiler {
+class CodeGenerator implements BhCompiler {
 
   private final VarDeclCodeGenerator varDeclCodeGen;
   private final FuncDefCodeGenerator funcDefCodeGen;
@@ -51,15 +52,11 @@ public class BhCompilerImpl implements BhCompiler {
   private final EventHandlerCodeGenerator eventHandlerCodeGen;
   private final CommonCodeGenerator common;
   private final GlobalDataDeclCodeGenerator globalDataDeclCodeGen;
-  private final List<String> commonCodeList;
-  private final String mainRoutineId = Funcs.BH_MAIN;
 
   /**
    * コンストラクタ.
-   *
-   * @param libs ライブラリファイルのパス
    */
-  public BhCompilerImpl(Path... libs) throws IOException {
+  public CodeGenerator() {
     common = new CommonCodeGenerator();
     varDeclCodeGen = new VarDeclCodeGenerator(common);
     expCodeGen = new ExpCodeGenerator(common, varDeclCodeGen);
@@ -67,16 +64,14 @@ public class BhCompilerImpl implements BhCompiler {
     funcDefCodeGen = new FuncDefCodeGenerator(common, statCodeGen, varDeclCodeGen);
     eventHandlerCodeGen = new EventHandlerCodeGenerator(common, statCodeGen, varDeclCodeGen);
     globalDataDeclCodeGen = new GlobalDataDeclCodeGenerator(common, expCodeGen);
-    commonCodeList = readLibCode(libs);
   }
 
-  private List<String> readLibCode(Path... libPaths) throws IOException {
-    var codeList = new ArrayList<String>();
-    for (Path libPath : libPaths) {
-      byte[] content = Files.readAllBytes(libPath);
-      codeList.add(new String(content, StandardCharsets.UTF_8));
+  private void generateLibCode(SequencedCollection<String> libPaths, StringBuilder code)
+      throws IOException {
+    for (String libPath : libPaths) {
+      code.append(Files.readString(Paths.get(libPath), StandardCharsets.UTF_8))
+          .append(newLine);
     }
-    return codeList;
   }
 
   @Override
@@ -89,13 +84,14 @@ public class BhCompilerImpl implements BhCompiler {
     }
     Preprocessor.process(sourceSet.getInstanceIdToNode());
     StringBuilder code = new StringBuilder();
-    generateCode(sourceSet, code, option);
-
     try {
       new File(option.outFile.getParent().toAbsolutePath().toString()).mkdirs();
+      generateLibCode(option.libPaths, code);
     } catch (Exception e) {
       throw new CompileError("%s\n%s".formatted(e, option.outFile.toString()));
     }
+    generateCode(sourceSet, code, option);
+
     try (BufferedWriter writer = Files.newBufferedWriter(
         option.outFile,
         StandardCharsets.UTF_8,
@@ -117,11 +113,7 @@ public class BhCompilerImpl implements BhCompiler {
    * @param option コンパイルオプション
    */
   private void generateCode(
-      SourceSet sourceSet,
-      StringBuilder code,
-      CompileOption option) {
-    String libCode = commonCodeList.stream().reduce("", (a, b) -> a + b);
-    code.append(libCode).append(newLine);
+      SourceSet sourceSet, StringBuilder code, CompileOption option) {
     var rootNodes = sourceSet.getRootNodes();
     SequencedCollection<CompilableSyntaxTreeNode> globalVars =
         varDeclCodeGen.generateVarDecls(rootNodes, code, 0, option);
@@ -132,9 +124,8 @@ public class BhCompilerImpl implements BhCompiler {
     funcDefCodeGen.generateFuncDefs(rootNodes, code, 0, option);
     eventHandlerCodeGen.generateEventHandlers(rootNodes, code, 0, option);
     generateMainMethod(sourceSet.getSelectedEntryPoint(), code, option);
-    generateAddEventFuncCall(option.mainRoutineLaunchEvent, Funcs.BH_MAIN, code, 0);
+    generateAddEventFuncCall(option.mainRoutineLaunchEvent, option.mainRoutineName, code, 0);
     generateFooterSnippet(code, 0);
-
   }
 
   /**
@@ -147,13 +138,13 @@ public class BhCompilerImpl implements BhCompiler {
   private void generateMainMethod(
       CompilableSyntaxTreeNode mainEntryPoint, StringBuilder code, CompileOption option) {
     if (mainEntryPoint == null) {
-      code.append("function %s() {}\n".formatted(Funcs.BH_MAIN));
+      code.append("function %s() {}\n".formatted(option.mainRoutineName));
       return;
     }
-    String lockVar = Prefix.lockVar + Funcs.BH_MAIN;
-    CompilableSyntaxTreeNode mainRoutineSymbol = createMainRoutineNode();
+    String lockVar = Prefix.lockVar + option.mainRoutineName;
+    CompilableSyntaxTreeNode mainRoutineSymbol = createMainRoutineNode(option);
     eventHandlerCodeGen.generateHeaderSnippetOfEventCall(
-        code, mainRoutineSymbol, Funcs.BH_MAIN, lockVar, 0, option);
+        code, mainRoutineSymbol, option.mainRoutineName, lockVar, 0, option);
     expCodeGen.generateExpression(mainEntryPoint, code, 4, option);
     statCodeGen.generateStatement(mainEntryPoint, code, 4, option);
     eventHandlerCodeGen.generateFooterSnippetOfEventCall(code, lockVar, 0, option);
@@ -249,11 +240,11 @@ public class BhCompilerImpl implements BhCompiler {
   }
 
   /** メインルーチンに対応する {@link CompilableSyntaxTreeNode} を作成する. */
-  private CompilableSyntaxTreeNode createMainRoutineNode() {
+  private CompilableSyntaxTreeNode createMainRoutineNode(CompileOption option) {
     return new CompilableSyntaxTreeNode() {
 
-      private String lexeme = mainRoutineId;
-      private String tag = mainRoutineId;
+      private String lexeme = option.mainRoutineName;
+      private String tag = option.mainRoutineName;
 
       @Override
       public List<? extends CompilableSyntaxTreeNode> findDescendants(
@@ -294,7 +285,7 @@ public class BhCompilerImpl implements BhCompiler {
 
       @Override
       public String getInstanceId() {
-        return mainRoutineId;
+        return option.mainRoutineName;
       }
 
       @Override
@@ -322,10 +313,5 @@ public class BhCompilerImpl implements BhCompiler {
         return false;
       }
     };
-  }
-
-  @Override
-  public String mainRoutineId() {
-    return mainRoutineId;
   }
 }

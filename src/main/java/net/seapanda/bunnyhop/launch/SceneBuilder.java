@@ -36,7 +36,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
 import net.seapanda.bunnyhop.bhprogram.LocalBhProgramLauncher;
-import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramController;
+import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramLauncher;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.common.text.TextDefs;
@@ -106,7 +106,7 @@ public class SceneBuilder {
   private final UndoRedoAgent undoRedoAgent;
   private final BhNodeSelectionViewProxy nodeSelProxy;
   private final LocalBhProgramLauncher localCtrl;
-  private final RemoteBhProgramController remoteCtrl;
+  private final RemoteBhProgramLauncher remoteCtrl;
   private final CopyAndPaste copyAndPaste;
   private final CutAndPaste cutAndPaste;
   private final BhMessageService msgService;
@@ -140,7 +140,7 @@ public class SceneBuilder {
       UndoRedoAgent undoRedoAgent,
       BhNodeSelectionViewProxy nodeSelProxy,
       LocalBhProgramLauncher localCtrl,
-      RemoteBhProgramController remoteCtrl,
+      RemoteBhProgramLauncher remoteCtrl,
       ProjectImporter importer,
       ProjectExporter exporter,
       CopyAndPaste copyAndPaste,

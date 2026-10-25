@@ -25,7 +25,7 @@ import java.util.List;
  *
  * @author K.Koike
  */
-public class FuncId {
+class FuncId {
   
   private List<String> id;
 

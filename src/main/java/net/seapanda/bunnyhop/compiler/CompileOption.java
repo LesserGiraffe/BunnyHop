@@ -19,6 +19,7 @@ package net.seapanda.bunnyhop.compiler;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
+import java.util.SequencedCollection;
 
 /**
  * コンパイルオプションを格納するクラス.
@@ -35,24 +36,27 @@ public class CompileOption {
   public final boolean addVarAccessorToVarStack;
   /** 条件付きで一時停止するコードを追加する. */
   public final boolean addConditionalWait;
+  /** プログラムが依存するライブラリのパス. */
+  public final SequencedCollection<String> libPaths;
   /** ソースコードにコメントを追加する場合 true. */
   public final boolean withComments;
   /** メインルーチンを起動する際に BhProgram が受け取るイベントの名前. */
   public final String mainRoutineLaunchEvent;
+  /** メインルーチンの名前. */
+  public final String mainRoutineName;
   /** 出力ファイルのパス. */
   public final Path outFile;
-  /** コンパイルして生成されたコードの実行環境. */
-  public final RuntimeEnvironment runtimeEnv;
 
   private CompileOption(Builder builder) {
     addNodeInstIdToContext = builder.isDebug;
     addNodeInstIdToCallStack = builder.isDebug;    
     addVarAccessorToVarStack = builder.isDebug;
     addConditionalWait = builder.isDebug;
+    this.libPaths = builder.libPaths;
     this.withComments = builder.withComments;
     this.mainRoutineLaunchEvent = builder.mainRoutineLaunchEvent;
+    this.mainRoutineName = builder.mainRoutineName;
     this.outFile = builder.outFile;
-    this.runtimeEnv = builder.runtimeEnv;
   }
 
   /** {@link Builder} オブジェクトを作成する. */
@@ -66,11 +70,24 @@ public class CompileOption {
     private Builder() {}
 
     private boolean isDebug = true;
+    private SequencedCollection<String> libPaths;
     private boolean withComments = true;
     private String mainRoutineLaunchEvent = "PROGRAM_START";
-    private RuntimeEnvironment runtimeEnv = RuntimeEnvironment.LOCAL;
+    private String mainRoutineName = "_bhMain";
 
     public Path outFile = Paths.get(".");
+
+    /**
+     * プログラムが依存するライブラリのパスを設定する.
+     *
+     * @param libPaths プログラムが依存するライブラリのパスを設定する.
+     * @return このオブジェクト
+     */
+    public Builder libPaths(SequencedCollection<String> libPaths) {
+      Objects.requireNonNull(libPaths);
+      this.libPaths = libPaths;
+      return this;
+    }
 
     /**
      * 生成するソースコードにコメントを追加するかどうかを設定する.
@@ -96,6 +113,18 @@ public class CompileOption {
     }
 
     /**
+     * メインルーチンの名前を設定する.
+     *
+     * @param val メインルーチンの名前
+     * @return このオブジェクト
+     */
+    public Builder mainRoutineName(String val) {
+      Objects.requireNonNull(val);
+      mainRoutineName = val;
+      return this;
+    }
+
+    /**
      * コンパイル結果の出力先ファイルのパスを設定する.
      *
      * @param val コンパイル結果の出力先ファイルのパス
@@ -104,18 +133,6 @@ public class CompileOption {
     public Builder outFile(Path val) {
       Objects.requireNonNull(val);
       this.outFile = val;
-      return this;
-    }
-
-    /**
-     * 生成されたコードの実行環境を設定する.
-     *
-     * @param val 生成されたコードの実行環境
-     * @return このオブジェクト
-     */
-    public Builder runtimeEnvironment(RuntimeEnvironment val) {
-      Objects.requireNonNull(val);
-      this.runtimeEnv = val;
       return this;
     }
 

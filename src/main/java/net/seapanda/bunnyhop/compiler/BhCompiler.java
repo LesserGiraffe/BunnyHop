@@ -35,7 +35,4 @@ public interface BhCompiler {
    */
   Path compile(SourceSet sourceSet, CompileOption option)
       throws CompileError;
-
-  /** メインルーチンとなる関数の ID を返す. */
-  String mainRoutineId();
 }

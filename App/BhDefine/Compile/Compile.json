@@ -1,0 +1,23 @@
+{
+  "configurations": [
+    {
+      "id": "local",
+      "mainRoutine": "_bhMain",
+      "libs": [
+        "./Libs/Language/${language}/TextDb.js",
+        "./Libs/Common.js",
+        "./Libs/LocalCommon.js"
+      ]
+    },
+
+    {
+      "id": "remote",
+      "mainRoutine": "_bhMain",
+      "libs": [
+        "./Libs/Language/${language}/TextDb.js",
+        "./Libs/Common.js",
+        "./Libs/RemoteCommon.js"
+      ]
+    }
+  ]
+}

@@ -118,8 +118,6 @@ public class BhConstants {
       public static final String IMAGES = "IMAGES";
       /** ログファイルを置くディレクトリ. */
       public static final String LOG = "Log";
-      /** BhProgram で使用するライブラリがあるディレクトリ. */
-      public static final String LIBS = "Libs";
       /** コンパイルに必要なファイルがあるディレクトリ. */
       public static final String COMPILE = "Compile";
       /** コンパイルしたファイルを置くディレクトリ. */
@@ -179,14 +177,8 @@ public class BhConstants {
       public static final String LANGUAGE_FILE = "BunnyHop.json";
       /** 設定ファイルの名前. */
       public static final String BH_SETTINGS_JSON = "BhSettings.json";
-
-      /** BhProgram のライブラリのパス. */
-      public static class BhLibs {
-        public static final String COMMON_JS = "Common.js";
-        public static final String LOCAL_COMMON_JS = "LocalCommon.js";
-        public static final String REMOTE_COMMON_JS = "RemoteCommon.js";
-        public static final String TEXT_DB_JS = "TextDb.js";
-      }
+      /** コンパイルに関する設定ファイル. */
+      public static final String COMPILE_JSON = "Compile.json";
     }
   }
 
@@ -351,7 +343,6 @@ public class BhConstants {
 
   /** UI コンポーネントの ID. */
   public static class UiId {
-    public static final String WS_PANE = "wsPane";
     public static final String WS_SCROLL_PANE = "wsScrollPane";
     public static final String WORKSPACE_SET_TAB = "workspaceSetTab";
     public static final String BH_RUNTIME_ERR_MSG = "bhRuntimeErrMsg";
@@ -444,6 +435,18 @@ public class BhConstants {
     public static final String RMI_TCP_PORT_SUFFIX = "@RmiTcpPort";
     public static final String LOCAL_HOST = "localhost";
     public static final int SSH_PORT = 22;
+  }
+
+  /** コンパイルに関するパラメータ. */
+  public static class Compile {
+
+    /** コンパイルの設定ファイルに関するパラメータ. */
+    public static class ConfigFile {
+      /** ローカル環境で実行するプログラムのコンパイル設定の ID. */
+      public static final String ID_LOCAL = "local";
+      /** リモート環境で実行するプログラムのコンパイル設定の ID. */
+      public static final String ID_REMOTE = "remote";
+    }
   }
 
   /** BunnyHop が出力するテキストメッセージに関するパラメータ. */
