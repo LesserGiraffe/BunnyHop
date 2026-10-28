@@ -1,7 +1,6 @@
 package net.seapanda.bunnyhop.ui.control;
 
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Css.Class.DEFAULT_TEXT_HIGHLIGHT;
-import static net.seapanda.bunnyhop.common.configuration.BhSettings.Search.maxItemsInNodeSearchResult;
 import static net.seapanda.bunnyhop.node.view.effect.VisualEffectType.SEARCH_RESULT;
 
 import java.util.Collection;
@@ -27,6 +26,7 @@ import net.seapanda.bunnyhop.search.Substring;
 import net.seapanda.bunnyhop.ui.model.NodeSearchListItem;
 import net.seapanda.bunnyhop.ui.view.NodeSearchListCell;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
+import net.seapanda.bunnyhop.utility.reference.ReadOnlyInteger;
 import net.seapanda.bunnyhop.workspace.control.WorkspaceSelectorController;
 import net.seapanda.bunnyhop.workspace.view.WorkspaceSetViewCallBackRegistry;
 import net.seapanda.bunnyhop.workspace.view.WorkspaceView;
@@ -48,12 +48,24 @@ public class NodeSearchViewController {
   private final ListItemRegistry listItemRegistry = new ListItemRegistry();
   private final Set<BhNodeView> nodeViews = new LinkedHashSet<>();
   private SearchResult searchResult;
+  private final ReadOnlyInteger maxItems;
+  private final ReadOnlyInteger maxChars;
 
-  /** コンストラクタ. */
+  /**
+   * コンストラクタ.
+   *
+   * @param maxItems ノード検索で表示される結果の最大数
+   * @param maxChars ノード検索結果の 1 項目に表示する文字列の最大文字数
+   */
   public NodeSearchViewController(
-      WorkspaceSetViewCallBackRegistry cbRegistry, VisualEffectManager effectManager) {
+      WorkspaceSetViewCallBackRegistry cbRegistry,
+      VisualEffectManager effectManager,
+      ReadOnlyInteger maxItems,
+      ReadOnlyInteger maxChars) {
     this.effectManager = effectManager;
     this.cbRegistry = cbRegistry;
+    this.maxItems = maxItems;
+    this.maxChars = maxChars;
   }
 
   /** このコントローラの UI 要素を初期化する. */
@@ -114,15 +126,16 @@ public class NodeSearchViewController {
    */
   private void collectMatchesFromView(BhNodeView view, SearchResult searchResult) throws
       PatternSyntaxException {
-    if (searchResult.items().size() >= maxItemsInNodeSearchResult) {
+    if (searchResult.items().size() >= maxItems.get()) {
       return;
     }
     if (view instanceof TextNodeView textNodeView) {
-      int maxNumToFind = maxItemsInNodeSearchResult - searchResult.items().size();
+      int maxNumToFind = maxItems.get() - searchResult.items().size();
       textNodeView.getVisual()
           .enableTextHighlighting(searchResult.query().getPattern(), maxNumToFind)
           .forEach(matched -> {
-            NodeSearchListItem item = listItemRegistry.createListItem(matched, textNodeView);
+            NodeSearchListItem item =
+                listItemRegistry.createListItem(matched, textNodeView, maxChars.get());
             searchResult.items().add(item);
           });
     }
@@ -209,7 +222,7 @@ public class NodeSearchViewController {
           refreshResultListView(searchResult);
         }
         int idx = selectItem(query.isForward());
-        boolean truncated = searchResult.items().size() == maxItemsInNodeSearchResult;
+        boolean truncated = searchResult.items().size() == maxItems.get();
         return new SearchQueryResult(idx, searchResult.items().size(), truncated);
       } catch (PatternSyntaxException e) {
         clearSearchResult();
@@ -277,8 +290,8 @@ public class NodeSearchViewController {
       nodeViewToListItems.clear();
     }
 
-    NodeSearchListItem createListItem(Substring matched, TextNodeView view) {
-      var item = new NodeSearchListItem(matched, view);
+    NodeSearchListItem createListItem(Substring matched, TextNodeView view, int maxChars) {
+      var item = new NodeSearchListItem(matched, view, maxChars);
       nodeViewToListItems.computeIfAbsent(view, key -> new LinkedHashSet<>()).add(item);
       return item;
     }

@@ -17,8 +17,8 @@
 package net.seapanda.bunnyhop.debugger.model;
 
 import net.seapanda.bunnyhop.bhprogram.common.message.exception.BhProgramException;
-import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.common.text.TextDefs;
+import net.seapanda.bunnyhop.utility.reference.ReadOnlyInteger;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -27,13 +27,24 @@ import org.apache.commons.lang3.StringUtils;
  * @author K.Koike
  */
 public class DebugUtil {
- 
+
+  private final ReadOnlyInteger maxErrMsgChars;
+
+  /**
+   * コンストラクタ
+   *
+   * @param maxErrMsgChars 表示されるエラーメッセージの最大文字数
+   */
+  public DebugUtil(ReadOnlyInteger maxErrMsgChars) {
+    this.maxErrMsgChars = maxErrMsgChars;
+  }
+
   /**
    * {@code exception} からエラーメッセージを取得する.
    *
    * @param exception この例外オブジェクトからエラーメッセージを取得する.  null の場合, 空文字列を返す.
    */
-  public static String getErrMsg(BhProgramException exception) {
+  public String getErrMsg(BhProgramException exception) {
     if (exception == null) {
       return "";
     }
@@ -58,9 +69,10 @@ public class DebugUtil {
     return truncateErrMsg(errMsg);
   }
 
-  private static String truncateErrMsg(String errMsg) {
-    return (errMsg.length() > BhSettings.Debug.maxErrMsgChars)
-        ? errMsg.substring(0, BhSettings.Debug.maxErrMsgChars) + "..."
+  private String truncateErrMsg(String errMsg) {
+    int maxChars = maxErrMsgChars.get();
+    return (errMsg.length() > maxChars)
+        ? errMsg.substring(0, maxChars) + "..."
         : errMsg;
   }  
 }

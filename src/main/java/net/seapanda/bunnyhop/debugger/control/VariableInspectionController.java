@@ -18,7 +18,6 @@ package net.seapanda.bunnyhop.debugger.control;
 
 import static javafx.css.PseudoClass.getPseudoClass;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Css.Class.DEFAULT_TEXT_HIGHLIGHT;
-import static net.seapanda.bunnyhop.common.configuration.BhSettings.Search.maxResultsInVariableInspection;
 import static net.seapanda.bunnyhop.node.view.effect.VisualEffectType.JUMP_TARGET;
 
 import java.util.ArrayList;
@@ -51,7 +50,6 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.VBox;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
-import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.debugger.model.Debugger;
 import net.seapanda.bunnyhop.debugger.model.variable.ListVariable;
 import net.seapanda.bunnyhop.debugger.model.variable.ScalarVariable;
@@ -70,6 +68,7 @@ import net.seapanda.bunnyhop.search.SearchQueryResult;
 import net.seapanda.bunnyhop.search.SharedSearchBoxDelegate;
 import net.seapanda.bunnyhop.ui.control.SharedSearchBox;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
+import net.seapanda.bunnyhop.utility.reference.ReadOnlyInteger;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet.NodeSelectionEvent;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet.NodeTextChangedEvent;
@@ -107,6 +106,8 @@ public class VariableInspectionController {
    * 複数の {@link VariableInspectionController} で共有するためのオブジェクト.
    */
   private final BooleanProperty sharedJumpFlag;
+  private final ReadOnlyInteger maxSearchResults;
+  private final ReadOnlyInteger maxListVarTreeChildren;
   private final SearchBoxDelegateImpl searchBoxDelegate = new SearchBoxDelegateImpl();
 
   /**
@@ -115,6 +116,13 @@ public class VariableInspectionController {
    * @param varInfo このコントローラが管理するビューに表示する変数情報を格納したオブジェクト
    * @param viewName ビューの名前
    * @param searchBox 検索クエリを受け取る UI コンポーネントのインタフェース
+   * @param debugger 変数の値の取得を要求するためのデバッガ
+   * @param wss ノードの選択状態の変化を監視する対象のワークスペースセット
+   * @param visualEffectManager ノードへの視覚効果の付与を管理するオブジェクト
+   * @param sharedJumpFlag 変数選択時に対応するノードへジャンプするかどうかのフラグを
+   *     複数の {@link VariableInspectionController} で共有するためのオブジェクト
+   * @param maxListVarTreeChildren リスト変数のツリー表示において, 1 階層あたりに表示する子要素数の最大値
+   * @param maxSearchResults 検索結果の最大件数
    */
   public VariableInspectionController(
       VariableInfo varInfo,
@@ -123,7 +131,9 @@ public class VariableInspectionController {
       Debugger debugger,
       WorkspaceSet wss,
       VisualEffectManager visualEffectManager,
-      BooleanProperty sharedJumpFlag) {
+      BooleanProperty sharedJumpFlag,
+      ReadOnlyInteger maxListVarTreeChildren,
+      ReadOnlyInteger maxSearchResults) {
     this.viewName = (viewName == null) ? "" : viewName;
     this.varInfo = varInfo;
     this.searchBox = searchBox;
@@ -131,6 +141,8 @@ public class VariableInspectionController {
     this.wss = wss;
     effectManager = visualEffectManager;
     this.sharedJumpFlag = sharedJumpFlag;
+    this.maxListVarTreeChildren = maxListVarTreeChildren;
+    this.maxSearchResults = maxSearchResults;
     cellRegistry = new CellRegistry();
     rootVarItem = new VariableTreeItem();
     rootVarItem.setExpanded(false);
@@ -139,6 +151,7 @@ public class VariableInspectionController {
 
   /** ビューに変数情報を追加する. */
   private void addVarInfo(SequencedCollection<Variable> variables) {
+    int maxChildren = maxListVarTreeChildren.get();
     for (Variable variable : variables) {
       if (variable instanceof ScalarVariable scalar) {
         rootVarItem.getChildren().add(createTreeItem(scalar));
@@ -355,7 +368,7 @@ public class VariableInspectionController {
     public ObservableList<TreeItem<VariableListItem>> getChildren() {
       if (shouldCreateChildren()) {
         isFirstTimeChildren = false;
-        List<VariableListItem> subItems = item.createSubItems();
+        List<VariableListItem> subItems = item.createSubItems(maxListVarTreeChildren.get());
         setEventHandlers(subItems);
         requestListValues(subItems);
         var children = subItems.stream().map(VariableTreeItem::new).toList();
@@ -384,7 +397,7 @@ public class VariableInspectionController {
 
     /** リスト変数の値の取得をデバッガに命令する. */
     private void requestListValues(List<VariableListItem> subItems) {
-      if (item.numValues <= BhSettings.Debug.maxListTreeChildren) {
+      if (item.numValues <= maxListVarTreeChildren.get()) {
         requestListVals((ListVariable) item.variable, item.startIdx, item.numValues);
         return;
       }
@@ -457,7 +470,7 @@ public class VariableInspectionController {
         });
 
         int numResults = searchResult.treeItems.size();
-        boolean truncated = numResults == maxResultsInVariableInspection;
+        boolean truncated = numResults == maxSearchResults.get();
         int idxInResults = foundOpt.map(CyclicSublistFinder.Found::getIdxInSublist).orElse(-1);
         return new SearchQueryResult(idxInResults, numResults, truncated);
       } catch (PatternSyntaxException e) {
@@ -473,7 +486,7 @@ public class VariableInspectionController {
           query,
           allVarItems,
           treeItem -> VariableListCell.getText(treeItem.getValue()),
-          maxResultsInVariableInspection);
+          maxSearchResults.get());
       return new SearchResult(results, allVarItems, query);
     }
 

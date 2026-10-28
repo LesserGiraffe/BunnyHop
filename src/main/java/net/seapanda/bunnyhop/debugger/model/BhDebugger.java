@@ -37,9 +37,9 @@ import net.seapanda.bunnyhop.bhprogram.common.message.debug.StepOutCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.debug.StepOverCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.debug.SuspendThreadCmd;
 import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeStatus;
+import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeType;
 import net.seapanda.bunnyhop.bhprogram.runtime.LocalBhRuntimeController;
 import net.seapanda.bunnyhop.bhprogram.runtime.RemoteBhRuntimeController;
-import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.debugger.model.breakpoint.BreakpointCache;
 import net.seapanda.bunnyhop.debugger.model.callstack.StackFrameSelection;
 import net.seapanda.bunnyhop.debugger.model.thread.ThreadContext;
@@ -49,6 +49,7 @@ import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
 import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
 import net.seapanda.bunnyhop.utility.event.SimpleConsumerInvoker;
+import net.seapanda.bunnyhop.utility.reference.ReadOnlyValue;
 
 /**
  * BhProgram のデバッガクラス.
@@ -65,15 +66,18 @@ public class BhDebugger implements Debugger {
   private final LocalBhRuntimeController localBhRuntimeCtrl;
   private final RemoteBhRuntimeController remoteBhRuntimeCtrl;
   private final BreakpointCache breakpointCache;
+  private final ReadOnlyValue<BhRuntimeType> currentBhRuntimeType;
 
   /** コンストラクタ. */
   public BhDebugger(
       LocalBhRuntimeController localBhRuntimeCtrl,
       RemoteBhRuntimeController remoteBhRuntimeCtrl,
-      BreakpointCache breakpointCache) {
+      BreakpointCache breakpointCache,
+      ReadOnlyValue<BhRuntimeType> currentBhRuntimeType) {
     this.localBhRuntimeCtrl = localBhRuntimeCtrl;
     this.remoteBhRuntimeCtrl = remoteBhRuntimeCtrl;
     this.breakpointCache = breakpointCache;
+    this.currentBhRuntimeType = currentBhRuntimeType;
     setEventHandlers();
   }
 
@@ -264,7 +268,7 @@ public class BhDebugger implements Debugger {
   
   /** 現在操作対象になっている BhRuntime のコントローラオブジェクトを返す. */
   private BhRuntimeController getBhRuntimeCtrl() {
-    return switch (BhSettings.BhRuntime.currentBhRuntimeType) {
+    return switch (currentBhRuntimeType.get()) {
       case LOCAL ->  localBhRuntimeCtrl;
       case REMOTE ->  remoteBhRuntimeCtrl;
     };

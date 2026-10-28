@@ -22,6 +22,7 @@ import javafx.event.EventTarget;
 import javafx.fxml.FXML;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.SplitPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -46,6 +47,8 @@ public class FoundationController {
 
   //View
   @FXML private VBox foundationVbox;
+  @FXML private SplitPane verticalSplitPane;
+  @FXML private SplitPane horizontalSplitPane;
 
   //Controller
   @FXML private MenuViewController menuViewController;
@@ -56,11 +59,20 @@ public class FoundationController {
   private final Set<KeyCode> pressedKey = new HashSet<>();
   private final LocalBhProgramLauncher localCtrl;
   private final RemoteBhProgramLauncher remoteCtrl;
+  private final BhSettings settings;
 
+  /**
+   * コンストラクタ.
+   *
+   * @param localCtrl ローカル環境で BhProgram を実行するためのオブジェクト
+   * @param remoteCtrl リモート環境で BhProgram を実行するためのオブジェクト
+   * @param settings BunnyHop の設定情報
+   */
   public FoundationController(
-      LocalBhProgramLauncher localCtrl, RemoteBhProgramLauncher remoteCtrl) {
+      LocalBhProgramLauncher localCtrl, RemoteBhProgramLauncher remoteCtrl, BhSettings settings) {
     this.localCtrl = localCtrl;
     this.remoteCtrl = remoteCtrl;
+    this.settings = settings;
   }
 
   /** このコントローラを初期化する. */
@@ -89,6 +101,20 @@ public class FoundationController {
       event.consume();
     });
     foundationVbox.setOnKeyReleased(event ->  pressedKey.remove(event.getCode()));
+
+    SplitPane.Divider divider = verticalSplitPane.getDividers().getFirst();
+    divider.positionProperty().addListener(
+        (obs, oldVal, newVal) -> settings.ui.nodeSelectionSplitPos.set(newVal.doubleValue()));
+    if (settings.ui.nodeSelectionSplitPos.get() >= 0) {
+      divider.setPosition(settings.ui.nodeSelectionSplitPos.get());
+    }
+
+    divider = horizontalSplitPane.getDividers().getFirst();
+    divider.positionProperty().addListener(
+        (obs, oldVal, newVal) -> settings.ui.notificationSplitPos.set(newVal.doubleValue()));
+    if (settings.ui.notificationSplitPos.get() >= 0) {
+      divider.setPosition(settings.ui.notificationSplitPos.get());
+    }
   }
 
   /** 基底ペインに転送すべきキーイベントかどうかを判断する. */
@@ -194,7 +220,7 @@ public class FoundationController {
     }
     pressedKey.add(keyCode);
     var bhEvent = new BhProgramEvent(eventName);
-    if (BhSettings.BhRuntime.currentBhRuntimeType == BhRuntimeType.LOCAL) {
+    if (settings.runtime.currentBhRuntimeType.get() == BhRuntimeType.LOCAL) {
       localCtrl.getBhRuntimeCtrl().send(bhEvent);
     } else {
       remoteCtrl.getBhRuntimeCtrl().send(bhEvent);
@@ -220,7 +246,7 @@ public class FoundationController {
    * @param mode このモードに変更する
    */
   private void setNodeManipMode(NodeManipulationMode mode) {
-    BhSettings.Ui.nodeManipMode = mode;
+    settings.ui.nodeManipMode.set(mode);
     foundationVbox.getScene().setCursor(mode.getCursor());
   }
 

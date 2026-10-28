@@ -1,9 +1,26 @@
 {
   "language": "Japanese",
-  "Undo": {
-    "textChangeUndoEnabled": true
+  "simulator": {
+    "initTimeout": 15,
+    "focusOnStartBhProgram": false,
+    "focusOnSimulatorChanged": true
   },
-  "Search": {
+  "debug": {
+    "maxCallStackItems": 32,
+    "canSetBreakpoint": true,
+    "debugWindowVisible": true,
+    "maxListVarTreeChildren": 100,
+    "maxErrMsgChars": 4096
+  },
+  "ui": {
+    "trackNodeInCurrentWorkspace": false,
+    "trackNodeInInactiveWorkspace": true,
+    "currentNodeSelectionViewZoomLevel": -1,
+    "currentWorkspaceZoomLevel": -1,
+    "nodeSelectionSplitPos": 0.9709388971684053,
+    "notificationSplitPos": 0.9951923076923077
+  },
+  "search": {
     "maxResultsInMainMessage": 500,
     "maxResultsInVariableInspection": 500,
     "maxResultsInErrorNodeList": 500,
@@ -12,40 +29,21 @@
     "maxItemsInNodeSearchResult": 500,
     "maxCharsInNodeSearchResultItem": 64
   },
-  "Window": {
-    "main": {
-      "width": 1360,
-      "height": 966,
-      "posX": 172,
-      "posY": 40,
-      "maximized": false
-    },
-    "debug": {
-      "width": 150,
-      "height": 187,
-      "posX": 1692,
-      "posY": 710,
-      "maximized": false
-    },
-    "nodeSelectionSplitPos": 0.8904619970193741,
-    "notificationSplitPos": 0.5893719806763285
+  "undo": {
+    "textChangeUndoEnabled": true
   },
-  "Ui": {
-    "trackNodeInCurrentWorkspace": false,
-    "trackNodeInInactiveWorkspace": true,
-    "currentNodeSelectionViewZoomLevel": -8,
-    "currentWorkspaceZoomLevel": -8
+  "mainWindow": {
+    "width": 1360,
+    "height": 762,
+    "posX": 280,
+    "posY": 90,
+    "maximized": false
   },
-  "Debug": {
-    "maxCallStackItems": 32,
-    "canSetBreakpoint": true,
-    "debugWindowVisible": true,
-    "maxListTreeChildren": 100,
-    "maxErrMsgChars": 4096
-  },
-  "BhSimulator": {
-    "initTimeout": 15,
-    "focusOnStartBhProgram": false,
-    "focusOnSimulatorChanged": true
+  "debugWindow": {
+    "width": 150,
+    "height": 187,
+    "posX": 885,
+    "posY": 282,
+    "maximized": false
   }
 }

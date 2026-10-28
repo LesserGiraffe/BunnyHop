@@ -50,7 +50,6 @@ import javafx.scene.text.Text;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Transform;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
-import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.TextNodeView;
@@ -62,6 +61,7 @@ import net.seapanda.bunnyhop.ui.view.ViewUtil;
 import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
 import net.seapanda.bunnyhop.utility.event.SimpleConsumerInvoker;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
+import net.seapanda.bunnyhop.utility.reference.WritableInteger;
 import net.seapanda.bunnyhop.workspace.model.Workspace;
 import net.seapanda.bunnyhop.workspace.view.quadtree.QuadTreeItem;
 import net.seapanda.bunnyhop.workspace.view.quadtree.QuadTreeItem.OverlapOption;
@@ -117,6 +117,8 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
   private double frontZpos = 0;
   /** モデルへのアクセスの通知先となるオブジェクト. */
   private final TransactionNotificationService notifService;
+  /** 現在のワークスペースの拡大・縮小レベル. */
+  private final WritableInteger currentWorkspaceZoomLevel;
   private final CallbackRegistryImpl cbRegistry = new CallbackRegistryImpl();
 
   /**
@@ -126,17 +128,20 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
    * @param size ワークスペースの初期サイズ
    * @param filePath ワークスペースビューが定義された fxml ファイルのパス
    * @param service モデルへのアクセスの通知先となるオブジェクト
+   * @param currentWorkspaceZoomLevel 現在のワークスペースの拡大・縮小レベル
    */
   public FxmlWorkspaceView(
       Workspace workspace,
       Vec2D size,
       Path filePath,
-      TransactionNotificationService service)
+      TransactionNotificationService service,
+      WritableInteger currentWorkspaceZoomLevel)
       throws ViewConstructionException {
     Objects.requireNonNull(workspace);
     this.workspace = workspace;
     minPaneSize = new Vec2D(size);
     this.notifService = service;
+    this.currentWorkspaceZoomLevel = currentWorkspaceZoomLevel;
     configureGuiComponents(filePath);
     setEventHandlers();
     qtSpaceForBody =
@@ -186,7 +191,7 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
   /** タブの選択状態が変わった時の処理. */
   private void onSelectionChanged() {
     if (isSelected()) {
-      BhSettings.Ui.currentWorkspaceZoomLevel = zoomLevel;
+      currentWorkspaceZoomLevel.set(zoomLevel);
     }
   }
 
@@ -449,7 +454,7 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
     Scale scale = new Scale(mag, mag);
     wsPane.getTransforms().set(0, scale);
     recalculateScrollableRange();
-    BhSettings.Ui.currentWorkspaceZoomLevel = zoomLevel;
+    currentWorkspaceZoomLevel.set(zoomLevel);
   }
 
   /** スクロール可能な範囲を再計算する. */

@@ -42,10 +42,12 @@ public class ThreadStateViewController {
   /** エラーメッセージを表示するツールチップ. */
   private final Tooltip errMsgTooltip = new Tooltip();
   private final Debugger debugger;
+  private final DebugUtil util;
 
   /** コンストラクタ. */
-  public ThreadStateViewController(Debugger debugger) {
+  public ThreadStateViewController(Debugger debugger, DebugUtil util) {
     this.debugger = debugger;
+    this.util = util;
   }
 
   /** このコントローラの UI 要素を初期化する. */
@@ -71,7 +73,7 @@ public class ThreadStateViewController {
       threadStateText.pseudoClassStateChanged(pseudo, false);
       threadStateText.setOnMousePressed(null);
     } else {
-      String errMsg = context.getException().map(DebugUtil::getErrMsg).orElse("");
+      String errMsg = context.getException().map(util::getErrMsg).orElse("");
       errMsgTooltip.setText(errMsg);
       threadStateText.pseudoClassStateChanged(pseudo, true);
       threadStateText.setOnMousePressed(event -> toggleErrTooltipVisibility());

@@ -58,7 +58,12 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Graphics;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowAdapter;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowListener;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import java.awt.SplashScreen;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -89,12 +94,15 @@ import net.seapanda.bunnyhop.bhprogram.runtime.RmiLocalBhRuntimeController;
 import net.seapanda.bunnyhop.bhprogram.runtime.RmiRemoteBhRuntimeController;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.common.configuration.BhSettings;
+import net.seapanda.bunnyhop.common.configuration.BhSettings.Runtime;
+import net.seapanda.bunnyhop.common.configuration.BhSettings.Simulator;
 import net.seapanda.bunnyhop.common.text.TextDefs;
 import net.seapanda.bunnyhop.common.text.TextFetcher;
 import net.seapanda.bunnyhop.compile.CompileConfig;
 import net.seapanda.bunnyhop.compile.SourceNodeCollector;
 import net.seapanda.bunnyhop.debugger.model.BhDebugger;
 import net.seapanda.bunnyhop.debugger.model.DebugMessageProcessorImpl;
+import net.seapanda.bunnyhop.debugger.model.DebugUtil;
 import net.seapanda.bunnyhop.debugger.model.breakpoint.BreakpointCache;
 import net.seapanda.bunnyhop.debugger.service.EntryPointPresenter;
 import net.seapanda.bunnyhop.debugger.service.ThreadContextPresenter;
@@ -136,8 +144,6 @@ import net.seapanda.bunnyhop.ui.model.ExclusiveSelection;
 import net.seapanda.bunnyhop.ui.service.window.BhWindowManager;
 import net.seapanda.bunnyhop.ui.service.window.WindowManager;
 import net.seapanda.bunnyhop.utility.log.FileLogger;
-import net.seapanda.bunnyhop.utility.serialization.JsonExporter;
-import net.seapanda.bunnyhop.utility.serialization.JsonImporter;
 import net.seapanda.bunnyhop.utility.textdb.JsonTextDatabase;
 import net.seapanda.bunnyhop.workspace.control.TrashCanController;
 import net.seapanda.bunnyhop.workspace.control.WorkspaceSetController;
@@ -172,8 +178,8 @@ public class AppMain extends Application {
     Path logDir = Paths.get(execPath, LOG, BhConstants.APP_NAME);
     var logger = new FileLogger(logDir, LOG_MSG, LOG_FILE_SIZE_LIMIT, MAX_LOG_FILE_NUM);
     try {
-      importSettings();
-      Path textDbFile = Paths.get(execPath, LANGUAGE, BhSettings.language, LANGUAGE_FILE);
+      BhSettings settings = importSettings();
+      Path textDbFile = Paths.get(execPath, LANGUAGE, settings.language.get(), LANGUAGE_FILE);
       final var textDb = new JsonTextDatabase(textDbFile);
       TextDefs.setTextDatabase(textDb);
       TextFetcher.setTextDatabase(textDb);
@@ -193,18 +199,18 @@ public class AppMain extends Application {
         Paths.get(execPath, BH_DEF, EVENT_HANDLERS),
         Paths.get(execPath, BH_DEF, TEMPLATE_NODE_LIST),
         Paths.get(execPath, BH_RUNTIME)};
-      final Path viewStyleDir = Paths.get(execPath, VIEW, NODE_STYLE_DEF, BhSettings.language);
+      final Path viewStyleDir = Paths.get(execPath, VIEW, NODE_STYLE_DEF, settings.language.get());
       final Path nodeSelectionFile =
           Paths.get(execPath, BH_DEF, TEMPLATE_NODE_LIST, TEMPLATE_NODE_LIST_JSON);
       final Path nodeDir = Paths.get(execPath, BH_DEF, NODE_DEF);
       final Path cnctrDir = Paths.get(execPath, BH_DEF, CONNECTOR_DEF);
       final Path compileConfigFile = Paths.get(execPath, BH_DEF, COMPILE, COMPILE_JSON);
 
-      final var simulator = createSimulator();
+      final var simulator = createSimulator(settings.simulator);
       final var debugStage = new Stage();
       final var windowManager = new BhWindowManager(
-          stage, debugStage, ((Lwjgl3Graphics) Gdx.app.getGraphics()).getWindow());
-      setOnSimulatorCmdProcessing(simulator, windowManager);
+          stage, debugStage, ((Lwjgl3Graphics) Gdx.app.getGraphics()).getWindow(), settings);
+      setOnSimulatorCmdProcessing(simulator, windowManager, settings.simulator);
       final SimulatorCmdProcessor simCmdProcessor = simulator.getCmdProcessor().orElseThrow(
           () -> new AppInitializationException("Simulator Command Processor not found."));
 
@@ -220,8 +226,10 @@ public class AppMain extends Application {
       final var mediator =
           new TransactionNotificationServiceImpl(derivativeCache, compileErrChecker, undoRedoAgent);
       final var wssCtrl = new WorkspaceSetController(wss, mediator);
-      final var nodeSelViewProxy =
-          new BhNodeSelectionViewProxyImpl(nodeSelectionViewFile, wssCtrl::addNodeSelectionView);
+      final var nodeSelViewProxy = new BhNodeSelectionViewProxyImpl(
+          nodeSelectionViewFile,
+          wssCtrl::addNodeSelectionView,
+          settings.ui.currentNodeSelectionViewZoomLevel);
       final var scriptRepository = new BhScriptRepositoryImpl(scriptDirs);
       final var viewStyleFactory = new JsonBhNodeViewStyleFactory(viewStyleDir);
       final var buttonFactory = new PrivateTemplateButtonFactoryImpl(
@@ -236,7 +244,8 @@ public class AppMain extends Application {
           trashCanCtrl,
           wss,
           nodeSelViewProxy,
-          nodeViewSuperVisor);
+          nodeViewSuperVisor,
+          settings);
       final var commonDataSupplier = new CommonDataSupplier(scriptRepository, nodeFactory, textDb);
       final var modelGenerator = new ModelGenerator(
           nodeFactory,
@@ -254,8 +263,10 @@ public class AppMain extends Application {
           mediator,
           nodeSelViewProxy,
           msgService,
-          nodeViewSuperVisor);
-      Map<String, CompileConfig> idToCompileConfig = createCompileConfigs(compileConfigFile);
+          nodeViewSuperVisor,
+          settings.ui.currentWorkspaceZoomLevel);
+      Map<String, CompileConfig> idToCompileConfig =
+          createCompileConfigs(compileConfigFile, settings.language.get());
       final CompileConfig localCompileConfig = idToCompileConfig.get(ID_LOCAL);
       final CompileConfig remoteCompileConfig = idToCompileConfig.get(ID_REMOTE);
 
@@ -269,15 +280,21 @@ public class AppMain extends Application {
           new RemoteBhProgramLauncherImpl(remoteCompileConfig, remoteRuntimeCtrl, msgService);
       final var sharedSearchBoxCtrl = new SharedSearchBoxController();
       final var breakpointCache = new BreakpointCache(wss);
-      final var debugger = new BhDebugger(localRuntimeCtrl, remoteRuntimeCtrl, breakpointCache);
+      final var debugger = new BhDebugger(
+          localRuntimeCtrl,
+          remoteRuntimeCtrl,
+          breakpointCache,
+          settings.runtime.currentBhRuntimeType);
       final var debugViewFactory = new DebugViewFactoryImpl(
           callStackViewFile,
           varInspectionViewFile,
           sharedSearchBoxCtrl,
           debugger,
           wss,
-          nodeViewSuperVisor);
-      new ThreadContextPresenter(debugger, msgService, nodeViewSuperVisor);
+          nodeViewSuperVisor,
+          settings);
+      final var debugUtil = new DebugUtil(settings.debug.maxErrMsgChars);
+      new ThreadContextPresenter(debugger, msgService, nodeViewSuperVisor, debugUtil);
       final var entryPointPresenter = new EntryPointPresenter(
           wss, localRuntimeCtrl, remoteRuntimeCtrl, nodeViewSuperVisor);
       final var mainRoutineIds = List.of(
@@ -290,8 +307,15 @@ public class AppMain extends Application {
       new BhProgramMessageDispatcher(
           msgProcessor, debugMsgProcessor, simCmdProcessor, remoteRuntimeCtrl, mediator);
       final var pastePosOffsetCount = new MutableInt(-2);
-      final var copyAndPaste = new CopyAndPaste(nodeFactory, pastePosOffsetCount);
-      final var cutAndPaste = new CutAndPaste(pastePosOffsetCount);
+      final var copyAndPaste = new CopyAndPaste(
+          nodeFactory,
+          pastePosOffsetCount,
+          settings.ui.trackNodeInCurrentWorkspace,
+          settings.ui.trackNodeInInactiveWorkspace);
+      final var cutAndPaste = new CutAndPaste(
+          pastePosOffsetCount,
+          settings.ui.trackNodeInCurrentWorkspace,
+          settings.ui.trackNodeInInactiveWorkspace);
       final var projImporter = new JsonProjectImporter(nodeFactory, wsFactory, msgService);
       final var projExporter = new JsonProjectExporter(msgService);
       if (!validateNodeViewStyles(nodeRepository, viewStyleFactory)) {
@@ -306,6 +330,7 @@ public class AppMain extends Application {
           nodeFactory,
           wsFactory,
           debugViewFactory,
+          debugUtil,
           undoRedoAgent,
           nodeSelViewProxy,
           localBhProgramCtrl,
@@ -324,7 +349,8 @@ public class AppMain extends Application {
           trashCanCtrl,
           windowManager,
           nodeViewSuperVisor,
-          wssViewCbRegistry);
+          wssViewCbRegistry,
+          settings);
 
       setOnCloseHandler(
           stage,
@@ -334,9 +360,10 @@ public class AppMain extends Application {
           windowManager,
           remoteRuntimeCtrl::isProgramRunning,
           wss::isDirty,
-          () -> sceneBuilder.menuBarCtrl.save(wss));
+          () -> sceneBuilder.menuBarCtrl.save(wss),
+          settings);
       simulator.setOnKeyPressed(
-          keyCode -> onKeyPressed(keyCode, localRuntimeCtrl, remoteRuntimeCtrl));
+          keyCode -> onKeyPressed(keyCode, localRuntimeCtrl, remoteRuntimeCtrl, settings.runtime));
       msgService.setWindowStyle(sceneBuilder.scene.getStylesheets());
       msgService.setMainMsgArea(sceneBuilder.msgViewCtrl.getMsgArea());
       sceneBuilder.createWindows(stage, debugStage, wsFactory);
@@ -354,10 +381,10 @@ public class AppMain extends Application {
     }
   }
 
-  private BhSimulator createSimulator() throws AppInitializationException {
+  private BhSimulator createSimulator(Simulator simSettings) throws AppInitializationException {
     BhSimulator simulator = newSimulator();
     simFuture = simExecutor.submit(() -> startSimulator(simulator));
-    if (!simulator.waitForInitialization(BhSettings.BhSimulator.initTimeout)
+    if (!simulator.waitForInitialization(simSettings.initTimeout.get())
         || simulator.getCmdProcessor().isEmpty()) {
       throw new AppInitializationException("Failed to initialize the simulator.");
     }
@@ -374,10 +401,10 @@ public class AppMain extends Application {
 
   /** シミュレータコマンドを処理する前のイベントハンドラを登録する. */
   private static void setOnSimulatorCmdProcessing(
-      BhSimulator simulator, BhWindowManager windowManager) {
+      BhSimulator simulator, BhWindowManager windowManager, Simulator simSettings) {
     simulator.getCmdProcessor().get().getCallbackRegistry().getOnCmdProcessing()
         .add((SimulatorCmdProcessor.CmdProcessingEvent event) -> {
-          if (BhSettings.BhSimulator.focusOnSimulatorChanged) {
+          if (simSettings.focusOnSimulatorChanged.get()) {
             windowManager.focusSimulator();
           }
         });
@@ -387,15 +414,17 @@ public class AppMain extends Application {
    * {@code configFilePath} で指定された設定ファイルからコンパイルに関する設定一覧を取得する.
    *
    * @param configFilePath コンパイルに関する設定が書かれたファイルのパス
+   * @param language 言語設定
    * @return ID と {@link CompileConfig} の対応関係を格納したマップ
    * @throws AppInitializationException 設定ファイルの読み込みに失敗した場合, もしくは,
    *     ID が local と remote の項目が設定ファイルに存在しない場合
    */
-  private static Map<String, CompileConfig> createCompileConfigs(Path configFilePath)
+  private static Map<String, CompileConfig> createCompileConfigs(
+      Path configFilePath, String language)
       throws AppInitializationException {
     Map<String, CompileConfig> idToCompileConfig;
     try {
-      idToCompileConfig = CompileConfig.readConfig(configFilePath);
+      idToCompileConfig = CompileConfig.readConfig(configFilePath, language);
     } catch (Exception e) {
       throw new AppInitializationException("Failed to read a compile configuration file.", e);
     }
@@ -411,11 +440,12 @@ public class AppMain extends Application {
   private void onKeyPressed(
       int keyCode,
       RmiLocalBhRuntimeController localCtrl,
-      RmiRemoteBhRuntimeController remoteCtrl) {
+      RmiRemoteBhRuntimeController remoteCtrl,
+      Runtime runtimeSettings) {
     KeyCodeConverter.toBhProgramEventName(keyCode)
         .map(BhProgramEvent::new)
         .ifPresent(bhEvent -> {
-          if (BhSettings.BhRuntime.currentBhRuntimeType == BhRuntimeType.LOCAL) {
+          if (runtimeSettings.currentBhRuntimeType.get() == BhRuntimeType.LOCAL) {
             localCtrl.send(bhEvent);
           } else {
             remoteCtrl.send(bhEvent);
@@ -432,7 +462,8 @@ public class AppMain extends Application {
       WindowManager windowManager,
       Supplier<Boolean> fnIsProgramRunning,
       Supplier<Boolean> fnIsProjectDirty,
-      Supplier<Boolean> fnSave) {
+      Supplier<Boolean> fnSave,
+      BhSettings settings) {
     MutableBoolean killRemoteProcess = new MutableBoolean(false);
     stage.setOnCloseRequest(event -> onCloseRequest(
         event,
@@ -441,7 +472,8 @@ public class AppMain extends Application {
         windowManager,
         fnIsProgramRunning,
         fnIsProjectDirty,
-        fnSave));
+        fnSave,
+        settings));
     stage.showingProperty().addListener((observable, oldValue, newValue) -> terminate(
         localCtrl,
         remoteCtrl,
@@ -459,7 +491,8 @@ public class AppMain extends Application {
       WindowManager windowManager,
       Supplier<Boolean> fnIsProgramRunning,
       Supplier<Boolean> fnIsProjectDirty,
-      Supplier<Boolean> fnSave) {
+      Supplier<Boolean> fnSave,
+      BhSettings settings) {
     switch (askIfSaveProject(msgService, fnIsProjectDirty)) {
       case YES -> fnSave.get();
       case CANCEL -> {
@@ -476,27 +509,27 @@ public class AppMain extends Application {
     }
 
     windowManager.saveWindowStates();
-    exportSettings();
+    exportSettings(settings);
   }
 
   /** アプリケーションの設定をファイルに保存する. */
-  private static void exportSettings() {
-    try {
-      Path filePath = Paths.get(execPath, SETTINGS, BH_SETTINGS_JSON);
+  private static void exportSettings(BhSettings settings) {
+    Path filePath = Paths.get(execPath, SETTINGS, BH_SETTINGS_JSON);
+    var gson = new GsonBuilder().setPrettyPrinting().create();
+    try (var jw = gson.newJsonWriter(new FileWriter(filePath.toString()))) {
       Files.createDirectories(filePath.toAbsolutePath().getParent());
-      JsonExporter.export(BhSettings.class, filePath);
+      gson.toJson(settings, new TypeToken<BhSettings>(){}.getType(), jw);
     } catch (IOException e) { /* Do nothing.*/ }
   }
 
   /** アプリケーションの設定をファイルから読み込む. */
-  private static void importSettings() {
-    try {
-      Path filePath = Paths.get(execPath, SETTINGS, BH_SETTINGS_JSON);
-      if (!filePath.toFile().exists()) {
-        return;
-      }
-      JsonImporter.imports(BhSettings.class, filePath);
+  private static BhSettings importSettings() {
+    Path filePath = Paths.get(execPath, SETTINGS, BH_SETTINGS_JSON);
+    var gson = new Gson();
+    try (var jr = gson.newJsonReader(new FileReader(filePath.toString()))) {
+      return gson.fromJson(jr, BhSettings.class);
     } catch (IOException e) { /* Do nothing.*/ }
+    return new BhSettings();
   }
 
   /**

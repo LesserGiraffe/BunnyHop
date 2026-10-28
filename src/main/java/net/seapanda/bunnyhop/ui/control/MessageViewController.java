@@ -18,7 +18,6 @@ package net.seapanda.bunnyhop.ui.control;
 
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Css.Class.DEFAULT_TEXT_HIGHLIGHT;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Css.Class.FOCUSED_TEXT_HIGHLIGHT;
-import static net.seapanda.bunnyhop.common.configuration.BhSettings.Search.maxResultsInMainMessage;
 import static net.seapanda.bunnyhop.ui.skin.HighlightingChangePolicy.DISABLE;
 
 import java.util.List;
@@ -31,6 +30,7 @@ import net.seapanda.bunnyhop.search.SearchQuery;
 import net.seapanda.bunnyhop.search.SearchQueryResult;
 import net.seapanda.bunnyhop.search.Substring;
 import net.seapanda.bunnyhop.ui.skin.HighlightableTextAreaSkin;
+import net.seapanda.bunnyhop.utility.reference.ReadOnlyInteger;
 
 /**
  * ユーザへのメッセージを表示する UI 部分のコントローラ.
@@ -44,6 +44,16 @@ public class MessageViewController {
 
   private List<Substring> searchResults = null;
   private HighlightableTextAreaSkin skin;
+  private final ReadOnlyInteger maxSearchResults;
+
+  /**
+   * コンストラクタ.
+   *
+   * @param maxSearchResults ワードの検索結果の最大個数
+   */
+  public MessageViewController(ReadOnlyInteger maxSearchResults) {
+    this.maxSearchResults = maxSearchResults;
+  }
 
   /** このコントローラの UI 要素を初期化する. */
   @FXML
@@ -106,14 +116,14 @@ public class MessageViewController {
       try {
         if (searchBoxController.getNumConsecutiveSameRequests() <= 1 || searchResults == null) {
           searchResults = skin.enableHighlighting(
-              query.getPattern(), DEFAULT_TEXT_HIGHLIGHT, maxResultsInMainMessage);
+              query.getPattern(), DEFAULT_TEXT_HIGHLIGHT, maxSearchResults.get());
         }
         int idx = findResultIdxByDirection(query);
         if (idx >= 0) {
           mainMsgArea.positionCaret(searchResults.get(idx).getEnd() + 1);
           skin.setSecondaryStyle(FOCUSED_TEXT_HIGHLIGHT, idx);
         }
-        boolean truncated = searchResults.size() == maxResultsInMainMessage;
+        boolean truncated = searchResults.size() == maxSearchResults.get();
         return new SearchQueryResult(idx, searchResults.size(), truncated);
       } catch (PatternSyntaxException e) {
         clearSearchResult();

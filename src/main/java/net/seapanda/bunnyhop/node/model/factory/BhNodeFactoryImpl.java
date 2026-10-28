@@ -19,6 +19,7 @@ package net.seapanda.bunnyhop.node.model.factory;
 
 import java.util.Deque;
 import java.util.LinkedList;
+import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.node.control.BhNodeController;
 import net.seapanda.bunnyhop.node.control.ComboBoxNodeController;
 import net.seapanda.bunnyhop.node.control.ConnectiveNodeController;
@@ -47,6 +48,7 @@ import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
+import net.seapanda.bunnyhop.utility.reference.ReadOnlyBoolean;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
 import net.seapanda.bunnyhop.workspace.view.TrashCan;
 
@@ -64,6 +66,7 @@ public class BhNodeFactoryImpl implements BhNodeFactory {
   private final WorkspaceSet wss;
   private final BhNodeSelectionViewProxy proxy;
   private final VisualEffectManager effectManager;
+  private final BhSettings settings;
 
   /** コンストラクタ. */
   public BhNodeFactoryImpl(
@@ -73,7 +76,8 @@ public class BhNodeFactoryImpl implements BhNodeFactory {
       TrashCan trashCan,
       WorkspaceSet wss,
       BhNodeSelectionViewProxy proxy,
-      VisualEffectManager visualEffectManager) {
+      VisualEffectManager visualEffectManager,
+      BhSettings settings) {
     this.repository = repository;
     this.viewFactory = viewFactory;
     this.notifService = notifService;
@@ -81,6 +85,7 @@ public class BhNodeFactoryImpl implements BhNodeFactory {
     this.wss = wss;
     this.proxy = proxy;
     this.effectManager = visualEffectManager;
+    this.settings = settings;
   }
 
   @Override
@@ -188,11 +193,12 @@ public class BhNodeFactoryImpl implements BhNodeFactory {
         throw new AssertionError("Duplicated NodeView.  (BhNode = %s)".formatted(node.getId()));
       }
       BhNodeController ctrl = createBaseController(node, nodeView);
+      ReadOnlyBoolean textChangeUndoEnabled = settings.undo.textChangeUndoEnabled;
       switch (nodeView) {
-        case TextFieldNodeView ignored -> new TextInputNodeController(ctrl);
-        case ComboBoxNodeView ignored -> new ComboBoxNodeController(ctrl);
+        case TextFieldNodeView ignored -> new TextInputNodeController(ctrl, textChangeUndoEnabled);
+        case ComboBoxNodeView ignored -> new ComboBoxNodeController(ctrl, textChangeUndoEnabled);
         case LabelNodeView ignored -> new LabelNodeController(ctrl);
-        case TextAreaNodeView ignored -> new TextInputNodeController(ctrl);
+        case TextAreaNodeView ignored -> new TextInputNodeController(ctrl, textChangeUndoEnabled);
         case NoContentNodeView ignored -> new NoContentNodeController(ctrl);
         case ConnectiveNodeView ignored -> new ConnectiveNodeController(ctrl);
         default ->
@@ -202,7 +208,8 @@ public class BhNodeFactoryImpl implements BhNodeFactory {
 
     private BhNodeController createBaseController(BhNode node, BhNodeView nodeView) {
       return type == MvcType.DEFAULT
-          ? new DefaultBhNodeController(node, nodeView, notifService, trashCan, effectManager)
+          ? new DefaultBhNodeController(
+              node, nodeView, notifService, trashCan, effectManager, settings)
           : new TemplateNodeController(
               node, nodeView, BhNodeFactoryImpl.this, notifService, wss, proxy);
     }

@@ -26,7 +26,6 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
-import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.BhNode.Swapped;
 import net.seapanda.bunnyhop.node.model.service.BhNodePlacer;
@@ -36,6 +35,7 @@ import net.seapanda.bunnyhop.ui.view.ViewUtil;
 import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
 import net.seapanda.bunnyhop.utility.event.SimpleConsumerInvoker;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
+import net.seapanda.bunnyhop.utility.reference.ReadOnlyBoolean;
 import net.seapanda.bunnyhop.workspace.view.WorkspaceView;
 import org.apache.commons.lang3.mutable.MutableInt;
 
@@ -51,10 +51,25 @@ public class CutAndPaste {
   private final CallbackRegistry cbRegistry = this.new CallbackRegistry();
   /** ノードの貼り付け位置をずらすためのカウンタ. */
   private final MutableInt pastePosOffsetCount;
+  private final ReadOnlyBoolean trackNodeInCurrentWorkspace;
+  private final ReadOnlyBoolean trackNodeInInactiveWorkspace;
 
-  /** コンストラクタ. */
-  public CutAndPaste(MutableInt pastePosOffsetCount) {
+  /**
+   * コンストラクタ.
+   *
+   * @param pastePosOffsetCount ノードの貼り付け位置をずらすためのカウンタ
+   * @param trackNodeInCurrentWorkspace 貼り付け後, アクティブなワークスペース上に貼り付けたノードを
+   *                                    注視点にするかどうかのフラグ
+   * @param trackNodeInInactiveWorkspace 貼り付け後, 非アクティブなワークスペース上に貼り付けたノードを
+   *                                     注視点にするかどうかのフラグ
+   */
+  public CutAndPaste(
+      MutableInt pastePosOffsetCount,
+      ReadOnlyBoolean trackNodeInCurrentWorkspace,
+      ReadOnlyBoolean trackNodeInInactiveWorkspace) {
     this.pastePosOffsetCount = pastePosOffsetCount;
+    this.trackNodeInCurrentWorkspace = trackNodeInCurrentWorkspace;
+    this.trackNodeInInactiveWorkspace = trackNodeInInactiveWorkspace;
   }
 
   /**
@@ -181,10 +196,11 @@ public class CutAndPaste {
   }
 
   /** ワークスペース上の注視点を変更するコマンドを追加する. */
-  private static void pushViewpointChangeCmd(UserOperation userOpe, BhNodeLocation oldLocation) {
+  private void pushViewpointChangeCmd(UserOperation userOpe, BhNodeLocation oldLocation) {
     BiFunction<WorkspaceView, Vec2D, Boolean> fnShouldChange
         = (wsView, pos) -> wsView.getWorkspace().isCurrentWorkspace()
-        ? BhSettings.Ui.trackNodeInCurrentWorkspace : BhSettings.Ui.trackNodeInInactiveWorkspace;
+          ? trackNodeInCurrentWorkspace.get()
+          : trackNodeInInactiveWorkspace.get();
     var newLocation = new BhNodeLocation(oldLocation.node);
     ViewUtil.pushViewpointChangeCmd(
         oldLocation.wsView,

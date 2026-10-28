@@ -16,14 +16,13 @@
 
 package net.seapanda.bunnyhop.node.control;
 
-import static net.seapanda.bunnyhop.common.configuration.BhSettings.Undo.textChangeUndoEnabled;
-
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.TextNode;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.TextInputNodeView;
 import net.seapanda.bunnyhop.service.accesscontrol.TransactionContext;
 import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
+import net.seapanda.bunnyhop.utility.reference.ReadOnlyBoolean;
 
 /**
  * {@code TextFieldNodeView} のコントローラ.
@@ -35,9 +34,12 @@ public class TextInputNodeController implements BhNodeController {
   private final TextNode model;
   private final TextInputNodeView view;
   private final TransactionNotificationService notifService;
+  private final ReadOnlyBoolean textChangeUndoEnabled;
 
   /** コンストラクタ. */
-  public TextInputNodeController(BhNodeController controller) {
+  public TextInputNodeController(
+      BhNodeController controller, ReadOnlyBoolean textChangeUndoEnabled) {
+    this.textChangeUndoEnabled = textChangeUndoEnabled;
     if (controller.getModel() instanceof TextNode node) {
       model = node;
     } else {
@@ -82,7 +84,7 @@ public class TextInputNodeController implements BhNodeController {
   private void setModelText(String text) {
     try {
       TransactionContext context = notifService.begin();
-      if (textChangeUndoEnabled) {
+      if (textChangeUndoEnabled.get()) {
         model.setText(text, context.userOpe());
         model.assignContentsToDerivatives(context.userOpe());
       } else {

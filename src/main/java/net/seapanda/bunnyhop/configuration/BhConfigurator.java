@@ -23,7 +23,6 @@ import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.SE
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.VIEW;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.BH_CONFIGURATOR_CSS;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.BH_CONFIGURATOR_FXML;
-import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.BH_SETTINGS_JSON;
 import static net.seapanda.bunnyhop.simulator.common.BhSimConstants.Path.File.BH_SIM_SETTINGS_JSON;
 import static net.seapanda.bunnyhop.utility.Utility.execPath;
 import static net.seapanda.bunnyhop.utility.function.ThrowingConsumer.unchecked;
@@ -63,8 +62,9 @@ public class BhConfigurator extends Application {
 
   /** 設定ファイルとその設定を反映するクラスのクラスオブジェクト. */
   private final Map<Path, Class<?>> pathToClass = Map.of(
-      Paths.get(execPath, SETTINGS, BH_SETTINGS_JSON), BhSettings.class,
       Paths.get(execPath, SETTINGS, BH_SIM_SETTINGS_JSON), BhSimSettings.class);
+
+  private final BhSettings bhSettings = new BhSettings();
 
   public static void main(String[] args) {
     launch(args);
@@ -122,6 +122,7 @@ public class BhConfigurator extends Application {
       pathToClass.entrySet().stream()
           .filter(entry -> entry.getKey().toFile().exists())
           .forEach(unchecked(entry -> JsonImporter.imports(entry.getValue(), entry.getKey())));
+
     } catch (Exception e) { /* Do nothing.*/ }
   }
 
@@ -133,19 +134,28 @@ public class BhConfigurator extends Application {
 
   @FXML
   private void initialize() {
-    Language language = Language.fromValue(BhSettings.language);
+    Language language = Language.fromValue(bhSettings.language.get());
     if (language != null) {
       languageComboBox.setValue(language);
     }
     languageComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
-      BhSettings.language = newVal.getValue();
+      bhSettings.language.set(newVal.getValue());
       BhSimSettings.language = newVal.getValue();
     });
     resetWindowStatesButton.setOnAction(action -> {
-      BhSettings.Window.main = new BhSettings.WindowState();
-      BhSettings.Window.debug = new BhSettings.WindowState();
-      BhSettings.Window.nodeSelectionSplitPos = -1;
-      BhSettings.Window.notificationSplitPos = -1;
+      var defaultState = new BhSettings.WindowState();
+      bhSettings.mainWindow.width.set(defaultState.width.get());
+      bhSettings.mainWindow.height.set(defaultState.height.get());
+      bhSettings.mainWindow.posX.set(defaultState.posX.get());
+      bhSettings.mainWindow.posY.set(defaultState.posY.get());
+      bhSettings.mainWindow.maximized.set(defaultState.maximized.get());
+      bhSettings.debugWindow.width.set(defaultState.width.get());
+      bhSettings.debugWindow.height.set(defaultState.height.get());
+      bhSettings.debugWindow.posX.set(defaultState.posX.get());
+      bhSettings.debugWindow.posY.set(defaultState.posY.get());
+      bhSettings.debugWindow.maximized.set(defaultState.maximized.get());
+      bhSettings.ui.nodeSelectionSplitPos.set(-1);
+      bhSettings.ui.notificationSplitPos.set(-1);
       BhSimSettings.Ui.window = new BhSimSettings.Window();
     });
   }

@@ -18,7 +18,6 @@ package net.seapanda.bunnyhop.debugger.model.variable;
 
 import java.util.ArrayList;
 import java.util.List;
-import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.common.text.TextDefs;
 import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
 import net.seapanda.bunnyhop.utility.event.SimpleConsumerInvoker;
@@ -80,16 +79,16 @@ public class VariableListItem {
    * このオブジェクトが {@link ListVariable} を保持する場合, 対応するリストの範囲を分割した区間
    * を保持する {@link VariableListItem} を作成する.
    *
+   * @param maxItems 分割数の最大値.
    * @return 作成した {@link VariableListItem} オブジェクトのリスト
    */
-  public List<VariableListItem> createSubItems() {
+  public List<VariableListItem> createSubItems(int maxItems) {
     if (!(variable instanceof  ListVariable list) || numValues <= 1)  {
       return new ArrayList<>();
     }
-    var maxChildren = BhSettings.Debug.maxListTreeChildren;
     long interval = (long) Math.pow(
-        maxChildren,
-        Math.floor(Math.log10(numValues - 1) / Math.log10(maxChildren)));
+        maxItems,
+        Math.floor(Math.log10(numValues - 1) / Math.log10(maxItems)));
     long numChildren = (numValues + interval - 1) / interval;
     var children = new ArrayList<VariableListItem>((int) numChildren);
     for (long i = 0; i < numChildren; ++i) {

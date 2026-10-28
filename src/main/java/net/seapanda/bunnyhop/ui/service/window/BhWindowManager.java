@@ -60,10 +60,12 @@ public class BhWindowManager implements WindowManager {
    * @param mainStage アプリケーションのメインウィンドウに対応する {@link Stage}.
    * @param debugStage デバッガの操作 UI を保持する {@link Stage}
    * @param simulatorWindow シミュレータを表示するウィンドウに対応する {@link Lwjgl3Window}
+   * @param settings BunnyHop の設定情報
    */
-  public BhWindowManager(Stage mainStage, Stage debugStage, Lwjgl3Window simulatorWindow) {
-    this.mainPersistence = new WindowStatePersistence(mainStage, BhSettings.Window.main);
-    this.debugPersistence = new WindowStatePersistence(debugStage, BhSettings.Window.debug);
+  public BhWindowManager(
+      Stage mainStage, Stage debugStage, Lwjgl3Window simulatorWindow, BhSettings settings) {
+    this.mainPersistence = new WindowStatePersistence(mainStage, settings.mainWindow);
+    this.debugPersistence = new WindowStatePersistence(debugStage, settings.debugWindow);
     this.simulatorWindow = simulatorWindow;
     setEventHandlers();
   }

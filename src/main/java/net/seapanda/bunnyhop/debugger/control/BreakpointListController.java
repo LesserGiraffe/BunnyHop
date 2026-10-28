@@ -18,7 +18,6 @@ package net.seapanda.bunnyhop.debugger.control;
 
 
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Css.Class.DEFAULT_TEXT_HIGHLIGHT;
-import static net.seapanda.bunnyhop.common.configuration.BhSettings.Search.maxResultsInBreakpointList;
 import static net.seapanda.bunnyhop.node.view.effect.VisualEffectType.JUMP_TARGET;
 
 import java.util.Collections;
@@ -51,6 +50,7 @@ import net.seapanda.bunnyhop.search.SearchQuery;
 import net.seapanda.bunnyhop.search.SearchQueryResult;
 import net.seapanda.bunnyhop.ui.control.SearchBox;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
+import net.seapanda.bunnyhop.utility.reference.ReadOnlyInteger;
 import net.seapanda.bunnyhop.workspace.control.WorkspaceSelectorController;
 import net.seapanda.bunnyhop.workspace.model.Workspace;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
@@ -70,18 +70,25 @@ public class BreakpointListController {
   private final WorkspaceSet wss;
   private final BreakpointCache breakpointCache;
   private final VisualEffectManager effectManager;
+  private final ReadOnlyInteger maxSearchResults;
   private final CellRegistry cellRegistry;
   private SearchResult searchResult;
 
-  /** コンストラクタ. */
+  /**
+   * コンストラクタ.
+   *
+   * @param maxSearchResults ブレークポイントの検索結果の最大個数
+   */
   public BreakpointListController(
       WorkspaceSet wss,
       BreakpointCache breakpointCache,
-      VisualEffectManager visualEffectManager) {
+      VisualEffectManager visualEffectManager,
+      ReadOnlyInteger maxSearchResults) {
     this.wss = wss;
     this.breakpointCache = breakpointCache;
     effectManager = visualEffectManager;
     cellRegistry = new CellRegistry();
+    this.maxSearchResults = maxSearchResults;
   }
 
   /** このコントローラの UI 要素を初期化する. */
@@ -209,7 +216,7 @@ public class BreakpointListController {
         });
 
         int numResults = searchResult.items.size();
-        boolean truncated = numResults == maxResultsInBreakpointList;
+        boolean truncated = numResults == maxSearchResults.get();
         int idxInResults = foundOpt.map(CyclicSublistFinder.Found::getIdxInSublist).orElse(-1);
         return new SearchQueryResult(idxInResults, numResults, truncated);
       } catch (PatternSyntaxException e) {
@@ -224,7 +231,7 @@ public class BreakpointListController {
           query,
           bpListView.getItems(),
           BreakpointListCell::getText,
-          maxResultsInBreakpointList);
+          maxSearchResults.get());
       return new SearchResult(results, query);
     }
 

@@ -65,6 +65,7 @@ public class MenuBarController {
   private final ProjectImporter importer;
   private final ProjectExporter exporter;
   private final MessageService msgService;
+  private final BhSettings settings;
   /** 現在保存対象になっているファイル. */
   private File currentSaveFile;
 
@@ -75,13 +76,15 @@ public class MenuBarController {
       UndoRedoAgent undoRedoAgent,
       ProjectImporter importer,
       ProjectExporter exporter,
-      MessageService msgService) {
+      MessageService msgService,
+      BhSettings settings) {
     this.wss = wss;
     this.notifService = notifService;
     this.undoRedoAgent = undoRedoAgent;
     this.importer = importer;
     this.exporter = exporter;
     this.msgService = msgService;
+    this.settings = settings;
   }
 
   /** このコントローラを初期化する. */
@@ -100,29 +103,21 @@ public class MenuBarController {
     versionInfo.setOnAction(action -> showBunnyVersion());
     license.setOnAction(action -> openLicenseFolder());
 
-    focusSimulator.setOnAction(action -> {
-      setMenuChecked(focusSimulator, !BhSettings.BhSimulator.focusOnStartBhProgram);
-      BhSettings.BhSimulator.focusOnStartBhProgram = !BhSettings.BhSimulator.focusOnStartBhProgram;
-    });
-    setMenuChecked(focusSimulator, BhSettings.BhSimulator.focusOnStartBhProgram);
+    focusSimulator.setOnAction(action ->
+        setMenuChecked(focusSimulator, settings.simulator.focusOnStartBhProgram.negate()));
+    setMenuChecked(focusSimulator, settings.simulator.focusOnStartBhProgram.get());
 
-    trackNodeInCurrentWs.setOnAction(action -> {
-      setMenuChecked(trackNodeInCurrentWs, !BhSettings.Ui.trackNodeInCurrentWorkspace);
-      BhSettings.Ui.trackNodeInCurrentWorkspace = !BhSettings.Ui.trackNodeInCurrentWorkspace;
-    });
-    setMenuChecked(trackNodeInCurrentWs, BhSettings.Ui.trackNodeInCurrentWorkspace);
+    trackNodeInCurrentWs.setOnAction(action ->
+        setMenuChecked(trackNodeInCurrentWs, settings.ui.trackNodeInCurrentWorkspace.negate()));
+    setMenuChecked(trackNodeInCurrentWs, settings.ui.trackNodeInCurrentWorkspace.get());
 
-    trackNodeInInactiveWs.setOnAction(action -> {
-      setMenuChecked(trackNodeInInactiveWs, !BhSettings.Ui.trackNodeInInactiveWorkspace);
-      BhSettings.Ui.trackNodeInInactiveWorkspace = !BhSettings.Ui.trackNodeInInactiveWorkspace;
-    });
-    setMenuChecked(trackNodeInInactiveWs, BhSettings.Ui.trackNodeInInactiveWorkspace);
+    trackNodeInInactiveWs.setOnAction(action ->
+        setMenuChecked(trackNodeInInactiveWs, settings.ui.trackNodeInInactiveWorkspace.negate()));
+    setMenuChecked(trackNodeInInactiveWs, settings.ui.trackNodeInInactiveWorkspace.get());
 
-    textChangeUndoEnabled.setOnAction(action -> {
-      setMenuChecked(textChangeUndoEnabled, !BhSettings.Undo.textChangeUndoEnabled);
-      BhSettings.Undo.textChangeUndoEnabled = !BhSettings.Undo.textChangeUndoEnabled;
-    });
-    setMenuChecked(textChangeUndoEnabled, BhSettings.Undo.textChangeUndoEnabled);
+    textChangeUndoEnabled.setOnAction(action ->
+        setMenuChecked(textChangeUndoEnabled, settings.undo.textChangeUndoEnabled.negate()));
+    setMenuChecked(textChangeUndoEnabled, settings.undo.textChangeUndoEnabled.get());
   }
 
   /**

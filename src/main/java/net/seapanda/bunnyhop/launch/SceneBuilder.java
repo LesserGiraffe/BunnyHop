@@ -47,6 +47,7 @@ import net.seapanda.bunnyhop.debugger.control.DebugWindowController;
 import net.seapanda.bunnyhop.debugger.control.StepExecutionViewController;
 import net.seapanda.bunnyhop.debugger.control.ThreadSelectorController;
 import net.seapanda.bunnyhop.debugger.control.ThreadStateViewController;
+import net.seapanda.bunnyhop.debugger.model.DebugUtil;
 import net.seapanda.bunnyhop.debugger.model.Debugger;
 import net.seapanda.bunnyhop.debugger.model.breakpoint.BreakpointCache;
 import net.seapanda.bunnyhop.debugger.view.factory.DebugViewFactory;
@@ -103,6 +104,7 @@ public class SceneBuilder {
   private final BhNodeFactory nodeFactory;
   private final WorkspaceFactory wsFactory;
   private final DebugViewFactory debugViewFactory;
+  private final DebugUtil debugUtil;
   private final UndoRedoAgent undoRedoAgent;
   private final BhNodeSelectionViewProxy nodeSelProxy;
   private final LocalBhProgramLauncher localCtrl;
@@ -119,8 +121,10 @@ public class SceneBuilder {
   private final WindowManager windowManager;
   private final VisualEffectManager effectManager;
   private final WorkspaceSetViewCallBackRegistry wssViewCbRegistry;
+  private final BhSettings settings;
   public final MenuBarController menuBarCtrl;
   public final MessageViewController msgViewCtrl;
+
 
   /**
    * コンストラクタ.
@@ -137,6 +141,7 @@ public class SceneBuilder {
       BhNodeFactory nodeFactory,
       WorkspaceFactory wsFactory,
       DebugViewFactory debugViewFactory,
+      DebugUtil debugUtil,
       UndoRedoAgent undoRedoAgent,
       BhNodeSelectionViewProxy nodeSelProxy,
       LocalBhProgramLauncher localCtrl,
@@ -155,7 +160,8 @@ public class SceneBuilder {
       TrashCanController trashCanCtrl,
       WindowManager windowManager,
       VisualEffectManager visualEffectManager,
-      WorkspaceSetViewCallBackRegistry wssViewCbRegistry)
+      WorkspaceSetViewCallBackRegistry wssViewCbRegistry,
+      BhSettings settings)
       throws AppInitializationException {
     this.wss = wss;
     this.nodeCategoryRoot = nodeCategoryRoot;
@@ -163,6 +169,7 @@ public class SceneBuilder {
     this.nodeFactory = nodeFactory;
     this.wsFactory = wsFactory;
     this.debugViewFactory = debugViewFactory;
+    this.debugUtil = debugUtil;
     this.undoRedoAgent = undoRedoAgent;
     this.nodeSelProxy = nodeSelProxy;
     this.localCtrl = localCtrl;
@@ -179,11 +186,12 @@ public class SceneBuilder {
     this.windowManager = windowManager;
     this.effectManager = visualEffectManager;
     this.wssViewCbRegistry = wssViewCbRegistry;
+    this.settings = settings;
     this.wssCtrl = wssCtrl;
     this.debugWindowCtrl = new DebugWindowController(debugger);
     this.menuBarCtrl = new MenuBarController(
-        wss, notifService, undoRedoAgent, importer, exporter, msgService);
-    this.msgViewCtrl = new MessageViewController();
+        wss, notifService, undoRedoAgent, importer, exporter, msgService, settings);
+    this.msgViewCtrl = new MessageViewController(settings.search.maxResultsInMainMessage);
 
     VBox root;
     try {
@@ -211,7 +219,7 @@ public class SceneBuilder {
       return new ThreadSelectorController(debugger);
     }
     if (type == ThreadStateViewController.class) {
-      return new ThreadStateViewController(debugger);
+      return new ThreadStateViewController(debugger, debugUtil);
     }
     if (type == StepExecutionViewController.class) {
       return new StepExecutionViewController(debugger);
@@ -223,19 +231,29 @@ public class SceneBuilder {
       return new WorkspaceSelectorController(wss);
     }
     if (type == BreakpointListController.class) {
-      return new BreakpointListController(wss, breakpointCache, effectManager);
+      return new BreakpointListController(
+          wss, breakpointCache, effectManager, settings.search.maxResultsInBreakpointList);
     }
     if (type == ErrorNodeListController.class) {
-      return new ErrorNodeListController(wss, compileErrorNodeCache, effectManager);
+      return new ErrorNodeListController(
+          wss, compileErrorNodeCache, effectManager, settings.search.maxResultsInErrorNodeList);
     }
     if (type == DebugViewController.class) {
       return new DebugViewController(debugger, debugViewFactory);
     }
     if (type == NodeSearchViewController.class) {
-      return new NodeSearchViewController(wssViewCbRegistry, effectManager);
+      return new NodeSearchViewController(
+          wssViewCbRegistry,
+          effectManager,
+          settings.search.maxItemsInNodeSearchResult,
+          settings.search.maxCharsInNodeSearchResultItem);
     }
     if (type == BhNodeCategoryListController.class) {
-      return new BhNodeCategoryListController(nodeCategoryRoot, nodeSelProxy, nodeFactory);
+      return new BhNodeCategoryListController(
+          nodeCategoryRoot,
+          nodeSelProxy,
+          nodeFactory,
+          settings.ui.currentNodeSelectionViewZoomLevel);
     }
     if (type == SearchBoxController.class) {
       return new SearchBoxController();
@@ -266,13 +284,14 @@ public class SceneBuilder {
           msgService,
           debugWindowCtrl,
           windowManager,
-          executableNodeCollector);
+          executableNodeCollector,
+          settings);
     }
     if (type == WorkspaceSetController.class) {
       return wssCtrl;
     }
     if (type == FoundationController.class) {
-      return new FoundationController(localCtrl, remoteCtrl);
+      return new FoundationController(localCtrl, remoteCtrl, settings);
     }
     return null;
   }
@@ -296,7 +315,7 @@ public class SceneBuilder {
     windowManager.restoreWindowStates();
     stage.show();
     debugStage.show();
-    debugWindowCtrl.setVisibility(BhSettings.Debug.debugWindowVisible);
+    debugWindowCtrl.setVisibility(settings.debug.debugWindowVisible.get());
   }
 
   /** 初期ワークスペースを作成する. */

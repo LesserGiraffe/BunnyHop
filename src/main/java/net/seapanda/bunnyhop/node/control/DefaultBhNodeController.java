@@ -72,6 +72,7 @@ public class DefaultBhNodeController implements BhNodeController {
   private final TransactionNotificationService notifService;
   private final TrashCan trashCan;
   private final VisualEffectManager effectManager;
+  private final BhSettings settings;
   private final MouseCtrlLock mouseCtrlLock =
       new MouseCtrlLock(MouseButton.PRIMARY, MouseButton.SECONDARY);
   private DndEventInfo ddInfo = new DndEventInfo();
@@ -84,23 +85,27 @@ public class DefaultBhNodeController implements BhNodeController {
    * @param view 管理するビュー
    * @param service モデルへのアクセスの通知先となるオブジェクト
    * @param trashCan ゴミ箱のビューを操作するためのオブジェクト
+   * @param settings BunnyHop の設定情報
    */
   public DefaultBhNodeController(
       BhNode model,
       BhNodeView view,
       TransactionNotificationService service,
       TrashCan trashCan,
-      VisualEffectManager  visualEffectManager) {
+      VisualEffectManager  visualEffectManager,
+      BhSettings settings) {
     Objects.requireNonNull(model);
     Objects.requireNonNull(view);
     Objects.requireNonNull(service);
     Objects.requireNonNull(trashCan);
     Objects.requireNonNull(visualEffectManager);
+    Objects.requireNonNull(settings);
     this.model = model;
     this.view = view;
     this.notifService = service;
     this.trashCan = trashCan;
     this.effectManager = visualEffectManager;
+    this.settings = settings;
     model.setView(view);
     view.setController(this);
     setViewEventHandlers();
@@ -155,7 +160,7 @@ public class DefaultBhNodeController implements BhNodeController {
         return;
       }
       invokeOnUiEventReceived(event, true);
-      if (BhSettings.Ui.nodeManipMode != NodeManipulationMode.MODE_2) {
+      if (settings.ui.nodeManipMode.get() != NodeManipulationMode.MODE_2) {
         effectManager.disableEffects(RELATED_NODE_GROUP, ddInfo.context.userOpe());
       }
       effectManager.disableEffects(model.getWorkspace(), MOVE_GROUP, ddInfo.context.userOpe());
@@ -375,7 +380,7 @@ public class DefaultBhNodeController implements BhNodeController {
   /** {@link #model} と関連のあるノードを強調する. */
   private void highlightRelatedNodes(MouseEventInfo info) {
     var commonEventInfo = (CommonEventInfo) info.getUserData();
-    if (BhSettings.Ui.nodeManipMode != NodeManipulationMode.MODE_2
+    if (settings.ui.nodeManipMode.get() != NodeManipulationMode.MODE_2
         || info.event.getButton() != MouseButton.PRIMARY
         || info.getRootEventInfo().view.isTemplate()
         || commonEventInfo.isRelatedNodeHighlighted) {
@@ -392,7 +397,7 @@ public class DefaultBhNodeController implements BhNodeController {
   /** ノードの選択処理を行う. */
   private void selectNode(MouseEvent event) {
     UserOperation userOpe = ddInfo.context.userOpe();
-    switch (BhSettings.Ui.nodeManipMode) {
+    switch (settings.ui.nodeManipMode.get()) {
       case NodeManipulationMode.MODE_0 -> {
         if (event.getButton() == MouseButton.PRIMARY) {
           model.getWorkspace().getSelectedNodes().forEach(selected -> selected.deselect(userOpe));
@@ -449,8 +454,8 @@ public class DefaultBhNodeController implements BhNodeController {
   /** {@link #model} にブレークポイントを設定すべきである場合, 設定する. */
   private void setBreakpoint(MouseEventInfo info) {
     var commonEventInfo = (CommonEventInfo) info.getUserData();
-    if (!BhSettings.Debug.canSetBreakpoint
-        || BhSettings.Ui.nodeManipMode != NodeManipulationMode.MODE_0
+    if (!settings.debug.canSetBreakpoint.get()
+        || settings.ui.nodeManipMode.get() != NodeManipulationMode.MODE_0
         || info.event.getButton() != MouseButton.SECONDARY
         || commonEventInfo.isBreakpointSet) {
       return;
@@ -465,7 +470,7 @@ public class DefaultBhNodeController implements BhNodeController {
   /** {@link #model} に関連するノードがある場合, そのノードにジャンプする. */
   private void jumpToRelatedNode(MouseEventInfo info) {
     var commonEventInfo = (CommonEventInfo) info.getUserData();
-    if (BhSettings.Ui.nodeManipMode != NodeManipulationMode.MODE_2
+    if (settings.ui.nodeManipMode.get() != NodeManipulationMode.MODE_2
         || info.event.getButton() != MouseButton.PRIMARY
         || info.event.getClickCount() != 2
         || commonEventInfo.isJumpTargetSet) {
@@ -498,7 +503,7 @@ public class DefaultBhNodeController implements BhNodeController {
     }
     return new UiEvent(
         eventType,
-        BhSettings.Ui.nodeManipMode,
+        settings.ui.nodeManipMode.get(),
         event.getButton() == MouseButton.PRIMARY,
         event.getButton() == MouseButton.SECONDARY,
         event.getButton() == MouseButton.MIDDLE,
@@ -523,7 +528,8 @@ public class DefaultBhNodeController implements BhNodeController {
   private void pushViewpointChangeCmd(MouseEventInfo info) {
     BiFunction<WorkspaceView, Vec2D, Boolean> fnShouldChange
         = (wsView, pos) -> wsView.getWorkspace().isCurrentWorkspace()
-        ? BhSettings.Ui.trackNodeInCurrentWorkspace : BhSettings.Ui.trackNodeInInactiveWorkspace;
+        ? settings.ui.trackNodeInCurrentWorkspace.get()
+        : settings.ui.trackNodeInInactiveWorkspace.get();
     var oldLocation =
         info.getRootEventInfo().view.isTemplate() ? new BhNodeLocation() : ddInfo.nodeLocation;
     var newLocation = model.isDeleted() ? new BhNodeLocation() : new BhNodeLocation(model);
@@ -569,8 +575,8 @@ public class DefaultBhNodeController implements BhNodeController {
 
   /** 現在のノード操作モードがノードの移動をサポートするモードか調べる. */
   private boolean isInNodeMoveMode(MouseEvent event) {
-    return (BhSettings.Ui.nodeManipMode == NodeManipulationMode.MODE_0
-        || BhSettings.Ui.nodeManipMode == NodeManipulationMode.MODE_1)
+    return (settings.ui.nodeManipMode.get() == NodeManipulationMode.MODE_0
+        || settings.ui.nodeManipMode.get() == NodeManipulationMode.MODE_1)
         && event.getButton() == MouseButton.PRIMARY;
   }
 

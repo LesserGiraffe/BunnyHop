@@ -16,15 +16,9 @@
 
 package net.seapanda.bunnyhop.ui.service.window;
 
-import static net.seapanda.bunnyhop.common.configuration.BhSettings.Window.nodeSelectionSplitPos;
-import static net.seapanda.bunnyhop.common.configuration.BhSettings.Window.notificationSplitPos;
-
 import javafx.geometry.Rectangle2D;
-import javafx.scene.Node;
-import javafx.scene.control.SplitPane;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.common.configuration.BhSettings.WindowState;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 
@@ -36,7 +30,7 @@ import net.seapanda.bunnyhop.utility.math.Vec2D;
 class WindowStatePersistence {
 
   public final Stage stage;
-  private final WindowState state;
+  private final WindowState windowState;
 
   /** 最大化する前のウィンドウのサイズを保持するオブジェクト. */
   private final Vec2D sizeBeforeMaximized;
@@ -56,14 +50,14 @@ class WindowStatePersistence {
    * コンストラクタ.
    *
    * @param stage 状態を管理する Stage オブジェクト
-   * @param state ウィンドウの状態を保持するオブジェクト
+   * @param windowState ウィンドウの状態を保持するオブジェクト
    */
-  WindowStatePersistence(Stage stage, WindowState state) {
+  WindowStatePersistence(Stage stage, WindowState windowState) {
     this.stage = stage;
-    this.state = state;
-    sizeBeforeMaximized = new Vec2D(state.width, state.height);
-    oldPos = new Vec2D(state.posX, state.posY);
-    posBeforeMaximized = new Vec2D(state.posX, state.posY);
+    this.windowState = windowState;
+    sizeBeforeMaximized = new Vec2D(windowState.width.get(), windowState.height.get());
+    oldPos = new Vec2D(windowState.posX.get(), windowState.posY.get());
+    posBeforeMaximized = new Vec2D(oldPos);
     setEventHandlers();
   }
 
@@ -100,7 +94,6 @@ class WindowStatePersistence {
         oldPos.y = stage.getY();
         posBeforeMaximized.x = oldPos.x;
         posBeforeMaximized.y = oldPos.y;
-        setSplitPaneDividerPositions();
       }
     });
   }
@@ -113,11 +106,11 @@ class WindowStatePersistence {
     if (!canRestoreWindowState()) {
       return;
     }
-    stage.setWidth(state.width);
-    stage.setHeight(state.height);
-    stage.setX(state.posX);
-    stage.setY(state.posY);
-    stage.setMaximized(state.maximized);
+    stage.setWidth(windowState.width.get());
+    stage.setHeight(windowState.height.get());
+    stage.setX(windowState.posX.get());
+    stage.setY(windowState.posY.get());
+    stage.setMaximized(windowState.maximized.get());
   }
 
   /**
@@ -126,23 +119,25 @@ class WindowStatePersistence {
    * @return 復元可能な状態が保存されている場合は true
    */
   private boolean canRestoreWindowState() {
-    return state.width >= 0
-        && state.height >= 0
-        && state.posX > Integer.MIN_VALUE
-        && state.posY > Integer.MIN_VALUE
+    return windowState.width.get() >= 0
+        && windowState.height.get() >= 0
+        && windowState.posX.get() > Integer.MIN_VALUE
+        && windowState.posY.get() > Integer.MIN_VALUE
         && Screen.getScreens().stream().anyMatch(this::isWindowTopInScreen);
   }
 
   /** ウィンドウの右上端または左上端の矩形が {@code screen} の可視領域に入っているか調べる. */
   private boolean isWindowTopInScreen(Screen screen) {
-    if (state.maximized) {
+    if (windowState.maximized.get()) {
       return true;
     }
     // 矩形の長さ
     double length = 20;
-    Rectangle2D upperLeftBound = new Rectangle2D(state.posX, state.posY, length, length);
-    double upperRight = state.posX + state.width;
-    Rectangle2D upperRightBound = new Rectangle2D(upperRight - length, state.posY, length, length);
+    Rectangle2D upperLeftBound =
+        new Rectangle2D(windowState.posX.get(), windowState.posY.get(), length, length);
+    double upperRight = windowState.posX.get() + windowState.width.get();
+    Rectangle2D upperRightBound =
+        new Rectangle2D(upperRight - length, windowState.posY.get(), length, length);
     Rectangle2D screenBounds = screen.getVisualBounds();
     return screenBounds.contains(upperLeftBound) || screenBounds.contains(upperRightBound);
   }
@@ -152,35 +147,10 @@ class WindowStatePersistence {
    * ウィンドウのサイズ, 位置, 最大化状態を保存する.
    */
   void save() {
-    state.width = Double.valueOf(sizeBeforeMaximized.x).intValue();
-    state.height = Double.valueOf(sizeBeforeMaximized.y).intValue();
-    state.posX = Double.valueOf(oldPos.x).intValue();
-    state.posY = Double.valueOf(oldPos.y).intValue();
-    state.maximized = stage.isMaximized();
-    saveSplitPaneDividerPositions();
-  }
-
-  private void setSplitPaneDividerPositions() {
-    Node node = stage.getScene().lookup("#" + BhConstants.UiId.VERTICAL_SPLIT_PANE);
-    if (node instanceof SplitPane splitPane && nodeSelectionSplitPos >= 0) {
-      splitPane.getDividers().getFirst().setPosition(nodeSelectionSplitPos);
-    }
-
-    node = stage.getScene().lookup("#" + BhConstants.UiId.HORIZONTAL_SPLIT_PANE);
-    if (node instanceof SplitPane splitPane && notificationSplitPos >= 0) {
-      splitPane.getDividers().getFirst().setPosition(notificationSplitPos);
-    }
-  }
-
-  private void saveSplitPaneDividerPositions() {
-    Node node = stage.getScene().lookup("#" + BhConstants.UiId.VERTICAL_SPLIT_PANE);
-    if (node instanceof SplitPane splitPane) {
-      nodeSelectionSplitPos = splitPane.getDividers().getFirst().getPosition();
-    }
-
-    node = stage.getScene().lookup("#" + BhConstants.UiId.HORIZONTAL_SPLIT_PANE);
-    if (node instanceof SplitPane splitPane) {
-      notificationSplitPos = splitPane.getDividers().getFirst().getPosition();
-    }
+    windowState.width.set(Double.valueOf(sizeBeforeMaximized.x).intValue());
+    windowState.height.set(Double.valueOf(sizeBeforeMaximized.y).intValue());
+    windowState.posX.set(Double.valueOf(oldPos.x).intValue());
+    windowState.posY.set(Double.valueOf(oldPos.y).intValue());
+    windowState.maximized.set(stage.isMaximized());
   }
 }

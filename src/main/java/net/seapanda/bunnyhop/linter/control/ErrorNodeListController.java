@@ -17,7 +17,6 @@
 package net.seapanda.bunnyhop.linter.control;
 
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Css.Class.DEFAULT_TEXT_HIGHLIGHT;
-import static net.seapanda.bunnyhop.common.configuration.BhSettings.Search.maxResultsInErrorNodeList;
 import static net.seapanda.bunnyhop.node.view.effect.VisualEffectType.JUMP_TARGET;
 
 import java.util.ArrayList;
@@ -56,6 +55,7 @@ import net.seapanda.bunnyhop.search.SearchQuery;
 import net.seapanda.bunnyhop.search.SearchQueryResult;
 import net.seapanda.bunnyhop.ui.control.SearchBox;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
+import net.seapanda.bunnyhop.utility.reference.ReadOnlyInteger;
 import net.seapanda.bunnyhop.workspace.control.WorkspaceSelectorController;
 import net.seapanda.bunnyhop.workspace.model.Workspace;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
@@ -75,6 +75,7 @@ public class ErrorNodeListController {
   private final WorkspaceSet wss;
   private final CompileErrorNodeCache compileErrorNodeCache;
   private final VisualEffectManager effectManager;
+  private final ReadOnlyInteger maxSearchResults;
   private final ErrorNodeTreeItem rootErrorNodeItem;
   private final CellRegistry cellRegistry;
   private final TreeItemRegistry treeItemRegistry;
@@ -84,10 +85,12 @@ public class ErrorNodeListController {
   public ErrorNodeListController(
       WorkspaceSet wss,
       CompileErrorNodeCache compileErrorNodeCache,
-      VisualEffectManager visualEffectManager) {
+      VisualEffectManager visualEffectManager,
+      ReadOnlyInteger maxSearchResults) {
     this.wss = wss;
     this.compileErrorNodeCache = compileErrorNodeCache;
     effectManager = visualEffectManager;
+    this.maxSearchResults = maxSearchResults;
     rootErrorNodeItem = new ErrorNodeTreeItem();
     rootErrorNodeItem.setExpanded(false);
     cellRegistry = new CellRegistry();
@@ -284,7 +287,7 @@ public class ErrorNodeListController {
         });
 
         int numResults = searchResult.treeItems.size();
-        boolean truncated = numResults == maxResultsInErrorNodeList;
+        boolean truncated = numResults == maxSearchResults.get();
         int idxInResults = foundOpt.map(CyclicSublistFinder.Found::getIdxInSublist).orElse(-1);
         return new SearchQueryResult(idxInResults, numResults, truncated);
       } catch (PatternSyntaxException e) {
@@ -300,7 +303,7 @@ public class ErrorNodeListController {
           query,
           allVarItems,
           treeItem -> ErrorNodeListCell.getText(treeItem.getValue()),
-          maxResultsInErrorNodeList);
+          maxSearchResults.get());
       return new SearchResult(results, allVarItems, query);
     }
 

@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import net.seapanda.bunnyhop.common.configuration.BhSettings;
 
 /**
  * コンパイルに関する設定を格納するクラス.
@@ -61,12 +60,12 @@ public class CompileConfig {
     return mainRoutineName;
   }
 
-  private void resolveLibPaths(Path base) {
+  private void resolveLibPaths(Path base, String language) {
     if (libPaths == null) {
       return;
     }
     libPaths = libPaths.stream()
-        .map(CompileConfig::resolvePlaceHolder)
+        .map((String path) -> resolvePlaceHolder(path, language))
         .map(lib -> base.resolve(lib).normalize().toString())
         .collect(Collectors.toCollection(ArrayList::new));
   }
@@ -75,27 +74,29 @@ public class CompileConfig {
    * {@code configFilePath} で指定された設定ファイルを読み込み, ID と {@link CompileConfig} の対応関係を取得する.
    *
    * @param configFilePath コンパイルに関する設定が書かれたファイルのパス
+   * @param language 言語設定
    * @return ID と {@link CompileConfig} の対応関係を格納したマップ
    * @throws IOException {@code configFilePath} のファイルの読み込みに失敗した場合
    */
-  public static Map<String, CompileConfig> readConfig(Path configFilePath)
+  public static Map<String, CompileConfig> readConfig(Path configFilePath, String language)
       throws IOException {
     Data data;
     var gson = new Gson();
     try (var jr = gson.newJsonReader(new FileReader(configFilePath.toString()))) {
       data = gson.fromJson(jr, Data.class);
     }
-    data.configurations.forEach(config -> config.resolveLibPaths(configFilePath.getParent()));
+    data.configurations.forEach(
+        config -> config.resolveLibPaths(configFilePath.getParent(), language));
 
     return data.configurations.stream()
       .collect(Collectors.toMap(CompileConfig::getId, Function.identity()));
   }
 
-  private static Path resolvePlaceHolder(String path) {
+  private static Path resolvePlaceHolder(String path, String language) {
     String[] dirs = path.split("/");
     for (int i = 0; i < dirs.length; ++i) {
       if (dirs[i].equals(LANGUAGE_PLACEHOLDER)) {
-        dirs[i] = BhSettings.language;
+        dirs[i] = language;
       }
     }
     return Paths.get("", dirs);

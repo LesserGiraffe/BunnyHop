@@ -16,8 +16,6 @@
 
 package net.seapanda.bunnyhop.ui.model;
 
-import static net.seapanda.bunnyhop.common.configuration.BhSettings.Search.maxCharsInNodeSearchResultItem;
-
 import java.util.regex.Pattern;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.TextNodeView;
@@ -36,26 +34,30 @@ public class NodeSearchListItem {
   private final Pattern pattern;
   /** 検索に一致した文字列を含む {@link BhNodeView}. */
   private final TextNodeView nodeView;
+  private final int maxChars;
 
   /**
    * コンストラクタ.
    *
    * @param matched 検索に一致した文字列
    * @param nodeView {@code matched} を含む {@link BhNodeView}
+   * @param maxChars 検索結果に含まれる最大文字数
    */
-  public NodeSearchListItem(Substring matched, TextNodeView nodeView) {
+  public NodeSearchListItem(
+      Substring matched, TextNodeView nodeView, int maxChars) {
     Substring viewString = extractViewString(matched);
     this.viewString = viewString.getSource();
     pattern = getSubstringPattern(viewString.getStart(), viewString.getLength());
     this.nodeView = nodeView;
+    this.maxChars = maxChars;
   }
 
   /** {@code matched} から検索結果のビューに表示する文字列を抽出する. */
   private Substring extractViewString(Substring matched) {
-    if (matched.getLength() >= maxCharsInNodeSearchResultItem) {
+    if (matched.getLength() >= maxChars) {
       return new Substring(matched.toString(), 0, matched.toString());
     }
-    int affixSize = (maxCharsInNodeSearchResultItem - matched.getLength()) / 2;
+    int affixSize = (maxChars - matched.getLength()) / 2;
     String prefix = extractPrefix(matched, affixSize);
     String suffix = extractSuffix(matched, affixSize);
     String viewString = prefix + matched + suffix;

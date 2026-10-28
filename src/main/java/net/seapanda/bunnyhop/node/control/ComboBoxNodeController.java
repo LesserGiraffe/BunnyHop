@@ -16,8 +16,6 @@
 
 package net.seapanda.bunnyhop.node.control;
 
-import static net.seapanda.bunnyhop.common.configuration.BhSettings.Undo.textChangeUndoEnabled;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,6 +26,7 @@ import net.seapanda.bunnyhop.node.view.ComboBoxNodeView;
 import net.seapanda.bunnyhop.node.view.component.SelectableItem;
 import net.seapanda.bunnyhop.service.accesscontrol.TransactionContext;
 import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
+import net.seapanda.bunnyhop.utility.reference.ReadOnlyBoolean;
 
 /**
  * {@link ComboBoxNodeView} のコントローラ.
@@ -39,9 +38,12 @@ public class ComboBoxNodeController implements BhNodeController {
   private final TextNode model;
   private final ComboBoxNodeView view;
   private final TransactionNotificationService notifService;
+  private final ReadOnlyBoolean textChangeUndoEnabled;
 
   /** コンストラクタ. */
-  public ComboBoxNodeController(BhNodeController controller) {
+  public ComboBoxNodeController(
+      BhNodeController controller, ReadOnlyBoolean textChangeUndoEnabled) {
+    this.textChangeUndoEnabled = textChangeUndoEnabled;
     if (controller.getModel() instanceof TextNode node) {
       this.model = node;
     } else {
@@ -104,7 +106,7 @@ public class ComboBoxNodeController implements BhNodeController {
   private void setModelText(String text) {
     try {
       TransactionContext context = notifService.begin();
-      if (textChangeUndoEnabled) {
+      if (textChangeUndoEnabled.get()) {
         model.setText(text, context.userOpe());
         model.assignContentsToDerivatives(context.userOpe());
       } else {

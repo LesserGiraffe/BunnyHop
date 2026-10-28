@@ -27,7 +27,6 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
-import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory.MvcType;
@@ -38,6 +37,7 @@ import net.seapanda.bunnyhop.ui.view.ViewUtil;
 import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
 import net.seapanda.bunnyhop.utility.event.SimpleConsumerInvoker;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
+import net.seapanda.bunnyhop.utility.reference.ReadOnlyBoolean;
 import net.seapanda.bunnyhop.workspace.view.WorkspaceView;
 import org.apache.commons.lang3.mutable.MutableInt;
 
@@ -54,11 +54,28 @@ public class CopyAndPaste {
   private final BhNodeFactory factory;
   /** ノードの貼り付け位置をずらすためのカウンタ. */
   private final MutableInt pastePosOffsetCount;
+  private final ReadOnlyBoolean trackNodeInCurrentWorkspace;
+  private final ReadOnlyBoolean trackNodeInInactiveWorkspace;
 
-  /** コンストラクタ. */
-  public CopyAndPaste(BhNodeFactory factory, MutableInt pastePosOffsetCount) {
+  /**
+   * コンストラクタ.
+   *
+   * @param factory 貼り付け時にコピーノードの MVC を構築するためのファクトリ
+   * @param pastePosOffsetCount ノードの貼り付け位置をずらすためのカウンタ
+   * @param trackNodeInCurrentWorkspace 貼り付け後, アクティブなワークスペース上に貼り付けたノードを
+   *                                    注視点にするかどうかのフラグ
+   * @param trackNodeInInactiveWorkspace 貼り付け後, 非アクティブなワークスペース上に貼り付けたノードを
+   *                                     注視点にするかどうかのフラグ
+   */
+  public CopyAndPaste(
+      BhNodeFactory factory,
+      MutableInt pastePosOffsetCount,
+      ReadOnlyBoolean trackNodeInCurrentWorkspace,
+      ReadOnlyBoolean trackNodeInInactiveWorkspace) {
     this.factory = factory;
     this.pastePosOffsetCount = pastePosOffsetCount;
+    this.trackNodeInCurrentWorkspace = trackNodeInCurrentWorkspace;
+    this.trackNodeInInactiveWorkspace = trackNodeInInactiveWorkspace;
   }
 
   /**
@@ -181,10 +198,11 @@ public class CopyAndPaste {
   }
 
   /** ワークスペース上の注視点を変更するコマンドを追加する. */
-  private static void pushViewpointChangeCmd(UserOperation userOpe, BhNodeLocation location) {
+  private void pushViewpointChangeCmd(UserOperation userOpe, BhNodeLocation location) {
     BiFunction<WorkspaceView, Vec2D, Boolean> fnShouldChange
         = (wsView, pos) -> wsView.getWorkspace().isCurrentWorkspace()
-        ? BhSettings.Ui.trackNodeInCurrentWorkspace : BhSettings.Ui.trackNodeInInactiveWorkspace;
+          ? trackNodeInCurrentWorkspace.get()
+          : trackNodeInInactiveWorkspace.get();
     ViewUtil.pushViewpointChangeCmd(
         null,
         null,

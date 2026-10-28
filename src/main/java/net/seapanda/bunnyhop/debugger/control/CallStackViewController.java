@@ -18,7 +18,6 @@ package net.seapanda.bunnyhop.debugger.control;
 
 import static javafx.css.PseudoClass.getPseudoClass;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Css.Class.DEFAULT_TEXT_HIGHLIGHT;
-import static net.seapanda.bunnyhop.common.configuration.BhSettings.Search.maxResultsInCallStack;
 import static net.seapanda.bunnyhop.node.view.effect.VisualEffectType.JUMP_TARGET;
 
 import java.util.ArrayList;
@@ -47,7 +46,6 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.VBox;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
-import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.common.text.TextDefs;
 import net.seapanda.bunnyhop.debugger.model.Debugger;
 import net.seapanda.bunnyhop.debugger.model.callstack.CallStackItem;
@@ -68,6 +66,7 @@ import net.seapanda.bunnyhop.search.SearchQueryResult;
 import net.seapanda.bunnyhop.search.SharedSearchBoxDelegate;
 import net.seapanda.bunnyhop.ui.control.SharedSearchBox;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
+import net.seapanda.bunnyhop.utility.reference.ReadOnlyInteger;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
 
 /**
@@ -89,6 +88,8 @@ public class CallStackViewController {
   private final WorkspaceSet wss;
   private final BooleanProperty sharedJumpFlag;
   private final VisualEffectManager effectManager;
+  private final ReadOnlyInteger maxCallStackItems;
+  private final ReadOnlyInteger maxSearchResults;
   private final CellRegistry cellRegistry;
   private boolean isDiscarded = false;
   private BhNodeView lastJumpTarget;
@@ -103,9 +104,14 @@ public class CallStackViewController {
    *
    * @param threadContext このコントローラが管理するコールスタックに関連するスレッドの情報を格納したオブジェクト
    * @param searchBox 検索クエリを受け取る UI コンポーネントのインタフェース
+   * @param debugger スタックフレームの選択などを要求するためのデバッガ
+   * @param wss ノードの選択状態の変化を監視する対象のワークスペースセット
    * @param sharedJumpFlag スタックフレームが選択されたときに対応するノードへジャンプするかどうかのフラグ.
    *                       同じ {@link BooleanProperty} オブジェクトが指定された
    *                       {@link CallStackViewController} は全て同じフラグ値を共有する.
+   * @param visualEffectManager ノードへの視覚効果の付与を管理するオブジェクト
+   * @param maxCallStackItems コールスタックを省略せずに表示する際の最大項目数
+   * @param maxSearchResults 検索結果の最大件数
    */
   public CallStackViewController(
       ThreadContext threadContext,
@@ -113,13 +119,17 @@ public class CallStackViewController {
       Debugger debugger,
       WorkspaceSet wss,
       BooleanProperty sharedJumpFlag,
-      VisualEffectManager visualEffectManager) {
+      VisualEffectManager visualEffectManager,
+      ReadOnlyInteger maxCallStackItems,
+      ReadOnlyInteger maxSearchResults) {
     this.threadContext = threadContext;
     this.searchBox = searchBox;
     this.debugger = debugger;
     this.wss = wss;
     this.sharedJumpFlag = sharedJumpFlag;
     effectManager = visualEffectManager;
+    this.maxCallStackItems = maxCallStackItems;
+    this.maxSearchResults = maxSearchResults;
     cellRegistry = new CellRegistry();
   }
 
@@ -187,22 +197,22 @@ public class CallStackViewController {
   /** {@link #callStackListView} に設定するアイテムを作成する. */
   private ObservableList<CallStackItem> createCallStackItems() {
     var callStack = new ArrayList<>(threadContext.callStack);
-    if (!csShowAllCheckBox.isSelected() && callStack.size() > BhSettings.Debug.maxCallStackItems) {
+    if (!csShowAllCheckBox.isSelected() && callStack.size() > maxCallStackItems.get()) {
       return FXCollections.observableArrayList(createTruncatedCallStack(callStack));
     }
     return FXCollections.observableArrayList(callStack.reversed());
   }
 
   /** {@code callStack} の一部を省略したコールスタックを作成する. */
-  private static List<CallStackItem> createTruncatedCallStack(ArrayList<CallStackItem> callStack) {
+  private List<CallStackItem> createTruncatedCallStack(ArrayList<CallStackItem> callStack) {
     var items = new ArrayList<CallStackItem>();
-    int len = BhSettings.Debug.maxCallStackItems / 2;
+    int len = maxCallStackItems.get() / 2;
     for (int i = 0; i < len; ++i) {
       items.add(callStack.get(callStack.size() - 1 - i));
     }
     items.add(new CallStackItem(-1, -1, TextDefs.Debugger.CallStack.ellipsis.get()));
 
-    len = BhSettings.Debug.maxCallStackItems - len;
+    len = maxCallStackItems.get() - len;
     for (int i = len - 1; i >= 0; --i) {
       items.add(callStack.get(i));
     }
@@ -374,7 +384,7 @@ public class CallStackViewController {
         });
 
         int numResults = searchResult.items.size();
-        boolean truncated = numResults == maxResultsInCallStack;
+        boolean truncated = numResults == maxSearchResults.get();
         int idxInResults = foundOpt.map(CyclicSublistFinder.Found::getIdxInSublist).orElse(-1);
         return new SearchQueryResult(idxInResults, numResults, truncated);
       } catch (PatternSyntaxException e) {
@@ -389,7 +399,7 @@ public class CallStackViewController {
           query,
           callStackListView.getItems(),
           CallStackCell::getText,
-          maxResultsInCallStack);
+          maxSearchResults.get());
       return new SearchResult(results, query);
     }
 

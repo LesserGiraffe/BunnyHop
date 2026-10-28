@@ -56,16 +56,19 @@ public class ThreadContextPresenter {
   private final Set<BhNodeView> nextStepView = new HashSet<>();
   /** ランタイムエラーを起こしたことを表す視覚効果が適用された {@link BhNodeView} を格納するセット. */
   private final Set<BhNodeView> runtimeErrorView = new HashSet<>();
+  private final DebugUtil util;
 
 
   /** コンストラクタ. */
   public ThreadContextPresenter(
       Debugger debugger,
       MessageService msgService,
-      VisualEffectManager visualEffectManager) {
+      VisualEffectManager visualEffectManager,
+      DebugUtil util) {
     this.debugger = debugger;
     this.msgService = msgService;
     this.effectManager = visualEffectManager;
+    this.util = util;
     setEventHandlers();
   }
 
@@ -203,7 +206,7 @@ public class ThreadContextPresenter {
 
   /** {@code exception} が持つエラーメッセージを出力する. */
   private void outputErrMsg(BhProgramException exception) {
-    String errMsg = DebugUtil.getErrMsg(exception);
+    String errMsg = util.getErrMsg(exception);
     String runtimeErrOccurred = TextDefs.Debugger.runtimeErrOccurred.get();
     msgService.error("%s\n%s\n".formatted(runtimeErrOccurred, errMsg));
   }

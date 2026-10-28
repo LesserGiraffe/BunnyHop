@@ -33,6 +33,7 @@ import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
 import net.seapanda.bunnyhop.utility.event.SimpleConsumerInvoker;
+import net.seapanda.bunnyhop.utility.reference.WritableInteger;
 import net.seapanda.bunnyhop.workspace.model.Workspace;
 
 /**
@@ -47,6 +48,7 @@ public class BhNodeSelectionViewProxyImpl implements BhNodeSelectionViewProxy {
   private final Consumer<BhNodeSelectionView> fnAddNodeSelectionViewToGuiTree;
   private final CallbackRegistryImpl cbRegistry = new CallbackRegistryImpl();
   private final Path nodeSelectionViewFilePath;
+  private final WritableInteger currentNodeSelectionViewZoomLevel;
   /** 現在表示している BhNode のカテゴリ. */
   private String currentCategory = null;
 
@@ -58,14 +60,17 @@ public class BhNodeSelectionViewProxyImpl implements BhNodeSelectionViewProxy {
    */
   public BhNodeSelectionViewProxyImpl(
       Path nodeSelectionViewFilePath,
-      Consumer<BhNodeSelectionView> fnAddNodeSelectionViewToGuiTree) {
+      Consumer<BhNodeSelectionView> fnAddNodeSelectionViewToGuiTree,
+      WritableInteger currentNodeSelectionViewZoomLevel) {
     this.nodeSelectionViewFilePath = nodeSelectionViewFilePath;
     this.fnAddNodeSelectionViewToGuiTree = fnAddNodeSelectionViewToGuiTree;
+    this.currentNodeSelectionViewZoomLevel = currentNodeSelectionViewZoomLevel;
   }
 
   @Override
   public void addNodeSelectionView(String name, String cssClass) throws ViewConstructionException {
-    var view = new FxmlBhNodeSelectionView(nodeSelectionViewFilePath, name, cssClass);
+    var view = new FxmlBhNodeSelectionView(
+        nodeSelectionViewFilePath, name, cssClass, currentNodeSelectionViewZoomLevel);
     categoryNameToSelectionView.putIfAbsent(name, view);
     Workspace workspace = categoryNameToWorkspace.computeIfAbsent(name, Workspace::new);
     Workspace.CallbackRegistry registry = workspace.getCallbackRegistry();

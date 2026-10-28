@@ -24,7 +24,6 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.Region;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
-import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.node.model.parameter.BhNodeId;
@@ -35,6 +34,7 @@ import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionViewProxy;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.ui.view.Rem;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
+import net.seapanda.bunnyhop.utility.reference.ReadOnlyInteger;
 
 /**
  * BhNode のカテゴリ選択画面のコントローラ.
@@ -51,17 +51,25 @@ public class BhNodeCategoryListController {
   private final TreeItem<BhNodeCategory> root;
   private final BhNodeSelectionViewProxy proxy;
   private final BhNodeFactory factory;
+  private final ReadOnlyInteger currentNodeSelectionViewZoomLevel;
 
   /**
    * コンストラクタ.
    *
    * @param root BhNode の一覧を格納した木のルート要素
+   * @param proxy ノード選択ビューを操作するためのオブジェクト
+   * @param factory ノード選択ビューに表示するテンプレートノードを作成するためのファクトリ
+   * @param currentNodeSelectionViewZoomLevel ノード選択ビューの現在のズームレベル
    */
   public BhNodeCategoryListController(
-      TreeItem<BhNodeCategory> root, BhNodeSelectionViewProxy proxy, BhNodeFactory factory) {
+      TreeItem<BhNodeCategory> root,
+      BhNodeSelectionViewProxy proxy,
+      BhNodeFactory factory,
+      ReadOnlyInteger currentNodeSelectionViewZoomLevel) {
     this.root = root;
     this.proxy = proxy;
     this.factory = factory;
+    this.currentNodeSelectionViewZoomLevel = currentNodeSelectionViewZoomLevel;
     collectCategories(root);
   }
 
@@ -76,7 +84,7 @@ public class BhNodeCategoryListController {
     buildNodeSelView();
     registerPrivateTemplateView();
     registerPreRenderingView();
-    proxy.zoom(BhSettings.Ui.currentNodeSelectionViewZoomLevel);
+    proxy.zoom(currentNodeSelectionViewZoomLevel.get());
   }
 
   /** イベントハンドラをセットする. */

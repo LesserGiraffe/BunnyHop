@@ -17,13 +17,13 @@
 package net.seapanda.bunnyhop.workspace.model.factory;
 
 import java.nio.file.Path;
-import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
 import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionViewProxy;
 import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
 import net.seapanda.bunnyhop.service.message.MessageService;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
+import net.seapanda.bunnyhop.utility.reference.WritableInteger;
 import net.seapanda.bunnyhop.workspace.control.WorkspaceController;
 import net.seapanda.bunnyhop.workspace.model.Workspace;
 import net.seapanda.bunnyhop.workspace.view.FxmlWorkspaceView;
@@ -43,6 +43,7 @@ public class WorkspaceFactoryImpl implements WorkspaceFactory {
   private final Path workspaceViewFilePath;
   private final MessageService msgService;
   private final VisualEffectManager effectManager;
+  private final WritableInteger currentWorkspaceZoomLevel;
 
   /** コンストラクタ. */
   public WorkspaceFactoryImpl(
@@ -51,13 +52,15 @@ public class WorkspaceFactoryImpl implements WorkspaceFactory {
       TransactionNotificationService notifService,
       BhNodeSelectionViewProxy proxy,
       MessageService msgService,
-      VisualEffectManager visualEffectManager) {
+      VisualEffectManager visualEffectManager,
+      WritableInteger currentWorkspaceZoomLevel) {
     this.workspaceViewFilePath = workspaceViewFilePath;
     this.nodeShifterViewPath = nodeShifterViewPath;
     this.notifService = notifService;
     this.nodeSelectionViewProxy = proxy;
     this.msgService = msgService;
     this.effectManager = visualEffectManager;
+    this.currentWorkspaceZoomLevel = currentWorkspaceZoomLevel;
   }
 
   @Override
@@ -67,8 +70,9 @@ public class WorkspaceFactoryImpl implements WorkspaceFactory {
 
   @Override
   public WorkspaceView setMvc(Workspace ws, Vec2D size) throws ViewConstructionException {
-    WorkspaceView view = new FxmlWorkspaceView(ws, size, workspaceViewFilePath, notifService);
-    view.zoom(BhSettings.Ui.currentWorkspaceZoomLevel);
+    WorkspaceView view = new FxmlWorkspaceView(
+            ws, size, workspaceViewFilePath, notifService, currentWorkspaceZoomLevel);
+    view.zoom(currentWorkspaceZoomLevel.get());
     new WorkspaceController(
         ws,
         view,

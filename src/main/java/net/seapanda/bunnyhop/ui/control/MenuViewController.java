@@ -166,6 +166,8 @@ public class MenuViewController {
   private final WindowManager windowManager;
   /** 実行可能なノードを集めるためのオブジェクト. */
   private final SourceNodeCollector sourceNodeCollector;
+  /** BunnyHop の設定情報. */
+  BhSettings settings;
 
   /** コンストラクタ. */
   public MenuViewController(
@@ -181,7 +183,8 @@ public class MenuViewController {
       MessageService msgService,
       DebugWindowController debugWindowCtrl,
       WindowManager windowManager,
-      SourceNodeCollector sourceNodeCollector) {
+      SourceNodeCollector sourceNodeCollector,
+      BhSettings settings) {
     this.wssCtrl = wssCtrl;
     this.notifService = notifService;
     this.wsFactory = wsFactory;
@@ -195,13 +198,14 @@ public class MenuViewController {
     this.debugWindowCtrl = debugWindowCtrl;
     this.windowManager = windowManager;
     this.sourceNodeCollector = sourceNodeCollector;
+    this.settings = settings;
   }
 
   /** このコントローラを初期化する. */
   @FXML
   public void initialize() {
     setEventHandlers();
-    switchBhRuntime(BhSettings.BhRuntime.currentBhRuntimeType == BhRuntimeType.REMOTE);
+    switchBhRuntime(settings.runtime.currentBhRuntimeType.get() == BhRuntimeType.REMOTE);
     initializeUiComponentStates();
   }
 
@@ -230,12 +234,12 @@ public class MenuViewController {
     disconnectBtn.setOnAction(action -> disconnect());
 
     focusSimBtn.setOnAction(action ->
-        BhSettings.BhSimulator.focusOnSimulatorChanged = focusSimBtn.isSelected());
+        settings.simulator.focusOnSimulatorChanged.set(focusSimBtn.isSelected()));
     breakpointBtn.setOnAction(action ->
-        BhSettings.Debug.canSetBreakpoint = breakpointBtn.isSelected());
+        settings.debug.canSetBreakpoint.set(breakpointBtn.isSelected()));
     debugBtn.setOnAction(action -> {
-      BhSettings.Debug.debugWindowVisible = debugBtn.isSelected();
-      debugWindowCtrl.setVisibility(BhSettings.Debug.debugWindowVisible);
+      settings.debug.debugWindowVisible.set(debugBtn.isSelected());
+      debugWindowCtrl.setVisibility(settings.debug.debugWindowVisible.get());
     });
     sendBtn.setOnAction(action -> send()); // 送信
     bhRuntimeSelBtn.selectedProperty().addListener(
@@ -250,9 +254,9 @@ public class MenuViewController {
   private void initializeUiComponentStates() {
     pasteBtn.setDisable(true);
     executeBtn.setDisable(true);
-    focusSimBtn.setSelected(BhSettings.BhSimulator.focusOnSimulatorChanged);
-    breakpointBtn.setSelected(BhSettings.Debug.canSetBreakpoint);
-    debugBtn.setSelected(BhSettings.Debug.debugWindowVisible);
+    focusSimBtn.setSelected(settings.simulator.focusOnSimulatorChanged.get());
+    breakpointBtn.setSelected(settings.debug.canSetBreakpoint.get());
+    debugBtn.setSelected(settings.debug.debugWindowVisible.get());
   }
 
   /** コピーボタン押下時の処理. */
@@ -538,7 +542,7 @@ public class MenuViewController {
     CompletableFuture
         .supplyAsync(exec)
         .thenAccept(success -> {
-          if (BhSettings.BhSimulator.focusOnStartBhProgram && success && isLocalHost()) {
+          if (settings.simulator.focusOnStartBhProgram.get() && success && isLocalHost()) {
             windowManager.focusSimulator();
           }
           executing.set(false);
@@ -643,13 +647,13 @@ public class MenuViewController {
       unameTextField.setDisable(false);
       passwordTextField.setDisable(false);
       bhRuntimeSelBtn.setText(TextDefs.MenuView.remote.get());
-      BhSettings.BhRuntime.currentBhRuntimeType = BhRuntimeType.REMOTE;
+      settings.runtime.currentBhRuntimeType.set(BhRuntimeType.REMOTE);
     } else {
       hostNameTextField.setDisable(true);
       unameTextField.setDisable(true);
       passwordTextField.setDisable(true);
       bhRuntimeSelBtn.setText(TextDefs.MenuView.local.get());
-      BhSettings.BhRuntime.currentBhRuntimeType = BhRuntimeType.LOCAL;
+      settings.runtime.currentBhRuntimeType.set(BhRuntimeType.LOCAL);
     }
   }
 
@@ -666,14 +670,15 @@ public class MenuViewController {
 
   /** 現在制御対象になっている BhRuntime の種類を返す. */
   private boolean isLocalHost() {
-    return BhSettings.BhRuntime.currentBhRuntimeType == BhRuntimeType.LOCAL;
+    return settings.runtime.currentBhRuntimeType.get() == BhRuntimeType.LOCAL;
   }
 
   /** ワークスペース上の注視点を変更するコマンドを追加する. */
-  private static void pushViewpointChangeCmd(UserOperation userOpe, BhNodeLocation location) {
+  private void pushViewpointChangeCmd(UserOperation userOpe, BhNodeLocation location) {
     BiFunction<WorkspaceView, Vec2D, Boolean> fnShouldChange
         = (wsView, pos) -> wsView.getWorkspace().isCurrentWorkspace()
-        ? BhSettings.Ui.trackNodeInCurrentWorkspace : BhSettings.Ui.trackNodeInInactiveWorkspace;
+          ? settings.ui.trackNodeInCurrentWorkspace.get()
+          : settings.ui.trackNodeInInactiveWorkspace.get();
     ViewUtil.pushViewpointChangeCmd(
         location.wsView,
         location.center,

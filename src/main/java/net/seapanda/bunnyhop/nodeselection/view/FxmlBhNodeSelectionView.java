@@ -34,13 +34,13 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.transform.Scale;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
-import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.BhNodeView.SizeChangedEvent;
 import net.seapanda.bunnyhop.node.view.style.ConnectorOrientation;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
+import net.seapanda.bunnyhop.utility.reference.WritableInteger;
 
 /**
  * テンプレートノードを表示するビュー.
@@ -57,6 +57,7 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
   private final SequencedSet<BhNodeView> nodeViews = new LinkedHashSet<>();
   private int zoomLevel = 0;
   private final String categoryName;
+  private final WritableInteger currentNodeSelectionViewZoomLevel;
   private final Consumer<? super SizeChangedEvent> onNodeSizeChanged =
       event -> requestArrangementIfVisible();
   /** ノードの整列を要求されている状態かどうかのフラグ. */
@@ -68,10 +69,16 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
    * @param filePath ノード選択ビューが定義された fxml ファイルのパス
    * @param categoryName このビューに関連付けられたカテゴリ名
    * @param cssClass ビューに適用する css クラス名
+   * @param currentNodeSelectionViewZoomLevel 現在のノード選択ビューのズームレベル
    */
-  public FxmlBhNodeSelectionView(Path filePath, String categoryName, String cssClass)
+  public FxmlBhNodeSelectionView(
+      Path filePath,
+      String categoryName,
+      String cssClass,
+      WritableInteger currentNodeSelectionViewZoomLevel)
       throws ViewConstructionException {
     this.categoryName = categoryName;
+    this.currentNodeSelectionViewZoomLevel = currentNodeSelectionViewZoomLevel;
     try {
       FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
       loader.setController(this);
@@ -157,7 +164,7 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
     Scale scale = new Scale(mag, mag);
     nodeSelectionView.getTransforms().set(0, scale);
     adjustWrapperSize(nodeSelectionView.getWidth(), nodeSelectionView.getHeight());
-    BhSettings.Ui.currentNodeSelectionViewZoomLevel = zoomLevel;
+    currentNodeSelectionViewZoomLevel.set(zoomLevel);
   }
 
   @Override
@@ -239,7 +246,7 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
   @Override
   public void show() {
     setVisible(true);
-    BhSettings.Ui.currentNodeSelectionViewZoomLevel = zoomLevel;
+    currentNodeSelectionViewZoomLevel.set(zoomLevel);
   }
 
   @Override

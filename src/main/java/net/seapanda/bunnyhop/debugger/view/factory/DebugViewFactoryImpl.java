@@ -22,6 +22,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.VBox;
+import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.common.text.TextDefs;
 import net.seapanda.bunnyhop.debugger.control.CallStackViewController;
 import net.seapanda.bunnyhop.debugger.control.VariableInspectionController;
@@ -49,6 +50,7 @@ public class DebugViewFactoryImpl implements DebugViewFactory {
   private final BooleanProperty callStackCtrlJumpFlag = new SimpleBooleanProperty(true);
   private final BooleanProperty localVarInspCtrlJumpFlag = new SimpleBooleanProperty(false);
   private final BooleanProperty globalVarInspCtrlJumpFlag = new SimpleBooleanProperty(false);
+  private final BhSettings settings;
 
   /** コンストラクタ. */
   public DebugViewFactoryImpl(
@@ -57,13 +59,15 @@ public class DebugViewFactoryImpl implements DebugViewFactory {
       SharedSearchBox searchBox,
       Debugger debugger,
       WorkspaceSet wss,
-      VisualEffectManager visualEffectManager) {
+      VisualEffectManager visualEffectManager,
+      BhSettings settings) {
     this.callStackViewFilePath = callStackViewFilePath;
     this.varInspectionViewFilePath = varInspectionViewFilePath;
     this.searchBox = searchBox;
     this.debugger = debugger;
     this.wss = wss;
     this.effectManager = visualEffectManager;
+    this.settings = settings;
   }
 
   @Override
@@ -72,7 +76,14 @@ public class DebugViewFactoryImpl implements DebugViewFactory {
     try {
       var root = new VBox();
       var ctrl = new CallStackViewController(
-          context, searchBox, debugger, wss, callStackCtrlJumpFlag, effectManager);
+          context,
+          searchBox,
+          debugger,
+          wss,
+          callStackCtrlJumpFlag,
+          effectManager,
+          settings.debug.maxCallStackItems,
+          settings.search.maxResultsInCallStack);
       FXMLLoader loader = new FXMLLoader(callStackViewFilePath.toUri().toURL());
       loader.setRoot(root);
       loader.setController(ctrl);
@@ -97,7 +108,15 @@ public class DebugViewFactoryImpl implements DebugViewFactory {
       BooleanProperty jumpFlag = isLocal ? localVarInspCtrlJumpFlag : globalVarInspCtrlJumpFlag;
       var root = new VBox();
       var ctrl = new VariableInspectionController(
-          varInfo, viewName, searchBox, debugger, wss, effectManager, jumpFlag);
+          varInfo,
+          viewName,
+          searchBox,
+          debugger,
+          wss,
+          effectManager,
+          jumpFlag,
+          settings.debug.maxListVarTreeChildren,
+          settings.search.maxResultsInVariableInspection);
       FXMLLoader loader = new FXMLLoader(varInspectionViewFilePath.toUri().toURL());
       loader.setRoot(root);
       loader.setController(ctrl);
