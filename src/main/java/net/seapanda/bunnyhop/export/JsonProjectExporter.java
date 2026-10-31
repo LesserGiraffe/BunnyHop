@@ -45,7 +45,7 @@ public class JsonProjectExporter implements ProjectExporter {
       wss.setDirty(false);
       return true;
     } catch (Exception e) {
-      LogManager.logger().error("Failed to save the project.\n%s\n%s", saveFile.getPath(), e);
+      LogManager.logger().error(e, "Failed to save the current project.  (%s)", saveFile.getPath());
       msgService.alert(
           Alert.AlertType.ERROR,
           TextDefs.Export.InformFailedToSave.title.get(),

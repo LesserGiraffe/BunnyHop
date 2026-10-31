@@ -58,7 +58,7 @@ public interface BhRuntimeMessageCarrier {
     } else if (message instanceof BhRuntimeResponse resp) {
       return pushResponse(resp);
     }
-    throw new IllegalArgumentException("Failed to send an invalid message.\n%s".formatted(message));
+    throw new IllegalArgumentException("Failed to send a message.\n%s".formatted(message));
   }
 
   /**

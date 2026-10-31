@@ -16,8 +16,6 @@
 
 package net.seapanda.bunnyhop.compiler.api;
 
-import net.seapanda.bunnyhop.utility.Utility;
-
 /**
  * コンパイル中にエラーが発生したことを示す例外.
  *
@@ -26,10 +24,10 @@ import net.seapanda.bunnyhop.utility.Utility;
 public class CompileError extends Exception {
 
   public CompileError(String msg) {
-    this(msg, true);
+    super(msg);
   }
 
-  public CompileError(String msg, boolean includeMethodInfo) {
-    super(msg + "\n  " + (includeMethodInfo ? Utility.getMethodName(1) : ""));
+  public CompileError(String msg, Throwable cause) {
+    super(msg, cause);
   }
 }

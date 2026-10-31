@@ -85,9 +85,9 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
       loader.setRoot(this);
       loader.load();
     } catch (IOException e) {
-      LogManager.logger().error("category : %s\n%s", categoryName, e);
-      throw new ViewConstructionException(
-          "Failed to initialize " + BhNodeSelectionView.class.getSimpleName());
+      String msg = "Failed to construct a node selection view.  (%s)".formatted(categoryName);
+      LogManager.logger().error(msg, e);
+      throw new ViewConstructionException(msg, e);
     }
     nodeSelectionView.setContainer(this);
     nodeSelectionView.getTransforms().add(new Scale());

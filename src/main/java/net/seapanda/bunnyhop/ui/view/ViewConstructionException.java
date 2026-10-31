@@ -24,11 +24,25 @@ import net.seapanda.bunnyhop.utility.Utility;
  * @author K.Koike
  */
 public class ViewConstructionException extends Exception {
+
   public ViewConstructionException(String msg) {
     this(msg, true);
   }
 
+  public ViewConstructionException(String msg, Throwable cause) {
+    this(msg, true, cause);
+  }
+
   public ViewConstructionException(String msg, boolean includeMethodInfo) {
-    super(msg + "\n  " + (includeMethodInfo ? Utility.getMethodName(1) : ""));
+    super(createMessage(msg, includeMethodInfo));
+  }
+
+  public ViewConstructionException(String msg, boolean includeMethodInfo, Throwable cause) {
+    super(createMessage(msg, includeMethodInfo), cause);
+  }
+
+  private static String createMessage(String msg, boolean includeMethodInfo) {
+    String methodInfo = includeMethodInfo ? "\n" + Utility.getMethodName(1) : "";
+    return msg + methodInfo;
   }
 }

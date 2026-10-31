@@ -139,7 +139,7 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
         registerNodeStyle(path);
       }
     } catch (IOException e) {
-      throw new ViewConstructionException("Directory not found.  (%s)\n %s".formatted(dirPath, e));
+      throw new ViewConstructionException("Directory not found.  (%s)".formatted(dirPath), e);
     }
   }
 
@@ -172,7 +172,8 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
       snippet.addSubSnippets(importSubStyleSnippets(jsonObj, filePath));
       return snippet;
     } catch (Exception e) {
-      throw new ViewConstructionException(e + "\n" + filePath);
+      throw new ViewConstructionException(
+          "Failed to create a node view style snippet.  (%s)".formatted(filePath), e);
     }
   }
 
@@ -203,7 +204,8 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
           }));
       return styles;
     } catch (Exception e) {
-      throw new ViewConstructionException(e + "\n" + filePath);
+      throw new ViewConstructionException(
+          "Failed to import a node view style.  (%s)".formatted(filePath), e);
     }
   }
 

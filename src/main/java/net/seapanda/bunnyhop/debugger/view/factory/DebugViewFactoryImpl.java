@@ -90,10 +90,9 @@ public class DebugViewFactoryImpl implements DebugViewFactory {
       loader.load();
       return ctrl;
     } catch (IOException e) {
-      throw new ViewConstructionException(String.format(
-          "Failed to initialize call stack view (%s).\n%s",
-          callStackViewFilePath.toAbsolutePath(),
-          e));
+      Path path = callStackViewFilePath.toAbsolutePath();
+      throw new ViewConstructionException(
+          "Failed to initialize call stack view (%s).".formatted(path), e);
     }
   }
 
@@ -123,10 +122,9 @@ public class DebugViewFactoryImpl implements DebugViewFactory {
       loader.load();
       return ctrl;
     } catch (IOException e) {
-      throw new ViewConstructionException(String.format(
-          "Failed to initialize call stack view (%s).\n%s",
-          varInspectionViewFilePath.toAbsolutePath(),
-          e));
+      Path path = varInspectionViewFilePath.toAbsolutePath();
+      throw new ViewConstructionException(
+          "Failed to initialize call stack view (%s).".formatted(path), e);
     }
   }
 }

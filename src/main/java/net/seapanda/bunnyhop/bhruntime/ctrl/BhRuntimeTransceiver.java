@@ -86,7 +86,7 @@ public class BhRuntimeTransceiver {
       connectionWait.reset(0);
     } catch (RemoteException e) {
       // 接続中に BhRuntime を kill した場合, ここで抜ける
-      LogManager.logger().error("Failed to connect to BhRuntime.\n%s", e);
+      LogManager.logger().error("Failed to connect to BhRuntime.", e);
       return false;
     }
     connected.set(true);
@@ -104,7 +104,7 @@ public class BhRuntimeTransceiver {
       connectionWait.reset(1);
     } catch (RemoteException e) {
       // 接続中に BhRuntime を kill した場合, ここで抜ける
-      LogManager.logger().error("Failed to disconnect from BhRuntime\n%s", e);
+      LogManager.logger().error("Failed to disconnect from BhRuntime", e);
       return false;
     }
     connected.set(false);

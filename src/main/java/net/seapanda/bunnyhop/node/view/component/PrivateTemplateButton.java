@@ -45,8 +45,7 @@ public final class PrivateTemplateButton extends Button {
       loader.load();
       this.getStyleClass().add(style.cssClass);
     } catch (Exception e) {
-      throw new ViewConstructionException(
-          "Failed to create Private Template Creation Button.\n" + e);
+      throw new ViewConstructionException("Failed to create Private Template Creation Button.", e);
     }
   }
 }

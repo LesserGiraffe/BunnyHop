@@ -16,8 +16,6 @@
 
 package net.seapanda.bunnyhop.node.model.factory;
 
-import net.seapanda.bunnyhop.utility.Utility;
-
 /**
  * ノードの構築に失敗したことを表す例外.
  *
@@ -26,10 +24,10 @@ import net.seapanda.bunnyhop.utility.Utility;
 public class NodeConstructionException extends Exception {
 
   public NodeConstructionException(String msg) {
-    this(msg, true);
+    super(msg);
   }
 
-  public NodeConstructionException(String msg, boolean includeMethodInfo) {
-    super(msg + "\n  " + (includeMethodInfo ? Utility.getMethodName(1) : ""));
+  public NodeConstructionException(String msg, Throwable cause) {
+    super(msg, cause);
   }
 }

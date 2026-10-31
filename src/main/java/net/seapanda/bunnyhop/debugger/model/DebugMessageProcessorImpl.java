@@ -87,7 +87,7 @@ public class DebugMessageProcessorImpl implements DebugMessageProcessor {
 
   @Override
   public void process(BhThreadContext context) {
-    logErrMsg(context.getException());
+    LogManager.logger().error(context.getException());
     var cache = new HashMap<NodeInstanceId, String>();
     List<CallStackItem> callStack = context.getCallStack().stream()
         .map(item ->
@@ -105,7 +105,7 @@ public class DebugMessageProcessorImpl implements DebugMessageProcessor {
 
   @Override
   public void process(GetLocalVarsResp resp) {
-    resp.getException().ifPresent(this::logErrMsg);
+    LogManager.logger().info(resp.getException().orElse(null));
     if (resp.result == null) {
       return;
     }
@@ -119,10 +119,7 @@ public class DebugMessageProcessorImpl implements DebugMessageProcessor {
 
   @Override
   public void process(GetLocalListValsResp resp) {
-    resp.getException().ifPresent(this::logErrMsg);
-    if (resp.result == null) {
-      return;
-    }
+    LogManager.logger().info(resp.getException().orElse(null));
     var stackFrameId = new StackFrameId(resp.result.threadId(), resp.result.frameIdx());
     Variable variable = createVariable(resp.result.variable());
     debugger.add(new VariableInfo(stackFrameId, variable));
@@ -130,7 +127,7 @@ public class DebugMessageProcessorImpl implements DebugMessageProcessor {
 
   @Override
   public void process(GetGlobalVarsResp resp) {
-    resp.getException().ifPresent(this::logErrMsg);
+    LogManager.logger().info(resp.getException().orElse(null));
     if (resp.variables.isEmpty()) {
       return;
     }
@@ -142,7 +139,7 @@ public class DebugMessageProcessorImpl implements DebugMessageProcessor {
 
   @Override
   public void process(GetGlobalListValsResp resp)  {
-    resp.getException().ifPresent(this::logErrMsg);
+    LogManager.logger().info(resp.getException().orElse(null));
     if (resp.variable == null) {
       return;
     }
@@ -218,19 +215,6 @@ public class DebugMessageProcessorImpl implements DebugMessageProcessor {
       cache.put(node.getInstanceId(), name);
     }
     return name;
-  }
-
-  private void logErrMsg(Exception exception) {
-    String errMsg = "";
-    if (exception != null) {
-      errMsg = exception.getMessage();
-      if (exception.getCause() != null) {
-        errMsg += "\n" + exception.getCause().getMessage();
-      }
-    }
-    if (!errMsg.isEmpty()) {
-      LogManager.logger().error("%s\n%s", exception.getClass().getSimpleName(), errMsg);
-    }
   }
 
   /** {@link BhVariable} オブジェクトから {@link Variable} オブジェクトを作成する. */

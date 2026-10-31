@@ -90,10 +90,10 @@ public class RemoteBhProgramLauncherImpl implements RemoteBhProgramLauncher {
     } catch (CompileError e) {
       msgService.alert(
           Alert.AlertType.ERROR,
-          TextDefs.Compile.InformFailedToWrite.title.get(),
-          null,
+          TextDefs.Compile.InformCompileError.title.get(),
+          TextDefs.Compile.InformCompileError.body.get(),
           e.toString());
-      LogManager.logger().error(e.toString());
+      LogManager.logger().error("Failed to compile.", e);
       return Optional.empty();
     }
   }

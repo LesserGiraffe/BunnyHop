@@ -155,7 +155,7 @@ public class BhNodeFactoryImpl implements BhNodeFactory {
         connectMvc(node, view);
         node.setTemplate(type == MvcType.TEMPLATE);
       } catch (ViewConstructionException e) {
-        LogManager.logger().error(e.toString());
+        LogManager.logger().error(e);
       }
 
       if (root == null) {
@@ -178,7 +178,7 @@ public class BhNodeFactoryImpl implements BhNodeFactory {
         connectMvc(node, view);
         node.setTemplate(type == MvcType.TEMPLATE);
       } catch (ViewConstructionException e) {
-        LogManager.logger().error(e.toString());
+        LogManager.logger().error(e);
       }
       
       if (root == null) {

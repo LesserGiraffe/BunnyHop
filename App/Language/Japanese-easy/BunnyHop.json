@@ -264,12 +264,13 @@
     },
 
     "compile": {
-      "inform-compile-error": {
-        "title": "コンパイルエラー",
-        "body": "コンパイルエラーが はっせいしています.\nしゅうせいしてから じっこうしてください."
+      "inform-error-nodes-exits": {
+        "title": "エラーブロック",
+        "body": "エラーブロックが あります.\nしゅうせいしてから じっこうしてください.."
       },
-      "inform-failed-to-write": {
-        "title": "ファイル書きこみエラー"
+      "inform-failed-to-compile": {
+        "title": "コンパイル失敗",
+        "body": "コンパイル中に エラーが はっせいしました."
       },
       "inform-no-entry-points": {
         "title": "じっこうするブロックのせんたく",

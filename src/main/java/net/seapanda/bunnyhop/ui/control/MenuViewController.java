@@ -520,7 +520,7 @@ public class MenuViewController {
           BhConstants.Ui.DEFAULT_WORKSPACE_WIDTH, BhConstants.Ui.DEFAULT_WORKSPACE_HEIGHT);
       wsFactory.setMvc(ws, size);
     } catch (ViewConstructionException e) {
-      LogManager.logger().error(e.toString());
+      LogManager.logger().error("Failed to create a workspace", e);
       return Optional.empty();
     }
     return Optional.of(ws);
@@ -562,7 +562,7 @@ public class MenuViewController {
     try {
       nodeSet = sourceNodeCollector.collect();
     } catch (Exception e) {
-      LogManager.logger().error(e.toString());
+      LogManager.logger().error("Failed to collect executable nodes.", e);
     } finally {
       notifService.end(ExclusionId.NODE_MANIPULATION);
     }

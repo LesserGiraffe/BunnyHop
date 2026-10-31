@@ -207,7 +207,7 @@ public class SceneBuilder {
       root = loader.load();
       scene = genMainScene(root);
     } catch (Exception e) {
-      throw new AppInitializationException("Failed to load %s\n%s".formatted(mainWindowFxml, e));
+      throw new AppInitializationException("Failed to load %s".formatted(mainWindowFxml), e);
     }
     try {
       FXMLLoader loader = new FXMLLoader(debugWindowFxml.toUri().toURL());
@@ -216,7 +216,7 @@ public class SceneBuilder {
       debugScene = new Scene(root);
       debugScene.getStylesheets().addAll(scene.getStylesheets());
     } catch (Exception e) {
-      throw new AppInitializationException("Failed to load %s\n%s".formatted(debugWindowFxml, e));
+      throw new AppInitializationException("Failed to load %s".formatted(debugWindowFxml), e);
     }
   }
 

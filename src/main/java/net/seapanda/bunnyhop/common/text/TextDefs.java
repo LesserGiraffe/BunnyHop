@@ -319,18 +319,20 @@ public class TextDefs {
   /** コンパイル時に出力されるメッセージ. */
   public static class Compile {
 
-    /** エラーノードを削除して良いか確認する際のメッセージ. */
+    /** コンパイル中にエラーが発生したときのメッセージ. */
     public static class InformCompileError {
       public static final Getter title = params -> db.get(
-          TextId.of("msg", "compile", "inform-compile-error", "title"), params);
+          TextId.of("msg", "compile", "inform-failed-to-compile", "title"), params);
       public static final Getter body = params -> db.get(
-          TextId.of("msg", "compile", "inform-compile-error", "body"), params);
+          TextId.of("msg", "compile", "inform-failed-to-compile", "body"), params);
     }
 
-    /** ファイル書き込みエラーが発生したときのメッセージ. */
-    public static class InformFailedToWrite {
+    /** エラーノードが存在するときののメッセージ. */
+    public static class InformErrorNodesExist {
       public static final Getter title = params -> db.get(
-          TextId.of("msg", "compile", "inform-failed-to-write", "title"), params);
+          TextId.of("msg", "compile", "inform-error-nodes-exits", "title"), params);
+      public static final Getter body = params -> db.get(
+          TextId.of("msg", "compile", "inform-error-nodes-exits", "body"), params);
     }
 
     /** 実行可能なノードが存在しないときのメッセージ. */

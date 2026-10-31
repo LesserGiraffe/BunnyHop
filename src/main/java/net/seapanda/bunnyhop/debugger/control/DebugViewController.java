@@ -160,7 +160,7 @@ public class DebugViewController {
     try {
       return Optional.ofNullable(factory.createCallStackView(context));
     } catch (ViewConstructionException e) {
-      LogManager.logger().error(e.toString());
+      LogManager.logger().error("Failed to construct a call stack view.", e);
     }
     return Optional.empty();
   }
@@ -200,7 +200,7 @@ public class DebugViewController {
     try {
       return Optional.ofNullable(factory.createVariableInspectionView(varInfo, isLocal));
     } catch (ViewConstructionException e) {
-      LogManager.logger().error(e.toString());
+      LogManager.logger().error("Failed to construct a variable inspection view.", e);
     }
     return Optional.empty();
   }

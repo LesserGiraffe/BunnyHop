@@ -162,7 +162,7 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
       loader.load();
     } catch (IOException e) {
       throw new ViewConstructionException(
-        "Failed to initialize %s.\n%s".formatted(getClass().getSimpleName(), e));
+        "Failed to initialize %s.".formatted(getClass().getSimpleName()), e);
     }
     configureWsPane();
     configureTabNameComponents();

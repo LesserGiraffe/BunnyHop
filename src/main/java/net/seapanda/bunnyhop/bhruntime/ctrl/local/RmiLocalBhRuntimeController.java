@@ -162,7 +162,7 @@ public class RmiLocalBhRuntimeController implements LocalBhRuntimeController {
       facade = BhRuntimeHelper.getBhRuntimeFacade(
           BhConstants.BhRuntime.LOCAL_HOST, br, BhConstants.BhRuntime.Timeout.LOCAL_START);
     } catch (Exception e) {
-      LogManager.logger().error("Failed to get BhRuntime facade.\n%s", e);
+      LogManager.logger().error("Failed to get BhRuntime facade.", e);
     }
     return Optional.ofNullable(facade);
   }
@@ -271,7 +271,7 @@ public class RmiLocalBhRuntimeController implements LocalBhRuntimeController {
       procBuilder.redirectErrorStream(true);
       return Optional.of(procBuilder.start());
     } catch (IOException e) {
-      LogManager.logger().error("Failed to start BhRuntime\n%s", e);
+      LogManager.logger().error("Failed to start BhRuntime", e);
     }
     return Optional.empty();
   }
@@ -291,8 +291,7 @@ public class RmiLocalBhRuntimeController implements LocalBhRuntimeController {
       return Optional.of(cmd);
     } catch (Exception e) {
       LogManager.logger().error(
-          "Failed to generate BhProgram start command  (%s).\n%s",
-          GEN_LOCAL_START_CMD_JS, e);
+          e, "Failed to generate BhProgram start command  (%s).", GEN_LOCAL_START_CMD_JS);
     }
     return Optional.empty();
   }

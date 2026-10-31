@@ -123,7 +123,7 @@ public class XmlBhNodeRepository implements BhNodeRepository {
       }
       return success;
     } catch (IOException e) {
-      LogManager.logger().error("Directory not found.  (%s)".formatted(dirPath));
+      LogManager.logger().error(e, "Directory not found.  (%s)", dirPath);
       return false;
     }
   }
@@ -173,7 +173,7 @@ public class XmlBhNodeRepository implements BhNodeRepository {
       DocumentBuilder builder = dbfactory.newDocumentBuilder();
       return builder.parse(file.toFile()).getDocumentElement();
     } catch (IOException | ParserConfigurationException | SAXException e) {
-      LogManager.logger().error("%s\n%s", e, file.toAbsolutePath());
+      LogManager.logger().error(e, "Failed to read a xml file.  (%s)", file.toAbsolutePath());
       return null;
     }
   }
@@ -218,7 +218,8 @@ public class XmlBhNodeRepository implements BhNodeRepository {
       Document doc = docBuilder.parse(file.toFile());
       return builder.build(doc);
     } catch (IOException | ParserConfigurationException | SAXException e) {
-      LogManager.logger().error("%s\n%s", e, file.toAbsolutePath());
+      LogManager.logger().error(
+          e, "Failed to create a node from a file.  (%s)", file.toAbsolutePath());
       return Optional.empty();
     }
   }

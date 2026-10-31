@@ -264,12 +264,13 @@
     },
 
     "compile": {
-      "inform-compile-error": {
-        "title": "コンパイルエラー",
-        "body": "コンパイルエラーが発生しています.\n修正してから実行してください."
+      "inform-error-nodes-exits": {
+        "title": "エラーブロック",
+        "body": "エラーブロックがあります.\n修正してから実行してください.."
       },
-      "inform-failed-to-write": {
-        "title": "ファイル書き込みエラー"
+      "inform-failed-to-compile": {
+        "title": "コンパイル失敗",
+        "body": "コンパイル中にエラーが発生しました."
       },
       "inform-no-entry-points": {
         "title": "実行するブロックの選択",

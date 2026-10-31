@@ -113,9 +113,9 @@ public class SourceNodeCollector {
     }
     msgService.alert(
         Alert.AlertType.ERROR,
-        TextDefs.Compile.InformCompileError.title.get(),
+        TextDefs.Compile.InformErrorNodesExist.title.get(),
         null,
-        TextDefs.Compile.InformCompileError.body.get(),
+        TextDefs.Compile.InformErrorNodesExist.body.get(),
         ButtonType.OK);
     return true;
   }

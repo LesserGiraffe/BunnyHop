@@ -92,7 +92,7 @@ public class CodeGenerator implements BhCompiler {
       new File(option.outFile.getParent().toAbsolutePath().toString()).mkdirs();
       generateLibCode(option.libPaths, code);
     } catch (Exception e) {
-      throw new CompileError("%s\n%s".formatted(e, option.outFile.toString()));
+      throw new CompileError(option.outFile.toString(), e);
     }
     generateCode(sourceSet, code, option);
 
@@ -104,7 +104,7 @@ public class CodeGenerator implements BhCompiler {
         StandardOpenOption.WRITE)) {
       writer.write(code.toString());
     } catch (Exception e) {
-      throw new CompileError("%s\n%s".formatted(e, option.outFile.toString()));
+      throw new CompileError(option.outFile.toString(), e);
     }
     return option.outFile;
   }

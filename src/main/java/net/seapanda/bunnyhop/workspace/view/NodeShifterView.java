@@ -67,7 +67,8 @@ public class NodeShifterView extends Pane {
       loader.setRoot(this);
       loader.load();
     } catch (IOException e) {
-      throw new ViewConstructionException("Failed to initialize  " + getClass().getSimpleName());
+      throw new ViewConstructionException(
+          "Failed to initialize  %s.".formatted(getClass().getSimpleName()));
     }
 
     setVisible(false);

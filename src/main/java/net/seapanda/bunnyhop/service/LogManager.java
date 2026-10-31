@@ -26,11 +26,30 @@ import net.seapanda.bunnyhop.utility.log.Logger;
 public class LogManager {
 
   private static volatile Logger logger = new Logger() {
-    @Override
-    public void info(String msg, Object... args) {}
 
     @Override
-    public void error(String msg, Object... args) {}
+    public void info(String msg, Object... params) {}
+
+    @Override
+    public void info(String msg, Throwable e) {}
+
+    @Override
+    public void info(Throwable e, String msg, Object... params) {}
+
+    @Override
+    public void info(Throwable e) {}
+
+    @Override
+    public void error(String msg, Object... params) {}
+
+    @Override
+    public void error(String msg, Throwable e) {}
+
+    @Override
+    public void error(Throwable e, String msg, Object... params) {}
+
+    @Override
+    public void error(Throwable e) {}
   };
 
   /** 初期化処理を行う. */

@@ -157,7 +157,7 @@ public class JsonProjectImporter implements ProjectImporter {
   private void outputLoadErrMsg(File saveFile, Exception e, String msg) {
     msg += "\n" + saveFile.getAbsolutePath();
     String title = TextDefs.Import.Error.title.get();
-    LogManager.logger().error(e.toString());
+    LogManager.logger().error(e, "Failed to load a project file.  (%s)", saveFile.getPath());
     msgService.alert(Alert.AlertType.INFORMATION, title, null, msg);
   }
 

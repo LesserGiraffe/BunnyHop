@@ -79,8 +79,7 @@ public class CommonDataSupplier {
             .exec(cx, createScriptScope(cx));
       return (jsObj instanceof NativeObject) ? jsObj : new NativeObject();
     } catch (Exception e) {
-      LogManager.logger().error(
-          "Failed to execute %s\n%s", BhConstants.Path.File.BH_UTILITY_JS, e);
+      LogManager.logger().error(e, "Failed to execute %s", BhConstants.Path.File.BH_UTILITY_JS);
     }
     return new NativeObject();
   }

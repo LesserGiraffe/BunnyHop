@@ -130,7 +130,7 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
       return Optional.of(session);
     } catch (JSchException e) {
       msgService.error(TextDefs.BhRuntime.Communication.failedToEstablishConnection.get());
-      LogManager.logger().error("Failed to establish SSH session.\n%s", e);
+      LogManager.logger().error("Failed to establish SSH session.", e);
     }
     return Optional.empty();
   }
@@ -386,7 +386,7 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
     try (var br = new BufferedReader(new InputStreamReader(is))) {
       facade = BhRuntimeHelper.getBhRuntimeFacade(hostname, br, timeout);
     } catch (Exception e) {
-      LogManager.logger().error("Failed to get BhRuntime facade.\n%s", e);
+      LogManager.logger().error("Failed to get BhRuntime facade.", e);
     }
     return Optional.ofNullable(facade);
   }
@@ -415,8 +415,7 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
       return Optional.ofNullable((String) scripts.start().exec(cx, scope));
     } catch (Exception e) {
       LogManager.logger().error(
-          "Failed to generate BhProgram start command  (%s).\n%s",
-          GEN_REMOTE_START_CMD_JS, e);
+          e, "Failed to generate BhProgram start command  (%s).", GEN_REMOTE_START_CMD_JS);
     }
     return Optional.empty();
   }
@@ -431,8 +430,7 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
       return Optional.ofNullable((String) scripts.kill().exec(cx, cx.initStandardObjects()));
     } catch (Exception e) {
       LogManager.logger().error(
-          "Failed to generate BhProgram kill command  (%s).\n%s",
-          GEN_REMOTE_KILL_CMD_JS, e);
+          e, "Failed to generate BhProgram kill command  (%s).", GEN_REMOTE_KILL_CMD_JS);
     }
     return Optional.empty();
   }
@@ -450,7 +448,7 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
       return Optional.ofNullable((String) scripts.destPath().exec(cx, scope));
     } catch (Exception e) {
       LogManager.logger().error(
-          "Failed to generate the destination path to which BhProgram shuld be copied.\n%s", e);
+          "Failed to generate the destination path to which BhProgram should be copied.", e);
     }
     return Optional.empty();
   }
@@ -465,8 +463,7 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
       return Optional.ofNullable((String) scripts.getPort().exec(cx, cx.initStandardObjects()));
     } catch (Exception e) {
       LogManager.logger().error(
-          "Failed to generate Get BhRuntime Port command  (%s).\n%s",
-          GEN_GET_PORT_CMD_JS, e);
+          e, "Failed to generate Get BhRuntime Port command  (%s).", GEN_GET_PORT_CMD_JS);
     }
     return Optional.empty();
   }
@@ -486,7 +483,7 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
       channel.connect(BhConstants.BhRuntime.Timeout.SSH_CONNECTION);
       return Optional.of(new CmdResultProvider(channel, inputStream));
     } catch (IOException | JSchException e) {
-      LogManager.logger().error("Failed to execute a cmd remotely (%s).\n%s", cmd, e);
+      LogManager.logger().error(e, "Failed to execute a cmd remotely (%s).\n", cmd);
     }
     return Optional.empty();
   }
@@ -512,7 +509,7 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
         throw new Exception("File transfer has been cancelled.");
       }
     } catch (Exception e) {
-      LogManager.logger().error(e.toString());
+      LogManager.logger().error(e, "Failed to copy a program file.  (%s -> %s)", srcPath, destPath);
       msgService.error(TextDefs.BhRuntime.Remote.failedToTransfer.get(e));
       return false;
     }
@@ -547,7 +544,7 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
         }
       }
     } catch (Exception e) {
-      LogManager.logger().error("channel close err\n%s", e);
+      LogManager.logger().error("channel close error", e);
       return Optional.empty();
     }
     return Optional.of(channel.getExitStatus());
