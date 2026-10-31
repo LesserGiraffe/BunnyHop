@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.compiler;
+package net.seapanda.bunnyhop.compiler.api;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

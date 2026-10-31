@@ -40,18 +40,16 @@ public class BhSettings {
   public final Search search = new Search();
   public final Undo undo = new Undo();
   /** メインウィンドウ関連のパラメータ. */
-  public final WindowState mainWindow = new WindowState();
+  public final Window mainWindow = new Window();
   /** デバッグウィンドウ関連のパラメータ. */
-  public final WindowState debugWindow = new WindowState();
+  public final Window debugWindow = new Window();
 
   /** BhSimulator に関するパラメータ. */
   public static class Simulator {
     /** BhSimulator 初期化待ちタイムアウト (sec). */
     public final ConcurrentInteger initTimeout = new ConcurrentInteger(15);
-    /** BhProgram の開始時に BhSimulator をフォーカスするかどうか. */
+    /** BhProgram の開始時に BhSimulator にフォーカスするかどうか. */
     public final ConcurrentBoolean focusOnStartBhProgram = new ConcurrentBoolean(false);
-    /** BhSimulator に変化があったとき BhSimulator をフォーカスするかどうか. */
-    public final ConcurrentBoolean focusOnSimulatorChanged = new ConcurrentBoolean(true);
   }
 
   /** デバッグに関するパラメータ. */
@@ -94,7 +92,7 @@ public class BhSettings {
   }
 
   /** ウィンドウの状態を保持するクラス. */
-  public static class WindowState {
+  public static class Window {
 
     /** ウィンドウの幅. */
     public final ConcurrentInteger width = new ConcurrentInteger(Integer.MIN_VALUE);

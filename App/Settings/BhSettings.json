@@ -2,13 +2,12 @@
   "language": "Japanese",
   "simulator": {
     "initTimeout": 15,
-    "focusOnStartBhProgram": false,
-    "focusOnSimulatorChanged": true
+    "focusOnStartBhProgram": false
   },
   "debug": {
     "maxCallStackItems": 32,
-    "canSetBreakpoint": true,
-    "debugWindowVisible": true,
+    "canSetBreakpoint": false,
+    "debugWindowVisible": false,
     "maxListVarTreeChildren": 100,
     "maxErrMsgChars": 4096
   },
@@ -17,8 +16,8 @@
     "trackNodeInInactiveWorkspace": true,
     "currentNodeSelectionViewZoomLevel": -1,
     "currentWorkspaceZoomLevel": -1,
-    "nodeSelectionSplitPos": 0.9709388971684053,
-    "notificationSplitPos": 0.9951923076923077
+    "nodeSelectionSplitPos": 0.8904619970193741,
+    "notificationSplitPos": 0.8493589743589743
   },
   "search": {
     "maxResultsInMainMessage": 500,

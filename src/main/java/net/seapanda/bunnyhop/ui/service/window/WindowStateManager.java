@@ -17,26 +17,12 @@
 package net.seapanda.bunnyhop.ui.service.window;
 
 /**
- * アプリケーションを構成するウィンドウに対する操作を規定したインタフェース.
+ * アプリケーションのウィンドウの状態 (位置, サイズ, 最小化・最大化など) の
+ * 永続化と復元を行う操作を規定したインタフェース.
  *
  * @author K.Koike
  */
-public interface WindowManager {
-
-  /**
-   * シミュレータを表示するウィンドウにフォーカスを当てる.
-   *
-   * @param doForcibly true の場合, シミュレータがアイコン化されていてもウィンドウ化して表示する. <br>
-   *                   false の場合, シミュレータがアイコン化されていたら何もしない.
-   */
-  void focusSimulator(boolean doForcibly);
-
-  /**
-   * シミュレータを表示するウィンドウにフォーカスを当てる.
-   *
-   * <p>シミュレータがアイコン化されている場合は何もしない
-   */
-  void focusSimulator();
+public interface WindowStateManager {
 
   /** 永続化されたウィンドウの状態を読み込み, 各ウィンドウに適用する. */
   void restoreWindowStates();

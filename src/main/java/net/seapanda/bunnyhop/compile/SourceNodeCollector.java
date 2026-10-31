@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import net.seapanda.bunnyhop.common.text.TextDefs;
-import net.seapanda.bunnyhop.compiler.SourceSet;
+import net.seapanda.bunnyhop.compiler.api.SourceSet;
 import net.seapanda.bunnyhop.linter.model.CompileErrorNodeCache;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.parameter.EntryPointSetting;

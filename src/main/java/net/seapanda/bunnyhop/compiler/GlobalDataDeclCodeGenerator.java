@@ -20,6 +20,8 @@ import static net.seapanda.bunnyhop.compiler.Keywords.newLine;
 
 import java.util.Collection;
 import java.util.Objects;
+import net.seapanda.bunnyhop.compiler.api.CompilableSyntaxTreeNode;
+import net.seapanda.bunnyhop.compiler.api.CompileOption;
 
 /**
  * グローバルデータを定義するコードを生成するクラス.

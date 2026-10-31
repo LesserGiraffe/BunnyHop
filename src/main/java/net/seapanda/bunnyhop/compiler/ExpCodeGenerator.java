@@ -24,6 +24,8 @@ import static net.seapanda.bunnyhop.compiler.SymbolNames.UserDefFunc.OUT_ARG;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import net.seapanda.bunnyhop.compiler.api.CompilableSyntaxTreeNode;
+import net.seapanda.bunnyhop.compiler.api.CompileOption;
 import net.seapanda.bunnyhop.utility.Utility;
 
 /**

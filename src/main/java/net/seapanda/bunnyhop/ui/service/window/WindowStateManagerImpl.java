@@ -16,7 +16,6 @@
 
 package net.seapanda.bunnyhop.ui.service.window;
 
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Window;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.SequencedCollection;
@@ -24,16 +23,17 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import net.seapanda.bunnyhop.common.configuration.BhSettings;
-import net.seapanda.bunnyhop.ui.view.ViewUtil;
 
 /**
- * アプリケーションを構成するウィンドウに対する操作を提供するクラス.
+ * {@link WindowStateManager} の実装クラス.
+ *
+ * <p>ウィンドウの状態の永続化・復元に加えて, メインウィンドウのフォーカス変化に応じて,
+ * マウスドラッグ追跡不具合の回避処理およびデバッグウィンドウの最前面表示切り替えを行う.
  *
  * @author K.Koike
  */
-public class BhWindowManager implements WindowManager {
+public class WindowStateManagerImpl implements WindowStateManager {
 
-  private final Lwjgl3Window simulatorWindow;
   private final Deque<MouseEvent> mousePressedEvents = new LinkedList<>();
   private final WindowStatePersistence mainPersistence;
   private final WindowStatePersistence debugPersistence;
@@ -59,14 +59,12 @@ public class BhWindowManager implements WindowManager {
    *
    * @param mainStage アプリケーションのメインウィンドウに対応する {@link Stage}.
    * @param debugStage デバッガの操作 UI を保持する {@link Stage}
-   * @param simulatorWindow シミュレータを表示するウィンドウに対応する {@link Lwjgl3Window}
    * @param settings BunnyHop の設定情報
    */
-  public BhWindowManager(
-      Stage mainStage, Stage debugStage, Lwjgl3Window simulatorWindow, BhSettings settings) {
+  public WindowStateManagerImpl(
+      Stage mainStage, Stage debugStage, BhSettings settings) {
     this.mainPersistence = new WindowStatePersistence(mainStage, settings.mainWindow);
     this.debugPersistence = new WindowStatePersistence(debugStage, settings.debugWindow);
-    this.simulatorWindow = simulatorWindow;
     setEventHandlers();
   }
 
@@ -172,20 +170,6 @@ public class BhWindowManager implements WindowManager {
       events.addLast(clickedEvent);
     }
     return events;
-  }
-
-  @Override
-  public void focusSimulator(boolean doForcibly) {
-    ViewUtil.runSafe(() -> {
-      if (doForcibly || !simulatorWindow.isIconified()) {
-        simulatorWindow.focusWindow();
-      }
-    });
-  }
-
-  @Override
-  public void focusSimulator() {
-    focusSimulator(false);
   }
 
   @Override

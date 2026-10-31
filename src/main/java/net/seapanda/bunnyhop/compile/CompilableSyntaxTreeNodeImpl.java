@@ -19,7 +19,7 @@ package net.seapanda.bunnyhop.compile;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import net.seapanda.bunnyhop.compiler.CompilableSyntaxTreeNode;
+import net.seapanda.bunnyhop.compiler.api.CompilableSyntaxTreeNode;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.parameter.EntryPointSetting;
 import net.seapanda.bunnyhop.node.model.syntaxtree.SyntaxTreeNode;

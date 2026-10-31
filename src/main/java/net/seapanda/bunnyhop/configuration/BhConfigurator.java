@@ -23,14 +23,18 @@ import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.SE
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.VIEW;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.BH_CONFIGURATOR_CSS;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.BH_CONFIGURATOR_FXML;
-import static net.seapanda.bunnyhop.simulator.common.BhSimConstants.Path.File.BH_SIM_SETTINGS_JSON;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.BH_SETTINGS_JSON;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.BH_SIM_SETTINGS_JSON;
 import static net.seapanda.bunnyhop.utility.Utility.execPath;
-import static net.seapanda.bunnyhop.utility.function.ThrowingConsumer.unchecked;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Map;
 import javafx.application.Application;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -44,9 +48,7 @@ import javafx.stage.Stage;
 import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.service.FileCollector;
 import net.seapanda.bunnyhop.service.message.BhMessageService;
-import net.seapanda.bunnyhop.simulator.common.BhSimSettings;
-import net.seapanda.bunnyhop.utility.serialization.JsonExporter;
-import net.seapanda.bunnyhop.utility.serialization.JsonImporter;
+import net.seapanda.bunnyhop.simulator.api.BhSimulatorSettings;
 
 /**
  * BunnyHop の設定を行うための GUI アプリケーションのエントリポイントとなるクラス.
@@ -60,11 +62,10 @@ public class BhConfigurator extends Application {
   @FXML
   private Button resetWindowStatesButton;
 
-  /** 設定ファイルとその設定を反映するクラスのクラスオブジェクト. */
-  private final Map<Path, Class<?>> pathToClass = Map.of(
-      Paths.get(execPath, SETTINGS, BH_SIM_SETTINGS_JSON), BhSimSettings.class);
-
-  private final BhSettings bhSettings = new BhSettings();
+  private final Path bhConfigFilePath = Paths.get(execPath, SETTINGS, BH_SETTINGS_JSON);
+  private final Path bhSimConfigFilePath = Paths.get(execPath, SETTINGS, BH_SIM_SETTINGS_JSON);
+  private BhSettings bhSettings;
+  private BhSimulatorSettings bhSimSettings;
 
   public static void main(String[] args) {
     launch(args);
@@ -72,11 +73,16 @@ public class BhConfigurator extends Application {
 
   @Override
   public void start(Stage stage) {
+    bhSettings = importSettings(new BhSettings(), bhConfigFilePath);
+    bhSimSettings = importSettings(new BhSimulatorSettings(), bhSimConfigFilePath);
+
     var messageService = new BhMessageService();
     try {
-      importSettings();
       loadView(stage, getViewFile());
-      stage.setOnCloseRequest(event -> exportSettings());
+      stage.setOnCloseRequest(event -> {
+        exportSettings(bhSettings, bhConfigFilePath);
+        exportSettings(bhSimSettings, bhSimConfigFilePath);
+      });
       stage.show();
     } catch (Exception e) {
       messageService.alert(
@@ -109,21 +115,22 @@ public class BhConfigurator extends Application {
   }
 
   /** アプリケーションの設定をファイルに保存する. */
-  private void exportSettings() {
-    try {
-      pathToClass.entrySet()
-          .forEach(unchecked(entry -> JsonExporter.export(entry.getValue(), entry.getKey())));
-    } catch (Exception e) { /* Do nothing.*/ }
+  private static void exportSettings(Object src, Path path) {
+    Path filePath = Paths.get(execPath, SETTINGS, BH_SETTINGS_JSON);
+    var gson = new GsonBuilder().setPrettyPrinting().create();
+    try (var jw = gson.newJsonWriter(new FileWriter(path.toAbsolutePath().toString()))) {
+      Files.createDirectories(filePath.toAbsolutePath().getParent());
+      gson.toJson(src, src.getClass(), jw);
+    } catch (IOException e) { /* Do nothing.*/ }
   }
 
   /** アプリケーションの設定をファイルから読み込む. */
-  private void importSettings() {
-    try {
-      pathToClass.entrySet().stream()
-          .filter(entry -> entry.getKey().toFile().exists())
-          .forEach(unchecked(entry -> JsonImporter.imports(entry.getValue(), entry.getKey())));
-
-    } catch (Exception e) { /* Do nothing.*/ }
+  private static <T> T importSettings(T defaultVal, Path path) {
+    var gson = new Gson();
+    try (var jr = gson.newJsonReader(new FileReader(path.toAbsolutePath().toString()))) {
+      return gson.fromJson(jr, defaultVal.getClass());
+    } catch (IOException e) { /* Do nothing.*/ }
+    return defaultVal;
   }
 
   /** {@code scene} に css を適用する. */
@@ -140,23 +147,29 @@ public class BhConfigurator extends Application {
     }
     languageComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
       bhSettings.language.set(newVal.getValue());
-      BhSimSettings.language = newVal.getValue();
+      bhSimSettings.language.set(newVal.getValue());
     });
     resetWindowStatesButton.setOnAction(action -> {
-      var defaultState = new BhSettings.WindowState();
-      bhSettings.mainWindow.width.set(defaultState.width.get());
-      bhSettings.mainWindow.height.set(defaultState.height.get());
-      bhSettings.mainWindow.posX.set(defaultState.posX.get());
-      bhSettings.mainWindow.posY.set(defaultState.posY.get());
-      bhSettings.mainWindow.maximized.set(defaultState.maximized.get());
-      bhSettings.debugWindow.width.set(defaultState.width.get());
-      bhSettings.debugWindow.height.set(defaultState.height.get());
-      bhSettings.debugWindow.posX.set(defaultState.posX.get());
-      bhSettings.debugWindow.posY.set(defaultState.posY.get());
-      bhSettings.debugWindow.maximized.set(defaultState.maximized.get());
+      var window = new BhSettings.Window();
+      bhSettings.mainWindow.width.set(window.width.get());
+      bhSettings.mainWindow.height.set(window.height.get());
+      bhSettings.mainWindow.posX.set(window.posX.get());
+      bhSettings.mainWindow.posY.set(window.posY.get());
+      bhSettings.mainWindow.maximized.set(window.maximized.get());
+      bhSettings.debugWindow.width.set(window.width.get());
+      bhSettings.debugWindow.height.set(window.height.get());
+      bhSettings.debugWindow.posX.set(window.posX.get());
+      bhSettings.debugWindow.posY.set(window.posY.get());
+      bhSettings.debugWindow.maximized.set(window.maximized.get());
       bhSettings.ui.nodeSelectionSplitPos.set(-1);
       bhSettings.ui.notificationSplitPos.set(-1);
-      BhSimSettings.Ui.window = new BhSimSettings.Window();
+
+      var simWindow = new BhSimulatorSettings.Window();
+      bhSimSettings.window.width.set(simWindow.width.get());
+      bhSimSettings.window.height.set(simWindow.height.get());
+      bhSimSettings.window.posX.set(simWindow.posX.get());
+      bhSimSettings.window.posY.set(simWindow.posY.get());
+      bhSimSettings.window.maximized.set(simWindow.maximized.get());
     });
   }
 }

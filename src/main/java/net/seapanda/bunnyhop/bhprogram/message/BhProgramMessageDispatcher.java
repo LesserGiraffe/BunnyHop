@@ -34,7 +34,7 @@ import net.seapanda.bunnyhop.bhprogram.common.message.thread.BhThreadContext;
 import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeTransceiver;
 import net.seapanda.bunnyhop.debugger.model.DebugMessageProcessor;
 import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
-import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
+import net.seapanda.bunnyhop.simulator.api.SimulatorCmdProcessor;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
 
 /**

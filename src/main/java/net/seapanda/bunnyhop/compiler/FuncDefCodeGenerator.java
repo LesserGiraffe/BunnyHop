@@ -22,6 +22,8 @@ import java.util.Collection;
 import java.util.List;
 import net.seapanda.bunnyhop.compiler.SymbolNames.UserDefFunc;
 import net.seapanda.bunnyhop.compiler.VarDeclCodeGenerator.ParamList;
+import net.seapanda.bunnyhop.compiler.api.CompilableSyntaxTreeNode;
+import net.seapanda.bunnyhop.compiler.api.CompileOption;
 
 /**
  * 関数定義のコード生成を行うクラス.

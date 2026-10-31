@@ -60,14 +60,6 @@ public class BhConstants {
     public static final double DEFAULT_APP_WIDTH_RATE = 0.7;
     /** 起動時の画面高さのディスプレイに対する割合. */
     public static final double DEFAULT_APP_HEIGHT_RATE = 0.7;
-    /** 起動時のシミュレータの画面幅のディスプレイに対する割合. */
-    public static final double DEFAULT_SIM_WIDTH_RATE = 0.5;
-    /** 起動時のシミュレータの画面高さのディスプレイに対する割合. */
-    public static final double DEFAULT_SIM_HEIGHT_RATE = 0.6;
-    /** 起動時のシミュレータの画面幅の最大値. */
-    public static final double MAX_DEFAULT_SIM_WIDTH = 1600;
-    /** 起動時のシミュレータの画面高さの最大値. */
-    public static final double MAX_DEFAULT_SIM_HEIGHT = 1200;
     public static final double DEFAULT_WORKSPACE_WIDTH = 200 * Rem.VAL;
     public static final double DEFAULT_WORKSPACE_HEIGHT = 200 * Rem.VAL;
     /** ctrl + マウスホイールや拡大, 縮小ボタンを押したときの拡大縮小倍率. */
@@ -177,8 +169,12 @@ public class BhConstants {
       public static final String BUNNY_HOP_ICON = "BunnyHop16.png";
       /** 言語ファイルの名前. */
       public static final String LANGUAGE_FILE = "BunnyHop.json";
+      /** シミュレータの言語ファイルの名前. */
+      public static final String SIM_LANGUAGE_FILE = "BhSimulator.json";
       /** 設定ファイルの名前. */
       public static final String BH_SETTINGS_JSON = "BhSettings.json";
+      /** シミュレータの設定ファイルの名前. */
+      public static final String BH_SIM_SETTINGS_JSON = "BhSimSettings.json";
       /** コンパイルに関する設定ファイル. */
       public static final String COMPILE_JSON = "Compile.json";
     }

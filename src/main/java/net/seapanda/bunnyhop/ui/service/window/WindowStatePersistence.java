@@ -19,7 +19,7 @@ package net.seapanda.bunnyhop.ui.service.window;
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import net.seapanda.bunnyhop.common.configuration.BhSettings.WindowState;
+import net.seapanda.bunnyhop.common.configuration.BhSettings.Window;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 
 /**
@@ -29,8 +29,8 @@ import net.seapanda.bunnyhop.utility.math.Vec2D;
  */
 class WindowStatePersistence {
 
-  public final Stage stage;
-  private final WindowState windowState;
+  final Stage stage;
+  private final Window window;
 
   /** 最大化する前のウィンドウのサイズを保持するオブジェクト. */
   private final Vec2D sizeBeforeMaximized;
@@ -50,13 +50,13 @@ class WindowStatePersistence {
    * コンストラクタ.
    *
    * @param stage 状態を管理する Stage オブジェクト
-   * @param windowState ウィンドウの状態を保持するオブジェクト
+   * @param window ウィンドウの状態を保持するオブジェクト
    */
-  WindowStatePersistence(Stage stage, WindowState windowState) {
+  WindowStatePersistence(Stage stage, Window window) {
     this.stage = stage;
-    this.windowState = windowState;
-    sizeBeforeMaximized = new Vec2D(windowState.width.get(), windowState.height.get());
-    oldPos = new Vec2D(windowState.posX.get(), windowState.posY.get());
+    this.window = window;
+    sizeBeforeMaximized = new Vec2D(window.width.get(), window.height.get());
+    oldPos = new Vec2D(window.posX.get(), window.posY.get());
     posBeforeMaximized = new Vec2D(oldPos);
     setEventHandlers();
   }
@@ -106,11 +106,11 @@ class WindowStatePersistence {
     if (!canRestoreWindowState()) {
       return;
     }
-    stage.setWidth(windowState.width.get());
-    stage.setHeight(windowState.height.get());
-    stage.setX(windowState.posX.get());
-    stage.setY(windowState.posY.get());
-    stage.setMaximized(windowState.maximized.get());
+    stage.setWidth(window.width.get());
+    stage.setHeight(window.height.get());
+    stage.setX(window.posX.get());
+    stage.setY(window.posY.get());
+    stage.setMaximized(window.maximized.get());
   }
 
   /**
@@ -119,25 +119,25 @@ class WindowStatePersistence {
    * @return 復元可能な状態が保存されている場合は true
    */
   private boolean canRestoreWindowState() {
-    return windowState.width.get() >= 0
-        && windowState.height.get() >= 0
-        && windowState.posX.get() > Integer.MIN_VALUE
-        && windowState.posY.get() > Integer.MIN_VALUE
+    return window.width.get() > 0
+        && window.height.get() > 0
+        && window.posX.get() > Integer.MIN_VALUE
+        && window.posY.get() > Integer.MIN_VALUE
         && Screen.getScreens().stream().anyMatch(this::isWindowTopInScreen);
   }
 
   /** ウィンドウの右上端または左上端の矩形が {@code screen} の可視領域に入っているか調べる. */
   private boolean isWindowTopInScreen(Screen screen) {
-    if (windowState.maximized.get()) {
+    if (window.maximized.get()) {
       return true;
     }
     // 矩形の長さ
     double length = 20;
     Rectangle2D upperLeftBound =
-        new Rectangle2D(windowState.posX.get(), windowState.posY.get(), length, length);
-    double upperRight = windowState.posX.get() + windowState.width.get();
+        new Rectangle2D(window.posX.get(), window.posY.get(), length, length);
+    double upperRight = window.posX.get() + window.width.get();
     Rectangle2D upperRightBound =
-        new Rectangle2D(upperRight - length, windowState.posY.get(), length, length);
+        new Rectangle2D(upperRight - length, window.posY.get(), length, length);
     Rectangle2D screenBounds = screen.getVisualBounds();
     return screenBounds.contains(upperLeftBound) || screenBounds.contains(upperRightBound);
   }
@@ -147,10 +147,10 @@ class WindowStatePersistence {
    * ウィンドウのサイズ, 位置, 最大化状態を保存する.
    */
   void save() {
-    windowState.width.set(Double.valueOf(sizeBeforeMaximized.x).intValue());
-    windowState.height.set(Double.valueOf(sizeBeforeMaximized.y).intValue());
-    windowState.posX.set(Double.valueOf(oldPos.x).intValue());
-    windowState.posY.set(Double.valueOf(oldPos.y).intValue());
-    windowState.maximized.set(stage.isMaximized());
+    window.width.set(Double.valueOf(sizeBeforeMaximized.x).intValue());
+    window.height.set(Double.valueOf(sizeBeforeMaximized.y).intValue());
+    window.posX.set(Double.valueOf(oldPos.x).intValue());
+    window.posY.set(Double.valueOf(oldPos.y).intValue());
+    window.maximized.set(stage.isMaximized());
   }
 }

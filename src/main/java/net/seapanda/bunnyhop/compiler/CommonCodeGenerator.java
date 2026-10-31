@@ -23,6 +23,8 @@ import static net.seapanda.bunnyhop.compiler.SymbolNames.UserDefFunc;
 
 import java.util.ArrayList;
 import java.util.SequencedCollection;
+import net.seapanda.bunnyhop.compiler.api.CompilableSyntaxTreeNode;
+import net.seapanda.bunnyhop.compiler.api.CompileOption;
 
 /**
  * 式や文のコード生成に必要な共通の機能を持つクラス.

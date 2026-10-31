@@ -37,7 +37,7 @@ import net.seapanda.bunnyhop.common.text.TextDefs;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.message.MessageService;
 import net.seapanda.bunnyhop.service.script.BhScriptRepository;
-import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
+import net.seapanda.bunnyhop.simulator.api.SimulatorCmdProcessor;
 import net.seapanda.bunnyhop.utility.Utility;
 import net.seapanda.bunnyhop.utility.concurrent.event.ConcurrentConsumerInvoker;
 import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;

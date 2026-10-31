@@ -65,6 +65,7 @@ import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationServic
 import net.seapanda.bunnyhop.service.message.BhMessageService;
 import net.seapanda.bunnyhop.service.undo.UndoRedoAgent;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
+import net.seapanda.bunnyhop.simulator.api.BhSimulator;
 import net.seapanda.bunnyhop.ui.control.FoundationController;
 import net.seapanda.bunnyhop.ui.control.MenuBarController;
 import net.seapanda.bunnyhop.ui.control.MenuViewController;
@@ -72,7 +73,7 @@ import net.seapanda.bunnyhop.ui.control.MessageViewController;
 import net.seapanda.bunnyhop.ui.control.NodeSearchViewController;
 import net.seapanda.bunnyhop.ui.control.SearchBoxController;
 import net.seapanda.bunnyhop.ui.control.SharedSearchBoxController;
-import net.seapanda.bunnyhop.ui.service.window.WindowManager;
+import net.seapanda.bunnyhop.ui.service.window.WindowStateManager;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.utility.Utility;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
@@ -98,6 +99,7 @@ public class SceneBuilder {
   private final WorkspaceSetController wssCtrl;
   private final DebugWindowController debugWindowCtrl;
 
+  private final Stage stage;
   private final WorkspaceSet wss;
   private final TreeItem<BhNodeCategory> nodeCategoryRoot;
   private final TransactionNotificationService notifService;
@@ -118,7 +120,8 @@ public class SceneBuilder {
   private final SourceNodeCollector executableNodeCollector;
   private final SharedSearchBoxController sharedSearchBoxCtrl;
   private final TrashCanController trashCanCtrl;
-  private final WindowManager windowManager;
+  private final WindowStateManager windowStateManager;
+  private final BhSimulator simulator;
   private final VisualEffectManager effectManager;
   private final WorkspaceSetViewCallBackRegistry wssViewCbRegistry;
   private final BhSettings settings;
@@ -135,6 +138,7 @@ public class SceneBuilder {
   public SceneBuilder(
       Path mainWindowFxml,
       Path debugWindowFxml,
+      Stage stage,
       WorkspaceSet wss,
       TreeItem<BhNodeCategory> nodeCategoryRoot,
       TransactionNotificationService notifService,
@@ -158,11 +162,13 @@ public class SceneBuilder {
       WorkspaceSetController wssCtrl,
       SharedSearchBoxController sharedSearchBoxCtrl,
       TrashCanController trashCanCtrl,
-      WindowManager windowManager,
+      WindowStateManager windowStateManager,
+      BhSimulator simulator,
       VisualEffectManager visualEffectManager,
       WorkspaceSetViewCallBackRegistry wssViewCbRegistry,
       BhSettings settings)
       throws AppInitializationException {
+    this.stage = stage;
     this.wss = wss;
     this.nodeCategoryRoot = nodeCategoryRoot;
     this.notifService = notifService;
@@ -183,7 +189,8 @@ public class SceneBuilder {
     this.executableNodeCollector = executableNodeCollector;
     this.sharedSearchBoxCtrl = sharedSearchBoxCtrl;
     this.trashCanCtrl = trashCanCtrl;
-    this.windowManager = windowManager;
+    this.windowStateManager = windowStateManager;
+    this.simulator = simulator;
     this.effectManager = visualEffectManager;
     this.wssViewCbRegistry = wssViewCbRegistry;
     this.settings = settings;
@@ -283,7 +290,8 @@ public class SceneBuilder {
           cutAndPaste,
           msgService,
           debugWindowCtrl,
-          windowManager,
+          simulator.getWindow(),
+          simulator.getConfiguration(),
           executableNodeCollector,
           settings);
     }
@@ -291,7 +299,7 @@ public class SceneBuilder {
       return wssCtrl;
     }
     if (type == FoundationController.class) {
-      return new FoundationController(localCtrl, remoteCtrl, settings);
+      return new FoundationController(stage, localCtrl, remoteCtrl, settings);
     }
     return null;
   }
@@ -312,7 +320,7 @@ public class SceneBuilder {
     debugStage.setOnCloseRequest(WindowEvent::consume);
     msgService.setAppStages(stage, debugStage);
     createInitialWorkspace(wsFactory);
-    windowManager.restoreWindowStates();
+    windowStateManager.restoreWindowStates();
     stage.show();
     debugStage.show();
     debugWindowCtrl.setVisibility(settings.debug.debugWindowVisible.get());

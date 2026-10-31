@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.SequencedCollection;
 import java.util.stream.Collectors;
+import net.seapanda.bunnyhop.compiler.api.CompilableSyntaxTreeNode;
+import net.seapanda.bunnyhop.compiler.api.CompileOption;
 
 /**
  * 変数宣言のコードを生成するクラス.

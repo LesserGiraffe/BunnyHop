@@ -2,7 +2,7 @@ package net.seapanda.bunnyhop.bhprogram;
 
 
 import net.seapanda.bunnyhop.bhprogram.runtime.RemoteBhRuntimeController;
-import net.seapanda.bunnyhop.compiler.SourceSet;
+import net.seapanda.bunnyhop.compiler.api.SourceSet;
 
 /**
  * BhProgram の起動とその実行環境の制御用オブジェクトを取得する機能を規定したインタフェース.

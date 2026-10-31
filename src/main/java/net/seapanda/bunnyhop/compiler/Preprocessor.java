@@ -21,6 +21,7 @@ import static net.seapanda.bunnyhop.compiler.SymbolNames.VarDecl.LIST_NAME;
 
 import java.util.Map;
 import java.util.function.Consumer;
+import net.seapanda.bunnyhop.compiler.api.CompilableSyntaxTreeNode;
 import org.apache.commons.lang3.mutable.MutableLong;
 
 /**

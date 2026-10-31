@@ -47,7 +47,7 @@ import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.common.text.TextDefs;
 import net.seapanda.bunnyhop.compile.SourceNodeCollector;
-import net.seapanda.bunnyhop.compiler.SourceSet;
+import net.seapanda.bunnyhop.compiler.api.SourceSet;
 import net.seapanda.bunnyhop.debugger.control.DebugWindowController;
 import net.seapanda.bunnyhop.node.model.BhNode.Swapped;
 import net.seapanda.bunnyhop.node.model.event.CauseOfDeletion;
@@ -61,7 +61,8 @@ import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationServic
 import net.seapanda.bunnyhop.service.message.MessageService;
 import net.seapanda.bunnyhop.service.undo.UndoRedoAgent;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
-import net.seapanda.bunnyhop.ui.service.window.WindowManager;
+import net.seapanda.bunnyhop.simulator.api.BhSimulator.Configuration;
+import net.seapanda.bunnyhop.simulator.api.SimulatorWindow;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
@@ -163,7 +164,9 @@ public class MenuViewController {
   /** デバッグウィンドウのコントローラ. */
   private final DebugWindowController debugWindowCtrl;
   /** アプリケーションのウィンドウを操作するためのオブジェクト. */
-  private final WindowManager windowManager;
+  private final SimulatorWindow simWindow;
+  /** シミュレータの設定を行うためのオブジェクト. */
+  private final Configuration simConfig;
   /** 実行可能なノードを集めるためのオブジェクト. */
   private final SourceNodeCollector sourceNodeCollector;
   /** BunnyHop の設定情報. */
@@ -182,7 +185,8 @@ public class MenuViewController {
       CutAndPaste cutAndPaste,
       MessageService msgService,
       DebugWindowController debugWindowCtrl,
-      WindowManager windowManager,
+      SimulatorWindow simWindow,
+      Configuration simConfig,
       SourceNodeCollector sourceNodeCollector,
       BhSettings settings) {
     this.wssCtrl = wssCtrl;
@@ -196,7 +200,8 @@ public class MenuViewController {
     this.cutAndPaste = cutAndPaste;
     this.msgService = msgService;
     this.debugWindowCtrl = debugWindowCtrl;
-    this.windowManager = windowManager;
+    this.simWindow = simWindow;
+    this.simConfig = simConfig;
     this.sourceNodeCollector = sourceNodeCollector;
     this.settings = settings;
   }
@@ -233,8 +238,8 @@ public class MenuViewController {
     connectBtn.setOnAction(action -> connect());
     disconnectBtn.setOnAction(action -> disconnect());
 
-    focusSimBtn.setOnAction(action ->
-        settings.simulator.focusOnSimulatorChanged.set(focusSimBtn.isSelected()));
+    focusSimBtn.setOnAction(
+        action -> simConfig.focusOnSimulatorChange().set(focusSimBtn.isSelected()));
     breakpointBtn.setOnAction(action ->
         settings.debug.canSetBreakpoint.set(breakpointBtn.isSelected()));
     debugBtn.setOnAction(action -> {
@@ -254,7 +259,7 @@ public class MenuViewController {
   private void initializeUiComponentStates() {
     pasteBtn.setDisable(true);
     executeBtn.setDisable(true);
-    focusSimBtn.setSelected(settings.simulator.focusOnSimulatorChanged.get());
+    focusSimBtn.setSelected(simConfig.focusOnSimulatorChange().get());
     breakpointBtn.setSelected(settings.debug.canSetBreakpoint.get());
     debugBtn.setSelected(settings.debug.debugWindowVisible.get());
   }
@@ -542,9 +547,7 @@ public class MenuViewController {
     CompletableFuture
         .supplyAsync(exec)
         .thenAccept(success -> {
-          if (settings.simulator.focusOnStartBhProgram.get() && success && isLocalHost()) {
-            windowManager.focusSimulator();
-          }
+          focusSimulatorIfNeeded(success);
           executing.set(false);
         });
   }
@@ -564,6 +567,16 @@ public class MenuViewController {
       notifService.end(ExclusionId.NODE_MANIPULATION);
     }
     return nodeSet.orElse(null);
+  }
+
+  /** 設定に応じてシミュレータのウィンドウにフォーカスを当てる. */
+  private void focusSimulatorIfNeeded(boolean launchSucceeded) {
+    if (settings.simulator.focusOnStartBhProgram.get()
+        && launchSucceeded
+        && isLocalHost()
+        && !simWindow.isIconified()) {
+      simWindow.focus();
+    }
   }
 
   /** 終了ボタン押下時の処理. */

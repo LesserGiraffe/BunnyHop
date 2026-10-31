@@ -22,6 +22,8 @@ import static net.seapanda.bunnyhop.compiler.Keywords.newLine;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.SequencedCollection;
+import net.seapanda.bunnyhop.compiler.api.CompilableSyntaxTreeNode;
+import net.seapanda.bunnyhop.compiler.api.CompileOption;
 
 /**
  * 文のコード生成を行うクラス.

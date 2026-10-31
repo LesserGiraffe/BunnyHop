@@ -17,6 +17,9 @@
 package net.seapanda.bunnyhop.compiler;
 
 import java.nio.file.Path;
+import net.seapanda.bunnyhop.compiler.api.CompileError;
+import net.seapanda.bunnyhop.compiler.api.CompileOption;
+import net.seapanda.bunnyhop.compiler.api.SourceSet;
 
 /**
  * BhNode をコンパイル機能を規定したインタフェース.

@@ -21,6 +21,8 @@ import static net.seapanda.bunnyhop.compiler.Keywords.Prefix;
 import static net.seapanda.bunnyhop.compiler.Keywords.newLine;
 
 import java.util.Collection;
+import net.seapanda.bunnyhop.compiler.api.CompilableSyntaxTreeNode;
+import net.seapanda.bunnyhop.compiler.api.CompileOption;
 
 /**
  * イベントハンドラのコード生成を行うクラス.

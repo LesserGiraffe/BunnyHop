@@ -36,6 +36,10 @@ import java.util.SequencedCollection;
 import java.util.Set;
 import java.util.stream.Collectors;
 import net.seapanda.bunnyhop.compiler.ScriptIdentifiers.Funcs;
+import net.seapanda.bunnyhop.compiler.api.CompilableSyntaxTreeNode;
+import net.seapanda.bunnyhop.compiler.api.CompileError;
+import net.seapanda.bunnyhop.compiler.api.CompileOption;
+import net.seapanda.bunnyhop.compiler.api.SourceSet;
 
 
 /**
@@ -43,7 +47,7 @@ import net.seapanda.bunnyhop.compiler.ScriptIdentifiers.Funcs;
  *
  * @author K.Koike
  */
-class CodeGenerator implements BhCompiler {
+public class CodeGenerator implements BhCompiler {
 
   private final VarDeclCodeGenerator varDeclCodeGen;
   private final FuncDefCodeGenerator funcDefCodeGen;

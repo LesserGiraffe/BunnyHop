@@ -14,22 +14,19 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.compiler;
+package net.seapanda.bunnyhop.compiler.api;
 
-import net.seapanda.bunnyhop.utility.Utility;
+import net.seapanda.bunnyhop.compiler.BhCompiler;
+import net.seapanda.bunnyhop.compiler.CodeGenerator;
 
 /**
- * コンパイル中にエラーが発生したことを示す例外.
+ * {@link BhCompiler} のファクトリクラス.
  *
  * @author K.Koike
  */
-public class CompileError extends Exception {
+public class BhCompilerFactory {
 
-  public CompileError(String msg) {
-    this(msg, true);
-  }
-
-  public CompileError(String msg, boolean includeMethodInfo) {
-    super(msg + "\n  " + (includeMethodInfo ? Utility.getMethodName(1) : ""));
+  public static BhCompiler create() {
+    return new CodeGenerator();
   }
 }
