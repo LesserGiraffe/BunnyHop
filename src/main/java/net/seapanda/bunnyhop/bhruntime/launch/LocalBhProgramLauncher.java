@@ -1,7 +1,6 @@
-package net.seapanda.bunnyhop.bhprogram;
+package net.seapanda.bunnyhop.bhruntime.launch;
 
-
-import net.seapanda.bunnyhop.bhprogram.runtime.LocalBhRuntimeController;
+import net.seapanda.bunnyhop.bhruntime.ctrl.local.LocalBhRuntimeController;
 import net.seapanda.bunnyhop.compiler.api.SourceSet;
 
 /**

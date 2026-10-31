@@ -14,36 +14,36 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.bhprogram.message;
+package net.seapanda.bunnyhop.bhruntime.message;
 
 import java.util.function.Consumer;
-import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeStatus;
-import net.seapanda.bunnyhop.runtime.api.message.BhProgramMessage;
-import net.seapanda.bunnyhop.runtime.api.message.BhProgramNotification;
-import net.seapanda.bunnyhop.runtime.api.message.BhProgramResponse;
+import net.seapanda.bunnyhop.bhruntime.BhRuntimeStatus;
+import net.seapanda.bunnyhop.runtime.api.message.BhRuntimeMessage;
+import net.seapanda.bunnyhop.runtime.api.message.BhRuntimeNotification;
+import net.seapanda.bunnyhop.runtime.api.message.BhRuntimeResponse;
 
 /**
- * BhProgramMessage を送受信する機能を規定したインタフェース.
+ * BhRuntimeMessage を送受信する機能を規定したインタフェース.
  *
  * @author K.Koike
  */
-public interface BhProgramMessageCarrier {
+public interface BhRuntimeMessageCarrier {
 
   /**
-   * 接続状態のとき, 引数で指定した {@link BhProgramNotification} を送信キューに追加する.
+   * 接続状態のとき, 引数で指定した {@link BhRuntimeNotification} を送信キューに追加する.
    *
    * @param notif 送信データ
    * @return ステータスコード
    */
-  BhRuntimeStatus pushNotification(BhProgramNotification notif);
+  BhRuntimeStatus pushNotification(BhRuntimeNotification notif);
 
   /**
-   * 引数で指定した {@link BhProgramResponse} を送信キューに追加する.
+   * 引数で指定した {@link BhRuntimeResponse} を送信キューに追加する.
    *
    * @param resp 送信データ
    * @return ステータスコード
    */
-  BhRuntimeStatus pushResponse(BhProgramResponse resp);
+  BhRuntimeStatus pushResponse(BhRuntimeResponse resp);
 
   /**
    * {@code message} の型により {@link #pushNotification} か {@link #pushResponse} を呼ぶ.
@@ -52,26 +52,26 @@ public interface BhProgramMessageCarrier {
    * @return ステータスコード
    * @throws IllegalArgumentException {@code message} が不正なデータであった場合.
    */
-  default BhRuntimeStatus pushMessage(BhProgramMessage message) {
-    if (message instanceof BhProgramNotification notif) {
+  default BhRuntimeStatus pushMessage(BhRuntimeMessage message) {
+    if (message instanceof BhRuntimeNotification notif) {
       return pushNotification(notif);
-    } else if (message instanceof BhProgramResponse resp) {
+    } else if (message instanceof BhRuntimeResponse resp) {
       return pushResponse(resp);
     }
     throw new IllegalArgumentException("Failed to send an invalid message.\n%s".formatted(message));
   }
 
   /**
-   * このオブジェクトが {@link BhProgramNotification} を受信したときのイベントハンドラを設定する.
+   * このオブジェクトが {@link BhRuntimeNotification} を受信したときのイベントハンドラを設定する.
    *
    * @param handler 設定するイベントハンドラ.  null を指定した場合, イベントハンドラの設定を解除する.
    */
-  void setOnNotifReceived(Consumer<BhProgramNotification> handler);
+  void setOnNotifReceived(Consumer<BhRuntimeNotification> handler);
 
   /**
-   * このオブジェクトが {@link BhProgramResponse} を受信したときのイベントハンドラを設定する.
+   * このオブジェクトが {@link BhRuntimeResponse} を受信したときのイベントハンドラを設定する.
    *
    * @param handler 設定するイベントハンドラ.  null を指定した場合, イベントハンドラの設定を解除する.
    */
-  void setOnRespReceived(Consumer<BhProgramResponse> handler);
+  void setOnRespReceived(Consumer<BhRuntimeResponse> handler);
 }

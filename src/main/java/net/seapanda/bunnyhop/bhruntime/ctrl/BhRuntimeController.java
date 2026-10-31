@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.bhprogram;
+package net.seapanda.bunnyhop.bhruntime.ctrl;
 
 import java.nio.file.Path;
-import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageCarrier;
-import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeStatus;
-import net.seapanda.bunnyhop.runtime.api.message.BhProgramMessage;
+import net.seapanda.bunnyhop.bhruntime.BhRuntimeStatus;
+import net.seapanda.bunnyhop.bhruntime.message.BhRuntimeMessageCarrier;
+import net.seapanda.bunnyhop.runtime.api.message.BhRuntimeMessage;
 import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
 
 /**
@@ -35,7 +35,7 @@ public interface BhRuntimeController {
    * @param message 送信データ
    * @return ステータスコード
    */
-  BhRuntimeStatus send(BhProgramMessage message);
+  BhRuntimeStatus send(BhRuntimeMessage message);
 
   /**
    * このオブジェクトに対するイベントハンドラの追加と削除を行うオブジェクトを返す.
@@ -69,8 +69,8 @@ public interface BhRuntimeController {
    */
   record MessageCarrierRenewedEvent(
       BhRuntimeController ctrl,
-      BhProgramMessageCarrier oldCarrier,
-      BhProgramMessageCarrier newCarrier) {}
+      BhRuntimeMessageCarrier oldCarrier,
+      BhRuntimeMessageCarrier newCarrier) {}
 
   /**
    * BhRuntime との通信が有効または無効になったときの情報を格納したレコード.

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.bhprogram.runtime;
+package net.seapanda.bunnyhop.bhruntime.ctrl.local;
 
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.JsIdName.EXEC_PATH;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.JsIdName.JAVA_PATH;
@@ -28,12 +28,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
-import net.seapanda.bunnyhop.bhprogram.BhRuntimeController;
+import net.seapanda.bunnyhop.bhruntime.BhRuntimeStatus;
+import net.seapanda.bunnyhop.bhruntime.ctrl.BhRuntimeController;
+import net.seapanda.bunnyhop.bhruntime.ctrl.BhRuntimeHelper;
+import net.seapanda.bunnyhop.bhruntime.ctrl.BhRuntimeTransceiver;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.common.text.TextDefs;
 import net.seapanda.bunnyhop.runtime.api.BhRuntimeFacade;
 import net.seapanda.bunnyhop.runtime.api.message.BhProgramEvent;
-import net.seapanda.bunnyhop.runtime.api.message.BhProgramMessage;
+import net.seapanda.bunnyhop.runtime.api.message.BhRuntimeMessage;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.message.MessageService;
 import net.seapanda.bunnyhop.service.script.BhScriptRepository;
@@ -237,7 +240,7 @@ public class RmiLocalBhRuntimeController implements LocalBhRuntimeController {
   }
 
   @Override
-  public BhRuntimeStatus send(BhProgramMessage message) {
+  public BhRuntimeStatus send(BhRuntimeMessage message) {
     if (!lock.tryLock()) {
       return BhRuntimeStatus.BUSY;
     }

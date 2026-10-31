@@ -17,7 +17,7 @@
 package net.seapanda.bunnyhop.common.configuration;
 
 import java.util.concurrent.atomic.AtomicReference;
-import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeType;
+import net.seapanda.bunnyhop.bhruntime.BhRuntimeType;
 import net.seapanda.bunnyhop.ui.model.NodeManipulationMode;
 import net.seapanda.bunnyhop.utility.concurrent.reference.ConcurrentBoolean;
 import net.seapanda.bunnyhop.utility.concurrent.reference.ConcurrentDouble;

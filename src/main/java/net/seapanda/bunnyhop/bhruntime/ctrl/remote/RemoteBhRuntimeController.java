@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.bhprogram.runtime;
+package net.seapanda.bunnyhop.bhruntime.ctrl.remote;
 
 import java.nio.file.Path;
-import net.seapanda.bunnyhop.bhprogram.BhRuntimeController;
+import net.seapanda.bunnyhop.bhruntime.ctrl.BhRuntimeController;
 
 /**
  * リモートで動作する BhRuntime (BhProgram の実行環境) の操作を規定したインタフェース.

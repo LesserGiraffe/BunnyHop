@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.bhprogram.runtime;
+package net.seapanda.bunnyhop.bhruntime.ctrl;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -36,7 +36,7 @@ import net.seapanda.bunnyhop.service.LogManager;
  *
  * @author K.Koike
  */
-class BhRuntimeHelper {
+public class BhRuntimeHelper {
 
   /**
    * RMI オブジェクトを探す.
@@ -58,7 +58,7 @@ class BhRuntimeHelper {
    * @param timeout 終了待ちタイムアウト時間 (ms)
    * @return プロセスを正常に終了できた場合true.
    */
-  static boolean killProcess(Process process, int timeout) {
+  public static boolean killProcess(Process process, int timeout) {
     boolean success = closeStreams(process);
     process.destroy();
     success &= waitForProcessEnd(process, timeout);
@@ -94,7 +94,7 @@ class BhRuntimeHelper {
    *
    * @param timeout タイムアウト (ms)
    */
-  static BhRuntimeFacade getBhRuntimeFacade(String hostname, BufferedReader br, int timeout)
+  public static BhRuntimeFacade getBhRuntimeFacade(String hostname, BufferedReader br, int timeout)
       throws IOException,
       TimeoutException,
       NotBoundException {

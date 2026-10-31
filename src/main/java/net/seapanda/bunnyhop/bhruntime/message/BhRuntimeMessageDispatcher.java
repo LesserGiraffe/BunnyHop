@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.bhprogram.message;
+package net.seapanda.bunnyhop.bhruntime.message;
 
-import net.seapanda.bunnyhop.bhprogram.BhRuntimeController;
-import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeTransceiver;
+import net.seapanda.bunnyhop.bhruntime.ctrl.BhRuntimeController;
+import net.seapanda.bunnyhop.bhruntime.ctrl.BhRuntimeTransceiver;
 import net.seapanda.bunnyhop.debugger.model.DebugMessageProcessor;
-import net.seapanda.bunnyhop.runtime.api.message.BhProgramMessage;
-import net.seapanda.bunnyhop.runtime.api.message.BhProgramNotification;
-import net.seapanda.bunnyhop.runtime.api.message.BhProgramResponse;
+import net.seapanda.bunnyhop.runtime.api.message.BhRuntimeMessage;
+import net.seapanda.bunnyhop.runtime.api.message.BhRuntimeNotification;
+import net.seapanda.bunnyhop.runtime.api.message.BhRuntimeResponse;
 import net.seapanda.bunnyhop.runtime.api.message.debug.GetEntryPointsResp;
 import net.seapanda.bunnyhop.runtime.api.message.debug.GetGlobalListValsResp;
 import net.seapanda.bunnyhop.runtime.api.message.debug.GetGlobalVarsResp;
@@ -38,11 +38,11 @@ import net.seapanda.bunnyhop.simulator.api.SimulatorCmdProcessor;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
 
 /**
- * {@link BhProgramMessage} を適切なクラスに渡す.
+ * {@link BhRuntimeMessage} を適切なクラスに渡す.
  *
  * @author K.Koike
  */
-public class BhProgramMessageDispatcher {
+public class BhRuntimeMessageDispatcher {
   
   /** BhProgram とやりとりする IO メッセージを処理するオブジェクト. */
   private final IoMessageProcessor ioMsgProcessor;
@@ -56,10 +56,10 @@ public class BhProgramMessageDispatcher {
   /**
    * コンストラクタ.
    *
-   * @param ioMessageProcessor {@link BhSimulatorCmd} 以外の {@link BhProgramNotification} を処理するオブジェクト
+   * @param ioMessageProcessor {@link BhSimulatorCmd} 以外の {@link BhRuntimeNotification} を処理するオブジェクト
    * @param simCmdProcessor {@link BhSimulatorCmd} を処理するオブジェクト
    */
-  public BhProgramMessageDispatcher(
+  public BhRuntimeMessageDispatcher(
       IoMessageProcessor ioMessageProcessor,
       DebugMessageProcessor debugMsgProcessor,
       SimulatorCmdProcessor simCmdProcessor,
@@ -74,13 +74,13 @@ public class BhProgramMessageDispatcher {
   }
   
   /**
-   * BhProgram との通信に使う {@link BhProgramMessageCarrier} を交換する.
+   * BhProgram との通信に使う {@link BhRuntimeMessageCarrier} を交換する.
    *
    * @param oldCarrier 古い通信用オブジェクト.  このオブジェクトに登録したイベントハンドラを登録解除する.
    * @param newCarrier 新しい通信用オブジェクト.  このオブジェクトにイベントハンドラを登録する.
    */
   private synchronized void replaceMsgCarrier(
-      BhProgramMessageCarrier oldCarrier, BhProgramMessageCarrier newCarrier) {
+      BhRuntimeMessageCarrier oldCarrier, BhRuntimeMessageCarrier newCarrier) {
     if (oldCarrier != null) {
       oldCarrier.setOnNotifReceived(null);
       oldCarrier.setOnRespReceived(null);
@@ -96,7 +96,7 @@ public class BhProgramMessageDispatcher {
    * @param notif 処理する通知.
    */
   private synchronized void dispatchNotifAsync(
-      BhProgramMessageCarrier carrier, BhProgramNotification notif) {
+      BhRuntimeMessageCarrier carrier, BhRuntimeNotification notif) {
     ViewUtil.runSafe(() -> {
       notifService.begin();
       try {
@@ -107,7 +107,7 @@ public class BhProgramMessageDispatcher {
     });
   }
 
-  private void dispatchNotif(BhProgramMessageCarrier carrier, BhProgramNotification notif) {
+  private void dispatchNotif(BhRuntimeMessageCarrier carrier, BhRuntimeNotification notif) {
     switch (notif) {
       case OutputTextCmd
           cmd -> carrier.pushResponse(ioMsgProcessor.process(cmd));
@@ -120,7 +120,7 @@ public class BhProgramMessageDispatcher {
   }
 
   /** {@link StringBhSimulatorCmd} をシミュレータに送る. */
-  private void dispatchSimulatorCmd(StringBhSimulatorCmd cmd, BhProgramMessageCarrier carrier) {
+  private void dispatchSimulatorCmd(StringBhSimulatorCmd cmd, BhRuntimeMessageCarrier carrier) {
     simCmdProcessor.process(
         cmd.getComponents(),
         (success, resp) -> {
@@ -130,7 +130,7 @@ public class BhProgramMessageDispatcher {
   }
 
   /** {@code resp} を適切なクラスへと渡す. */
-  private synchronized void dispatchRespAsync(BhProgramResponse response) {
+  private synchronized void dispatchRespAsync(BhRuntimeResponse response) {
     ViewUtil.runSafe(() -> {
       notifService.begin();
       try {
@@ -141,7 +141,7 @@ public class BhProgramMessageDispatcher {
     });
   }
 
-  private void dispatchResp(BhProgramResponse response) {
+  private void dispatchResp(BhRuntimeResponse response) {
     switch (response) {
       case InputTextResp resp -> ioMsgProcessor.process(resp);
       case GetLocalVarsResp resp -> debugMsgProcessor.process(resp);

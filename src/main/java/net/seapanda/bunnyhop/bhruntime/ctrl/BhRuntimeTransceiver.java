@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.bhprogram.runtime;
+package net.seapanda.bunnyhop.bhruntime.ctrl;
 
 import java.rmi.RemoteException;
 import java.util.List;
@@ -28,12 +28,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageCarrier;
+import net.seapanda.bunnyhop.bhruntime.BhRuntimeStatus;
+import net.seapanda.bunnyhop.bhruntime.message.BhRuntimeMessageCarrier;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.runtime.api.BhRuntimeFacade;
-import net.seapanda.bunnyhop.runtime.api.message.BhProgramMessage;
-import net.seapanda.bunnyhop.runtime.api.message.BhProgramNotification;
-import net.seapanda.bunnyhop.runtime.api.message.BhProgramResponse;
+import net.seapanda.bunnyhop.runtime.api.message.BhRuntimeMessage;
+import net.seapanda.bunnyhop.runtime.api.message.BhRuntimeNotification;
+import net.seapanda.bunnyhop.runtime.api.message.BhRuntimeResponse;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.utility.concurrent.SynchronizingTimer;
 
@@ -52,8 +53,8 @@ public class BhRuntimeTransceiver {
   private FutureSet futures;
   private final TaskEndFlags endFlags = new TaskEndFlags(false, false, false, false);
   private final SynchronizingTimer connectionWait = new SynchronizingTimer(1, true);
-  /** {@link BhProgramMessage} を送受信するためのオブジェクト. */
-  private final BhProgramMessageCarrierImpl carrier;
+  /** {@link BhRuntimeMessage} を送受信するためのオブジェクト. */
+  private final BhRuntimeMessageCarrierImpl carrier;
 
   /**
    * BhProgramの実行環境と通信する用のRMIオブジェクト.
@@ -71,7 +72,7 @@ public class BhRuntimeTransceiver {
   public BhRuntimeTransceiver(BhRuntimeFacade facade) {
     this.runtimeFacade = facade;
     id = nextId.getAndIncrement();
-    carrier = new BhProgramMessageCarrierImpl();
+    carrier = new BhRuntimeMessageCarrierImpl();
   }
 
   /**
@@ -165,8 +166,8 @@ public class BhRuntimeTransceiver {
     }
   }
 
-  /** {@link BhProgramMessage} の送受信機能を持ったオブジェクトを返す. */
-  public BhProgramMessageCarrier getMessageCarrier() {
+  /** {@link BhRuntimeMessage} の送受信機能を持ったオブジェクトを返す. */
+  public BhRuntimeMessageCarrier getMessageCarrier() {
     return carrier;
   }
 
@@ -225,28 +226,28 @@ public class BhRuntimeTransceiver {
     }
   }
 
-  /** {@link BhProgramMessage} を送受信する機能を提供するクラス. */
-  private class BhProgramMessageCarrierImpl implements BhProgramMessageCarrier {
+  /** {@link BhRuntimeMessage} を送受信する機能を提供するクラス. */
+  private class BhRuntimeMessageCarrierImpl implements BhRuntimeMessageCarrier {
   
-    /** BhProgram の実行環境に送信する {@link BhProgramNotification} を格納する FIFO. */
-    private final BlockingQueue<BhProgramNotification> sendNotifList = 
+    /** BhProgram の実行環境に送信する {@link BhRuntimeNotification} を格納する FIFO. */
+    private final BlockingQueue<BhRuntimeNotification> sendNotifList = 
         new ArrayBlockingQueue<>(BhConstants.BhRuntime.MAX_REMOTE_CMD_QUEUE_SIZE);
-    /** BhProgram の実行環境に送信する {@link BhProgramResponse} を格納する FIFO. */
-    private final BlockingQueue<BhProgramResponse> sendRespList =
+    /** BhProgram の実行環境に送信する {@link BhRuntimeResponse} を格納する FIFO. */
+    private final BlockingQueue<BhRuntimeResponse> sendRespList =
         new ArrayBlockingQueue<>(BhConstants.BhRuntime.MAX_REMOTE_CMD_QUEUE_SIZE);
-    /** {@link BhProgramNotification} を受信したときのイベントハンドラを. */
-    private final AtomicReference<Consumer<BhProgramNotification>> onNotifReceived =
+    /** {@link BhRuntimeNotification} を受信したときのイベントハンドラを. */
+    private final AtomicReference<Consumer<BhRuntimeNotification>> onNotifReceived =
         new AtomicReference<>(notif -> {});
-    /** {@link BhProgramResponse} を受信したときのイベントハンドラを. */
-    private final AtomicReference<Consumer<BhProgramResponse>> onRespReceived =
+    /** {@link BhRuntimeResponse} を受信したときのイベントハンドラを. */
+    private final AtomicReference<Consumer<BhRuntimeResponse>> onRespReceived =
         new AtomicReference<>(resp -> {});
 
-    /** BhProgram の実行環境から {@link BhProgramNotification} を受信し続ける. */
+    /** BhProgram の実行環境から {@link BhRuntimeNotification} を受信し続ける. */
     void recvNotif() {
       while (true) {
         try {
           connectionWait.awaitInterruptibly();
-          BhProgramNotification notif = runtimeFacade.recvNotifFromRuntime();
+          BhRuntimeNotification notif = runtimeFacade.recvNotifFromRuntime();
           if (notif != null) {
             onNotifReceived.get().accept(notif);
           }
@@ -261,10 +262,10 @@ public class BhRuntimeTransceiver {
       endFlags.recvNotif().set(true);
     }
 
-    /** BhProgram の実行環境に {@link BhProgramNotification} を送信し続ける. */
+    /** BhProgram の実行環境に {@link BhRuntimeNotification} を送信し続ける. */
     void sendNotif() {
       while (true) {
-        BhProgramNotification notif;
+        BhRuntimeNotification notif;
         try {
           notif =
               sendNotifList.poll(BhConstants.BhRuntime.Timeout.SEND_DATA, TimeUnit.MILLISECONDS);
@@ -286,11 +287,11 @@ public class BhRuntimeTransceiver {
       endFlags.sendNotif().set(true);
     }
 
-    /** BhProgram の実行環境から {@link BhProgramResponse} を受信し続ける. */
+    /** BhProgram の実行環境から {@link BhRuntimeResponse} を受信し続ける. */
     void recvResp() {
       while (true) {
         try {
-          BhProgramResponse resp = runtimeFacade.recvRespFromRuntime();
+          BhRuntimeResponse resp = runtimeFacade.recvRespFromRuntime();
           if (resp != null) {
             onRespReceived.get().accept(resp);
           }
@@ -305,10 +306,10 @@ public class BhRuntimeTransceiver {
       endFlags.recvResp().set(true);
     }
 
-    /** BhProgram の実行環境に {@link BhProgramResponse} を送信し続ける. */
+    /** BhProgram の実行環境に {@link BhRuntimeResponse} を送信し続ける. */
     void sendResp() {
       while (true) {
-        BhProgramResponse resp;
+        BhRuntimeResponse resp;
         try {
           resp = sendRespList.poll(BhConstants.BhRuntime.Timeout.SEND_DATA, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
@@ -331,7 +332,7 @@ public class BhRuntimeTransceiver {
     }
 
     @Override
-    public BhRuntimeStatus pushNotification(BhProgramNotification notif) {
+    public BhRuntimeStatus pushNotification(BhRuntimeNotification notif) {
       if (!connected.get()) {
         return BhRuntimeStatus.SEND_WHEN_DISCONNECTED;
       }
@@ -343,7 +344,7 @@ public class BhRuntimeTransceiver {
     }
 
     @Override
-    public BhRuntimeStatus pushResponse(BhProgramResponse resp) {
+    public BhRuntimeStatus pushResponse(BhRuntimeResponse resp) {
       boolean success = sendRespList.offer(resp);
       if (!success) {
         return BhRuntimeStatus.SEND_QUEUE_FULL;
@@ -352,7 +353,7 @@ public class BhRuntimeTransceiver {
     }
 
     @Override
-    public void setOnNotifReceived(Consumer<BhProgramNotification> handler) {
+    public void setOnNotifReceived(Consumer<BhRuntimeNotification> handler) {
       if (handler == null) {
         handler = notif -> {};
       }
@@ -360,7 +361,7 @@ public class BhRuntimeTransceiver {
     }
 
     @Override
-    public void setOnRespReceived(Consumer<BhProgramResponse> handler) {
+    public void setOnRespReceived(Consumer<BhRuntimeResponse> handler) {
       if (handler == null) {
         handler = resp -> {};
       }

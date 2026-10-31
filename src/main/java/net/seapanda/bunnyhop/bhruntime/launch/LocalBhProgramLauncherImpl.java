@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.bhprogram;
+package net.seapanda.bunnyhop.bhruntime.launch;
 
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File;
@@ -24,7 +24,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 import javafx.scene.control.Alert;
-import net.seapanda.bunnyhop.bhprogram.runtime.LocalBhRuntimeController;
+import net.seapanda.bunnyhop.bhruntime.ctrl.local.LocalBhRuntimeController;
 import net.seapanda.bunnyhop.common.text.TextDefs;
 import net.seapanda.bunnyhop.compile.CompileConfig;
 import net.seapanda.bunnyhop.compiler.api.BhCompilerFactory;

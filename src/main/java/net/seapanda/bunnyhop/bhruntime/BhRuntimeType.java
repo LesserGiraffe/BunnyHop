@@ -14,20 +14,16 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.bhprogram.runtime;
+package net.seapanda.bunnyhop.bhruntime;
 
 /**
- * BhRuntime の操作に関するステータスコード.
+ * BhRuntime の種類を定義した列挙型.
  *
  * @author K.Koike
  */
-public enum BhRuntimeStatus {
-  /** エラーなし. */
-  SUCCESS,
-  /** 切断中に送信しようとした. */
-  SEND_WHEN_DISCONNECTED,
-  /** 送信キューが満杯で送信できない. */
-  SEND_QUEUE_FULL,
-  /** BhRuntime に対して別の操作を実行中. */
-  BUSY,
+public enum BhRuntimeType {
+  /** ローカルマシン上で動作する BhRuntime. */
+  LOCAL,
+  /** リモートマシン上で動作する BhRuntime. */
+  REMOTE
 }

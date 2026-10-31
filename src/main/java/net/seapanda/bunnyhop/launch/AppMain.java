@@ -71,13 +71,13 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import net.seapanda.bunnyhop.bhprogram.LocalBhProgramLauncherImpl;
-import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramLauncherImpl;
-import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageDispatcher;
-import net.seapanda.bunnyhop.bhprogram.message.IoMessageProcessorImpl;
-import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeType;
-import net.seapanda.bunnyhop.bhprogram.runtime.RmiLocalBhRuntimeController;
-import net.seapanda.bunnyhop.bhprogram.runtime.RmiRemoteBhRuntimeController;
+import net.seapanda.bunnyhop.bhruntime.BhRuntimeType;
+import net.seapanda.bunnyhop.bhruntime.ctrl.local.RmiLocalBhRuntimeController;
+import net.seapanda.bunnyhop.bhruntime.ctrl.remote.RmiRemoteBhRuntimeController;
+import net.seapanda.bunnyhop.bhruntime.launch.LocalBhProgramLauncherImpl;
+import net.seapanda.bunnyhop.bhruntime.launch.RemoteBhProgramLauncherImpl;
+import net.seapanda.bunnyhop.bhruntime.message.BhRuntimeMessageDispatcher;
+import net.seapanda.bunnyhop.bhruntime.message.IoMessageProcessorImpl;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.common.configuration.BhSettings.Runtime;
@@ -294,9 +294,9 @@ public class AppMain extends Application {
       final var debugMsgProcessor =
           new DebugMessageProcessorImpl(wss, debugger, entryPointPresenter, mainRoutineIds);
       final var msgProcessor = new IoMessageProcessorImpl(msgService);
-      new BhProgramMessageDispatcher(
+      new BhRuntimeMessageDispatcher(
           msgProcessor, debugMsgProcessor, simCmdProcessor, localRuntimeCtrl, mediator);
-      new BhProgramMessageDispatcher(
+      new BhRuntimeMessageDispatcher(
           msgProcessor, debugMsgProcessor, simCmdProcessor, remoteRuntimeCtrl, mediator);
       final var pastePosOffsetCount = new MutableInt(-2);
       final var copyAndPaste = new CopyAndPaste(

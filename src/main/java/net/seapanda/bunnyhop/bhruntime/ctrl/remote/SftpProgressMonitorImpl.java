@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.bhprogram.runtime;
+package net.seapanda.bunnyhop.bhruntime.ctrl.remote;
 
 import com.jcraft.jsch.SftpProgressMonitor;
 import java.nio.file.Paths;

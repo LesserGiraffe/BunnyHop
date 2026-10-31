@@ -6,8 +6,8 @@
   },
   "debug": {
     "maxCallStackItems": 32,
-    "canSetBreakpoint": false,
-    "debugWindowVisible": false,
+    "canSetBreakpoint": true,
+    "debugWindowVisible": true,
     "maxListVarTreeChildren": 100,
     "maxErrMsgChars": 4096
   },
@@ -41,8 +41,8 @@
   "debugWindow": {
     "width": 150,
     "height": 187,
-    "posX": 885,
-    "posY": 282,
+    "posX": 1565,
+    "posY": 686,
     "maximized": false
   }
 }

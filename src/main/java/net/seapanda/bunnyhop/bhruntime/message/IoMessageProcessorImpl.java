@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.bhprogram.message;
+package net.seapanda.bunnyhop.bhruntime.message;
 
 
 import net.seapanda.bunnyhop.common.text.TextDefs;
