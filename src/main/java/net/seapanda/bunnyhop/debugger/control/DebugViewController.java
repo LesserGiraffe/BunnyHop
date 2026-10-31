@@ -16,10 +16,10 @@
 
 package net.seapanda.bunnyhop.debugger.control;
 
-import static net.seapanda.bunnyhop.bhprogram.common.BhThreadState.ERROR;
-import static net.seapanda.bunnyhop.bhprogram.common.BhThreadState.FINISHED;
-import static net.seapanda.bunnyhop.bhprogram.common.BhThreadState.RUNNING;
-import static net.seapanda.bunnyhop.bhprogram.common.BhThreadState.SUSPENDED;
+import static net.seapanda.bunnyhop.runtime.api.message.thread.BhThreadState.ERROR;
+import static net.seapanda.bunnyhop.runtime.api.message.thread.BhThreadState.FINISHED;
+import static net.seapanda.bunnyhop.runtime.api.message.thread.BhThreadState.RUNNING;
+import static net.seapanda.bunnyhop.runtime.api.message.thread.BhThreadState.SUSPENDED;
 
 import java.util.ArrayList;
 import java.util.HashMap;

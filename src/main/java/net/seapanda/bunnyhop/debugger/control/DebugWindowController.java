@@ -6,11 +6,11 @@ import java.util.Map;
 import javafx.fxml.FXML;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import net.seapanda.bunnyhop.bhprogram.common.BhThreadState;
 import net.seapanda.bunnyhop.debugger.model.Debugger;
 import net.seapanda.bunnyhop.debugger.model.Debugger.CurrentThreadChangedEvent;
 import net.seapanda.bunnyhop.debugger.model.thread.ThreadContext;
 import net.seapanda.bunnyhop.debugger.model.thread.ThreadSelection;
+import net.seapanda.bunnyhop.runtime.api.message.thread.BhThreadState;
 
 /**
  * デバッグのための操作を提供するする UI コンポーネントのコントローラ.

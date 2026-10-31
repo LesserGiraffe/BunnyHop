@@ -17,10 +17,10 @@
 package net.seapanda.bunnyhop.bhprogram.message;
 
 import java.util.function.Consumer;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramNotification;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramResponse;
 import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeStatus;
+import net.seapanda.bunnyhop.runtime.api.message.BhProgramMessage;
+import net.seapanda.bunnyhop.runtime.api.message.BhProgramNotification;
+import net.seapanda.bunnyhop.runtime.api.message.BhProgramResponse;
 
 /**
  * BhProgramMessage を送受信する機能を規定したインタフェース.

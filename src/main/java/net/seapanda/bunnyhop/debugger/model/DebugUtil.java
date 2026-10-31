@@ -16,8 +16,8 @@
 
 package net.seapanda.bunnyhop.debugger.model;
 
-import net.seapanda.bunnyhop.bhprogram.common.message.exception.BhProgramException;
 import net.seapanda.bunnyhop.common.text.TextDefs;
+import net.seapanda.bunnyhop.runtime.api.message.exception.BhProgramException;
 import net.seapanda.bunnyhop.utility.reference.ReadOnlyInteger;
 import org.apache.commons.lang3.StringUtils;
 

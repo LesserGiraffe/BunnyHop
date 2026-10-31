@@ -17,9 +17,9 @@
 package net.seapanda.bunnyhop.bhprogram;
 
 import java.nio.file.Path;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
 import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageCarrier;
 import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeStatus;
+import net.seapanda.bunnyhop.runtime.api.message.BhProgramMessage;
 import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
 
 /**

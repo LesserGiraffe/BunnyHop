@@ -27,13 +27,13 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import net.seapanda.bunnyhop.bhprogram.common.BhThreadState;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.common.text.TextDefs;
 import net.seapanda.bunnyhop.debugger.model.Debugger;
 import net.seapanda.bunnyhop.debugger.model.Debugger.ThreadContextAddedEvent;
 import net.seapanda.bunnyhop.debugger.model.thread.ThreadContext;
 import net.seapanda.bunnyhop.debugger.model.thread.ThreadSelection;
+import net.seapanda.bunnyhop.runtime.api.message.thread.BhThreadState;
 
 /**
  * デバッガのスレッド選択コンポーネントのコントローラ.

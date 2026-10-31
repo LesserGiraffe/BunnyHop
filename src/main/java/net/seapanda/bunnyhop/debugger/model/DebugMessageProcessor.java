@@ -16,12 +16,12 @@
 
 package net.seapanda.bunnyhop.debugger.model;
 
-import net.seapanda.bunnyhop.bhprogram.common.message.debug.GetEntryPointsResp;
-import net.seapanda.bunnyhop.bhprogram.common.message.debug.GetGlobalListValsResp;
-import net.seapanda.bunnyhop.bhprogram.common.message.debug.GetGlobalVarsResp;
-import net.seapanda.bunnyhop.bhprogram.common.message.debug.GetLocalListValsResp;
-import net.seapanda.bunnyhop.bhprogram.common.message.debug.GetLocalVarsResp;
-import net.seapanda.bunnyhop.bhprogram.common.message.thread.BhThreadContext;
+import net.seapanda.bunnyhop.runtime.api.message.debug.GetEntryPointsResp;
+import net.seapanda.bunnyhop.runtime.api.message.debug.GetGlobalListValsResp;
+import net.seapanda.bunnyhop.runtime.api.message.debug.GetGlobalVarsResp;
+import net.seapanda.bunnyhop.runtime.api.message.debug.GetLocalListValsResp;
+import net.seapanda.bunnyhop.runtime.api.message.debug.GetLocalVarsResp;
+import net.seapanda.bunnyhop.runtime.api.message.thread.BhThreadContext;
 
 /**
  * BhProgram とやりとりするデバッグ情報を処理する機能を規定したインタフェース.

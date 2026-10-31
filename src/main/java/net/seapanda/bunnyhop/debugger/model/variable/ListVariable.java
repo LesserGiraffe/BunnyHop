@@ -24,9 +24,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import net.seapanda.bunnyhop.bhprogram.common.BhSymbolId;
-import net.seapanda.bunnyhop.bhprogram.common.message.variable.BhListVariable.Slice;
 import net.seapanda.bunnyhop.node.model.BhNode;
+import net.seapanda.bunnyhop.runtime.api.message.BhSymbolId;
+import net.seapanda.bunnyhop.runtime.api.message.variable.BhListVariable.Slice;
 import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
 import net.seapanda.bunnyhop.utility.event.SimpleConsumerInvoker;
 

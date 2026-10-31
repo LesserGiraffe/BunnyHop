@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import javafx.scene.input.KeyCode;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent.Name;
+import net.seapanda.bunnyhop.runtime.api.message.BhProgramEvent.Name;
 import net.seapanda.bunnyhop.simulator.api.KeyboardKey;
 
 /**

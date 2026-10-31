@@ -17,8 +17,8 @@
 package net.seapanda.bunnyhop.debugger.model.variable;
 
 import java.util.Optional;
-import net.seapanda.bunnyhop.bhprogram.common.BhSymbolId;
 import net.seapanda.bunnyhop.node.model.BhNode;
+import net.seapanda.bunnyhop.runtime.api.message.BhSymbolId;
 
 /**
  * 変数の情報を格納するクラスの基底クラス.

@@ -17,9 +17,9 @@
 package net.seapanda.bunnyhop.bhprogram.message;
 
 
-import net.seapanda.bunnyhop.bhprogram.common.message.io.InputTextResp;
-import net.seapanda.bunnyhop.bhprogram.common.message.io.OutputTextCmd;
-import net.seapanda.bunnyhop.bhprogram.common.message.io.OutputTextResp;
+import net.seapanda.bunnyhop.runtime.api.message.io.InputTextResp;
+import net.seapanda.bunnyhop.runtime.api.message.io.OutputTextCmd;
+import net.seapanda.bunnyhop.runtime.api.message.io.OutputTextResp;
 
 /**
  * BhProgram の実行環境から受信したメッセージを処理する機能を規定したインタフェース.

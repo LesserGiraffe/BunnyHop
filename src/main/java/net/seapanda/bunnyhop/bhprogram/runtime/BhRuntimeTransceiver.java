@@ -28,12 +28,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-import net.seapanda.bunnyhop.bhprogram.common.BhRuntimeFacade;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramNotification;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramResponse;
 import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageCarrier;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
+import net.seapanda.bunnyhop.runtime.api.BhRuntimeFacade;
+import net.seapanda.bunnyhop.runtime.api.message.BhProgramMessage;
+import net.seapanda.bunnyhop.runtime.api.message.BhProgramNotification;
+import net.seapanda.bunnyhop.runtime.api.message.BhProgramResponse;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.utility.concurrent.SynchronizingTimer;
 

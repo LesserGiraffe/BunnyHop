@@ -22,12 +22,12 @@ import javafx.geometry.Point2D;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
-import net.seapanda.bunnyhop.bhprogram.common.BhThreadState;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.common.text.TextDefs;
 import net.seapanda.bunnyhop.debugger.model.DebugUtil;
 import net.seapanda.bunnyhop.debugger.model.Debugger;
 import net.seapanda.bunnyhop.debugger.model.thread.ThreadContext;
+import net.seapanda.bunnyhop.runtime.api.message.thread.BhThreadState;
 import net.seapanda.bunnyhop.ui.view.Rem;
 
 /**

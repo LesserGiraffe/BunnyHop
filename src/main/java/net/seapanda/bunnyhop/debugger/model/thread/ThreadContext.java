@@ -22,9 +22,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.SequencedCollection;
-import net.seapanda.bunnyhop.bhprogram.common.BhThreadState;
-import net.seapanda.bunnyhop.bhprogram.common.message.exception.BhProgramException;
 import net.seapanda.bunnyhop.debugger.model.callstack.CallStackItem;
+import net.seapanda.bunnyhop.runtime.api.message.exception.BhProgramException;
+import net.seapanda.bunnyhop.runtime.api.message.thread.BhThreadState;
 
 /** BhProgram のスレッドに関連する情報を格納するクラス. */
 public class ThreadContext {

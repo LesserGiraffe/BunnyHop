@@ -17,10 +17,10 @@
 package net.seapanda.bunnyhop.bhprogram.message;
 
 
-import net.seapanda.bunnyhop.bhprogram.common.message.io.InputTextResp;
-import net.seapanda.bunnyhop.bhprogram.common.message.io.OutputTextCmd;
-import net.seapanda.bunnyhop.bhprogram.common.message.io.OutputTextResp;
 import net.seapanda.bunnyhop.common.text.TextDefs;
+import net.seapanda.bunnyhop.runtime.api.message.io.InputTextResp;
+import net.seapanda.bunnyhop.runtime.api.message.io.OutputTextCmd;
+import net.seapanda.bunnyhop.runtime.api.message.io.OutputTextResp;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.message.MessageService;
 

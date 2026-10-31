@@ -33,10 +33,12 @@ import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.common.text.TextDefs;
 import net.seapanda.bunnyhop.export.ProjectExporter;
 import net.seapanda.bunnyhop.export.ProjectImporter;
+import net.seapanda.bunnyhop.runtime.api.BhRuntimeInfo;
 import net.seapanda.bunnyhop.service.accesscontrol.TransactionContext;
 import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
 import net.seapanda.bunnyhop.service.message.MessageService;
 import net.seapanda.bunnyhop.service.undo.UndoRedoAgent;
+import net.seapanda.bunnyhop.simulator.api.BhSimulatorInfo;
 import net.seapanda.bunnyhop.utility.Utility;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
 
@@ -297,9 +299,9 @@ public class MenuBarController {
         BhConstants.APP_NAME,
         BhConstants.APP_VERSION,
         TextDefs.MenubarOps.Version.runtime.get(),
-        net.seapanda.bunnyhop.runtime.BhConstants.APP_VERSION,
+        BhRuntimeInfo.getVersion(),
         TextDefs.MenubarOps.Version.simulator.get(),
-        net.seapanda.bunnyhop.simulator.api.BhSimulatorInfo.getVersion()));
+        BhSimulatorInfo.getVersion()));
   }
 
   private void openLicenseFolder() {

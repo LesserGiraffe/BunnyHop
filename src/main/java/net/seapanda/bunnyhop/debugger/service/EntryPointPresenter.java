@@ -25,8 +25,6 @@ import net.seapanda.bunnyhop.bhprogram.BhRuntimeController;
 import net.seapanda.bunnyhop.bhprogram.BhRuntimeController.ConnectionEvent;
 import net.seapanda.bunnyhop.bhprogram.BhRuntimeController.StartEvent;
 import net.seapanda.bunnyhop.bhprogram.BhRuntimeController.TerminationEvent;
-import net.seapanda.bunnyhop.bhprogram.common.message.debug.GetEntryPointsCmd;
-import net.seapanda.bunnyhop.bhprogram.common.message.debug.GetEntryPointsResp;
 import net.seapanda.bunnyhop.bhprogram.runtime.LocalBhRuntimeController;
 import net.seapanda.bunnyhop.bhprogram.runtime.RemoteBhRuntimeController;
 import net.seapanda.bunnyhop.node.model.BhNode;
@@ -34,6 +32,8 @@ import net.seapanda.bunnyhop.node.model.syntaxtree.NodeInstanceId;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectType;
+import net.seapanda.bunnyhop.runtime.api.message.debug.GetEntryPointsCmd;
+import net.seapanda.bunnyhop.runtime.api.message.debug.GetEntryPointsResp;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
 

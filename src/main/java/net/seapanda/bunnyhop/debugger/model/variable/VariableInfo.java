@@ -24,9 +24,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.SequencedCollection;
-import net.seapanda.bunnyhop.bhprogram.common.BhSymbolId;
 import net.seapanda.bunnyhop.debugger.model.callstack.StackFrameId;
 import net.seapanda.bunnyhop.node.model.BhNode;
+import net.seapanda.bunnyhop.runtime.api.message.BhSymbolId;
 import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
 import net.seapanda.bunnyhop.utility.event.SimpleConsumerInvoker;
 
