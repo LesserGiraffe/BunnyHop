@@ -16,13 +16,18 @@
 
 package net.seapanda.bunnyhop.ui.control;
 
+import static javafx.scene.input.MouseEvent.MOUSE_DRAGGED;
+
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import javafx.event.EventTarget;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.SplitPane.Divider;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -107,6 +112,7 @@ public class FoundationController {
       sendKeyEventToBhProgram(event.getCode());
       event.consume();
     });
+
     foundationVbox.setOnKeyReleased(event ->  pressedKeys.remove(event.getCode()));
     stage.focusedProperty().addListener((obs, oldVal, newVal) -> {
       if (!newVal) {
@@ -114,18 +120,15 @@ public class FoundationController {
       }
     });
 
-    SplitPane.Divider divider = verticalSplitPane.getDividers().getFirst();
+    stage.setOnShown(event -> {
+      initializeHorizontalSplitPane();
+    });
+
+    Divider divider = verticalSplitPane.getDividers().getFirst();
     divider.positionProperty().addListener(
         (obs, oldVal, newVal) -> settings.ui.nodeSelectionSplitPos.set(newVal.doubleValue()));
     if (settings.ui.nodeSelectionSplitPos.get() >= 0) {
       divider.setPosition(settings.ui.nodeSelectionSplitPos.get());
-    }
-
-    divider = horizontalSplitPane.getDividers().getFirst();
-    divider.positionProperty().addListener(
-        (obs, oldVal, newVal) -> settings.ui.notificationSplitPos.set(newVal.doubleValue()));
-    if (settings.ui.notificationSplitPos.get() >= 0) {
-      divider.setPosition(settings.ui.notificationSplitPos.get());
     }
   }
 
@@ -163,6 +166,24 @@ public class FoundationController {
             event.isControlDown(),
             event.isAltDown(),
             event.isMetaDown()));
+  }
+
+  private void initializeHorizontalSplitPane() {
+    getHorizontalDivider().ifPresent(
+        divider -> divider.addEventHandler(MOUSE_DRAGGED, this::onHorizontalDividerDragged));
+    Divider divider = horizontalSplitPane.getDividers().getFirst();
+    if (settings.ui.notificationViewHidden.get()) {
+      divider.setPosition(1);
+    } else if (settings.ui.notificationSplitPos.get() >= 0) {
+      divider.setPosition(settings.ui.notificationSplitPos.get());
+    }
+  }
+
+  /** {@link #horizontalSplitPane} を分割する divider ノードを取得する. */
+  private Optional<Node> getHorizontalDivider() {
+    return horizontalSplitPane.lookupAll(".split-pane-divider").stream()
+            .filter(node -> node.getParent() == horizontalSplitPane)
+            .findFirst();
   }
 
   /** BunnyHop操作のためのイベントを発行する. */
@@ -216,7 +237,22 @@ public class FoundationController {
         menuViewController.fireEvent(MenuViewController.MenuOperation.DELETE);
         break;
 
+      case AT:
+        if (event.isControlDown()) {
+          setNotificationViewVisibility(!settings.ui.notificationViewHidden.negate());
+        }
+        break;
+
       default:
+    }
+  }
+
+  /** 通知ビューの可視性を切り替える. */
+  private void setNotificationViewVisibility(boolean visible) {
+    if (visible) {
+      horizontalSplitPane.setDividerPositions(settings.ui.notificationSplitPos.get());
+    } else {
+      horizontalSplitPane.setDividerPositions(1);
     }
   }
 
@@ -265,5 +301,13 @@ public class FoundationController {
   /** ノードの操作モードを変えるためのキーが押されているか調べる. */
   private boolean isNodeManipModeKeyPressed(MouseEvent event) {
     return event.isShiftDown() || event.isControlDown();
+  }
+
+  /** {@link #horizontalSplitPane} の divider がドラッグされたときの処理. */
+  private void onHorizontalDividerDragged(MouseEvent event) {
+    double pos = horizontalSplitPane.getDividers().getFirst().getPosition();
+    // 実際に divider をマウスドラッグしたときだけ, 分割位置を更新する.
+    settings.ui.notificationSplitPos.set(pos);
+    settings.ui.notificationViewHidden.set(false);
   }
 }

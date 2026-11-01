@@ -89,6 +89,8 @@ public class BhSettings {
     public final ConcurrentDouble nodeSelectionSplitPos = new ConcurrentDouble(-1);
     /** 通知ビューとそれ以外の部分を分ける位置. */
     public final ConcurrentDouble notificationSplitPos = new ConcurrentDouble(-1);
+    /** 通知ビューが隠れているか. */
+    public final ConcurrentBoolean notificationViewHidden = new ConcurrentBoolean(false);
   }
 
   /** ウィンドウの状態を保持するクラス. */
