@@ -16,14 +16,21 @@
 
 package net.seapanda.bunnyhop.common.configuration;
 
-import net.seapanda.bunnyhop.utility.version.Version;
+import com.google.gson.TypeAdapter;
+import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+import net.seapanda.bunnyhop.utility.version.PrefixedVersion;
 
 /**
   * システムのバージョン.
   *
   * @author K.Koike
   */
-public class SystemVersion extends Version {
+@JsonAdapter(SystemVersion.Adapter.class)
+public class SystemVersion extends PrefixedVersion {
 
   /** システムのバージョンが存在しないことを表すオブジェクト. */
   public static final SystemVersion NONE = new SystemVersion();
@@ -50,5 +57,35 @@ public class SystemVersion extends Version {
   /** デフォルトコンストラクタ. (デシリアライズ用) */
   public SystemVersion() {
     super();
+  }
+
+  /** {@link SystemVersion} を JSON の文字列として入出力する {@link TypeAdapter}. */
+  static class Adapter extends TypeAdapter<SystemVersion> {
+
+    @Override
+    public void write(JsonWriter out, SystemVersion value) throws IOException {
+      if (value == null) {
+        out.nullValue();
+        return;
+      }
+      out.value(value.toString());
+    }
+
+    @Override
+    public SystemVersion read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
+        return null;
+      }
+      String version = in.nextString();
+      if (version.equals(NONE.version)) {
+        return NONE;
+      }
+      try {
+        return SystemVersion.of(version);
+      } catch (IllegalArgumentException e) {
+        throw new IOException(e);
+      }
+    }
   }
 }

@@ -16,14 +16,21 @@
 
 package net.seapanda.bunnyhop.export;
 
-import net.seapanda.bunnyhop.utility.version.Version;
+import com.google.gson.TypeAdapter;
+import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+import net.seapanda.bunnyhop.utility.version.PrefixedVersion;
 
 /**
  * セーブデータのバージョン.
  *
  * @author K.Koike
  */
-public class SaveDataVersion extends Version {
+@JsonAdapter(SaveDataVersion.Adapter.class)
+public class SaveDataVersion extends PrefixedVersion {
 
   /** セーブデータのバージョンが存在しないことを表すオブジェクト. */
   public static final SaveDataVersion NONE = new SaveDataVersion();
@@ -50,5 +57,35 @@ public class SaveDataVersion extends Version {
   /** デフォルトコンストラクタ. (デシリアライズ用) */
   public SaveDataVersion() {
     super();
+  }
+
+  /** {@link SaveDataVersion} を JSON の文字列として入出力する {@link TypeAdapter}. */
+  static class Adapter extends TypeAdapter<SaveDataVersion> {
+
+    @Override
+    public void write(JsonWriter out, SaveDataVersion value) throws IOException {
+      if (value == null) {
+        out.nullValue();
+        return;
+      }
+      out.value(value.toString());
+    }
+
+    @Override
+    public SaveDataVersion read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
+        return null;
+      }
+      String version = in.nextString();
+      if (version.equals(NONE.version)) {
+        return NONE;
+      }
+      try {
+        return SaveDataVersion.of(version);
+      } catch (IllegalArgumentException e) {
+        throw new IOException(e);
+      }
+    }
   }
 }

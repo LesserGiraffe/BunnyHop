@@ -16,6 +16,12 @@
 
 package net.seapanda.bunnyhop.node.model.parameter;
 
+import com.google.gson.TypeAdapter;
+import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -24,6 +30,7 @@ import java.util.Objects;
  *
  * @author K.Koike
  */
+@JsonAdapter(BhNodeId.Adapter.class)
 public class BhNodeId implements Serializable {
 
   /** BhNode の ID が存在しないことを表すオブジェクト. */
@@ -70,5 +77,31 @@ public class BhNodeId implements Serializable {
   @Override
   public int hashCode() {
     return Objects.hashCode(id);
+  }
+
+  /** {@link BhNodeId} を JSON の文字列として入出力する {@link TypeAdapter}. */
+  static class Adapter extends TypeAdapter<BhNodeId> {
+
+    @Override
+    public void write(JsonWriter out, BhNodeId value) throws IOException {
+      if (value == null) {
+        out.nullValue();
+        return;
+      }
+      out.value(value.toString());
+    }
+
+    @Override
+    public BhNodeId read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
+        return null;
+      }
+      String id = in.nextString();
+      if (id.equals(NONE.id)) {
+        return NONE;
+      }
+      return BhNodeId.of(id);
+    }
   }
 }

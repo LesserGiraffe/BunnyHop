@@ -16,14 +16,21 @@
 
 package net.seapanda.bunnyhop.node.model.parameter;
 
-import net.seapanda.bunnyhop.utility.version.Version;
+import com.google.gson.TypeAdapter;
+import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+import net.seapanda.bunnyhop.utility.version.PrefixedVersion;
 
 /**
  * BhNode のバージョン.
  *
  * @author K.Koike
  */
-public class BhNodeVersion extends Version {
+@JsonAdapter(BhNodeVersion.Adapter.class)
+public class BhNodeVersion extends PrefixedVersion {
 
   /** BhNode のバージョンが存在しないことを表すオブジェクト. */
   public static final BhNodeVersion NONE = new BhNodeVersion();
@@ -50,5 +57,35 @@ public class BhNodeVersion extends Version {
   /** デフォルトコンストラクタ. (デシリアライズ用) */
   public BhNodeVersion() {
     super();
+  }
+
+  /** {@link BhNodeVersion} を JSON の文字列として入出力する {@link TypeAdapter}. */
+  static class Adapter extends TypeAdapter<BhNodeVersion> {
+
+    @Override
+    public void write(JsonWriter out, BhNodeVersion value) throws IOException {
+      if (value == null) {
+        out.nullValue();
+        return;
+      }
+      out.value(value.toString());
+    }
+
+    @Override
+    public BhNodeVersion read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
+        return null;
+      }
+      String version = in.nextString();
+      if (version.equals(NONE.version)) {
+        return NONE;
+      }
+      try {
+        return BhNodeVersion.of(version);
+      } catch (IllegalArgumentException e) {
+        throw new IOException(e);
+      }
+    }
   }
 }

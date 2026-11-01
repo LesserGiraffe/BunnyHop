@@ -16,6 +16,12 @@
 
 package net.seapanda.bunnyhop.node.model.syntaxtree;
 
+import com.google.gson.TypeAdapter;
+import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
@@ -25,6 +31,7 @@ import java.util.UUID;
  *
  * @author K.Koike
  */
+@JsonAdapter(NodeInstanceId.Adapter.class)
 public class NodeInstanceId implements Serializable {
 
   private final String id;
@@ -75,5 +82,31 @@ public class NodeInstanceId implements Serializable {
   @Override
   public int hashCode() {
     return Objects.hashCode(this.id);
+  }
+
+  /** {@link NodeInstanceId} を JSON の文字列として入出力する {@link TypeAdapter}. */
+  static class Adapter extends TypeAdapter<NodeInstanceId> {
+
+    @Override
+    public void write(JsonWriter out, NodeInstanceId value) throws IOException {
+      if (value == null) {
+        out.nullValue();
+        return;
+      }
+      out.value(value.toString());
+    }
+
+    @Override
+    public NodeInstanceId read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
+        return null;
+      }
+      String id = in.nextString();
+      if (id.equals(NONE.id)) {
+        return NONE;
+      }
+      return NodeInstanceId.of(id);
+    }
   }
 }
