@@ -16,9 +16,6 @@
 
 package net.seapanda.bunnyhop.compiler;
 
-import static net.seapanda.bunnyhop.compiler.SymbolNames.PreDefFunc.ANY_LIST_TO_STR_EXP;
-import static net.seapanda.bunnyhop.compiler.SymbolNames.VarDecl.LIST_NAME;
-
 import java.util.Map;
 import java.util.function.Consumer;
 import net.seapanda.bunnyhop.compiler.api.CompilableSyntaxTreeNode;
@@ -31,18 +28,24 @@ import org.apache.commons.lang3.mutable.MutableLong;
  */
 class Preprocessor {
 
-  private static final Map<String, Consumer<CompilableSyntaxTreeNode>> SYMBOL_NAME_TO_PREPROCESSOR =
-      Map.of(ANY_LIST_TO_STR_EXP, Preprocessor::preprocessAnyListToStrExp);
+  private final SymbolNames symbols;
+  private final Map<String, Consumer<CompilableSyntaxTreeNode>> symbolToPreprocessor;
+
+  Preprocessor(SymbolNames symbols) {
+    this.symbols = symbols;
+    symbolToPreprocessor =
+        Map.of(symbols.predefFunc.anyListToStrExp, this::preprocessAnyListToStrExp);
+  }
 
   /**
    * コンパイル前の処理を行う.
    *
    * @param instIdToNode 処理するノードとそのノードのインスタンス ID を格納したマップ.
    */
-  static void process(Map<String, CompilableSyntaxTreeNode> instIdToNode) {
+  void process(Map<String, CompilableSyntaxTreeNode> instIdToNode) {
     Consumer<CompilableSyntaxTreeNode> nop = n -> {};
     instIdToNode.values().forEach(
-        node -> SYMBOL_NAME_TO_PREPROCESSOR.getOrDefault(node.getSymbolName(), nop).accept(node));
+        node -> symbolToPreprocessor.getOrDefault(node.getSymbolName(), nop).accept(node));
 
     MutableLong serialNo = new MutableLong(0);
     instIdToNode.values().forEach(
@@ -57,9 +60,10 @@ class Preprocessor {
    *
    * @param node AnyListToStrExp ノード
    */
-  private static void preprocessAnyListToStrExp(CompilableSyntaxTreeNode node) {
+  private void preprocessAnyListToStrExp(CompilableSyntaxTreeNode node) {
     CompilableSyntaxTreeNode listNode = node.findDescendantOf("*", "Arg0", "*");
-    CompilableSyntaxTreeNode listNameNode = listNode.findDescendantOf("*", LIST_NAME, "*");
+    CompilableSyntaxTreeNode listNameNode =
+        listNode.findDescendantOf("*", symbols.varDecl.listName, "*");
     if (listNameNode == null) {
       return;
     }

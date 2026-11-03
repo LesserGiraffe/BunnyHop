@@ -31,15 +31,18 @@ import net.seapanda.bunnyhop.compiler.api.CompileOption;
  */
 class EventHandlerCodeGenerator {
 
+  private final SymbolNames symbols;
   private final CommonCodeGenerator common;
   private final StatCodeGenerator statCodeGen;
   private final VarDeclCodeGenerator varDeclCodeGen;
 
   /** コンストラクタ. */
   EventHandlerCodeGenerator(
+      SymbolNames symbols,
       CommonCodeGenerator common,
       StatCodeGenerator statCodeGen,
       VarDeclCodeGenerator varDeclCodeGen) {
+    this.symbols = symbols;
     this.common = common;
     this.statCodeGen = statCodeGen;
     this.varDeclCodeGen = varDeclCodeGen;
@@ -59,7 +62,7 @@ class EventHandlerCodeGenerator {
       int nestLevel,
       CompileOption option) {
     for (CompilableSyntaxTreeNode symbol : nodes) {
-      if (SymbolNames.Event.LIST.contains(symbol.getSymbolName())) {
+      if (symbols.event.list.contains(symbol.getSymbolName())) {
         generateEventHandler(symbol, code, nestLevel, option);
       }
     }
@@ -82,16 +85,16 @@ class EventHandlerCodeGenerator {
     String funcName = common.generateFuncName(eventNode);
     generateHeaderSnippetOfEventCall(code, eventNode, funcName, lockVar, nestLevel, option);
     // _sleep(...)
-    if (eventNode.getSymbolName().equals(SymbolNames.Event.DELAYED_START_EVENT)) {
+    if (eventNode.getSymbolName().equals(symbols.event.delayedStartEvent)) {
       CompilableSyntaxTreeNode delayTimeNode =
-          eventNode.findDescendantOf("*", "*", SymbolNames.Event.DELAY_TIME);
+          eventNode.findDescendantOf("*", "*", symbols.event.delayTime);
       code.append(common.indent(nestLevel + 4))
           .append(common.generateFuncCall(ScriptIdentifiers.Funcs.SLEEP, delayTimeNode.getLexeme()))
           .append(";")
           .append(newLine);
     }
     CompilableSyntaxTreeNode stat =
-        eventNode.findDescendantOf("*", SymbolNames.Stat.STAT_LIST, "*");
+        eventNode.findDescendantOf("*", symbols.stat.statList, "*");
     statCodeGen.generateStatement(stat, code, nestLevel + 4, option);
     generateFooterSnippetOfEventCall(code, lockVar, nestLevel, option);
     // _addEvent(...);
@@ -123,15 +126,14 @@ class EventHandlerCodeGenerator {
    * @return イベントの種類
    * */
   private String getEventType(CompilableSyntaxTreeNode eventNode, CompileOption option) {
-    return switch (eventNode.getSymbolName()) {
-      case SymbolNames.Event.KEY_PRESS_EVENT -> {
-        CompilableSyntaxTreeNode keyCodeNode =
-            eventNode.findDescendantOf("*", "*", SymbolNames.Event.KEY_CODE);
-        yield keyCodeNode.getLexeme();
-      }
-      case SymbolNames.Event.DELAYED_START_EVENT -> option.mainRoutineLaunchEvent;
-      default -> "";
-    };
+    String symbolsName = eventNode.getSymbolName();
+    if (symbols.event.keyPressEvent.equals(symbolsName)) {
+      return eventNode.findDescendantOf("*", "*", symbols.event.keyCode).getLexeme();
+    } else if (symbols.event.delayedStartEvent.equals(symbolsName)) {
+      return option.mainRoutineLaunchEvent;
+    } else {
+      return "";
+    }
   }
 
   /**

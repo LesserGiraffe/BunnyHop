@@ -32,810 +32,896 @@ import java.util.Set;
  */
 class SymbolNames {
 
+  final GlobalDataDecl globalDataDecl = new GlobalDataDecl();
+  private final ListCtrl listCtrl = new ListCtrl();
+  final PredefFunc predefFunc = new PredefFunc(globalDataDecl, listCtrl);
+  final VarDecl varDecl = new VarDecl();
+  final Statement stat = new Statement(predefFunc, listCtrl);
+  final Expression exp = new Expression(predefFunc, listCtrl);
+  final UserDefFunc userDefFunc = new UserDefFunc();
+  final Event event = new Event();
+
+
   /** 変数宣言に関するシンボル名. */
-  public static class VarDecl {
-    public static final String NUM_VAR_DECL = "NumVarDecl";
-    public static final String NUM_VAR = "NumVar";
-    public static final String NUM_VAR_VOID = "NumVarVoid";
-    public static final String NUM_LIST_DECL = "NumListDecl";
-    public static final String NUM_LIST = "NumList";
-    public static final String NUM_LIST_VOID = "NumListVoid";
+  static class VarDecl {
 
-    public static final String STR_VAR_DECL = "StrVarDecl";
-    public static final String STR_VAR = "StrVar";
-    public static final String STR_VAR_VOID = "StrVarVoid";
-    public static final String STR_LIST_DECL = "StrListDecl";
-    public static final String STR_LIST = "StrList";
-    public static final String STR_LIST_VOID = "StrListVoid";
+    final String numVarDecl = "NumVarDecl";
+    final String numListDecl = "NumListDecl";
 
-    public static final String BOOL_VAR_DECL = "BoolVarDecl";
-    public static final String BOOL_VAR = "BoolVar";
-    public static final String BOOL_VAR_VOID = "BoolVarVoid";
-    public static final String BOOL_LIST_DECL = "BoolListDecl";
-    public static final String BOOL_LIST = "BoolList";
-    public static final String BOOL_LIST_VOID = "BoolListVoid";
+    final String strVarDecl = "StrVarDecl";
+    final String strListDecl = "StrListDecl";
 
-    public static final String COLOR_VAR_DECL = "ColorVarDecl";
-    public static final String COLOR_VAR = "ColorVar";
-    public static final String COLOR_VAR_VOID = "ColorVarVoid";
-    public static final String COLOR_LIST_DECL = "ColorListDecl";
-    public static final String COLOR_LIST = "ColorList";
-    public static final String COLOR_LIST_VOID = "ColorListVoid";
+    final String boolVarDecl = "BoolVarDecl";
+    final String boolListDecl = "BoolListDecl";
 
-    public static final String SOUND_VAR_DECL = "SoundVarDecl";
-    public static final String SOUND_VAR = "SoundVar";
-    public static final String SOUND_VAR_VOID = "SoundVarVoid";
-    public static final String SOUND_LIST_DECL = "SoundListDecl";
-    public static final String SOUND_LIST = "SoundList";
-    public static final String SOUND_LIST_VOID = "SoundListVoid";
+    final String colorVarDecl = "ColorVarDecl";
+    final String colorListDecl = "ColorListDecl";
 
-    public static final String VAR_NAME = "VarName";
-    public static final String LIST_NAME = "ListName";
-    public static final String NEXT_VAR_DECL = "NextVarDecl";
+    final String soundVarDecl = "SoundVarDecl";
+    final String soundListDecl = "SoundListDecl";
 
-    public static final Set<String> LIST =
+    final String varName = "VarName";
+    final String listName = "ListName";
+    final String nextVarDecl = "NextVarDecl";
+
+    final Set<String> list =
         new HashSet<>(java.util.List.of(
-            NUM_VAR_DECL,
-            NUM_LIST_DECL,
-            STR_VAR_DECL,
-            STR_LIST_DECL,
-            BOOL_VAR_DECL,
-            BOOL_LIST_DECL,
-            COLOR_VAR_DECL,
-            COLOR_LIST_DECL,
-            SOUND_VAR_DECL,
-            SOUND_LIST_DECL));
+            numVarDecl,
+            numListDecl,
+            strVarDecl,
+            strListDecl,
+            boolVarDecl,
+            boolListDecl,
+            colorVarDecl,
+            colorListDecl,
+            soundVarDecl,
+            soundListDecl));
 
-    public static final Set<String> VAR_LIST =
-        new HashSet<>(java.util.List.of(
-            NUM_VAR,
-            NUM_LIST,
-            STR_VAR,
-            STR_LIST,
-            BOOL_VAR,
-            BOOL_LIST,
-            COLOR_VAR,
-            COLOR_LIST,
-            SOUND_VAR,
-            SOUND_LIST));
-
-    public static final Map<String, String> INIT_VAL_MAP =
+    final Map<String, String> initValMap =
         new HashMap<>(Map.ofEntries(
-            entry(NUM_VAR_DECL, "0"),
-            entry(STR_VAR_DECL, "''"),
-            entry(BOOL_VAR_DECL, "false"),
-            entry(COLOR_VAR_DECL, Vars.NIL_COLOR),
-            entry(SOUND_VAR_DECL, Vars.NIL_SOUND),
-            entry(NUM_LIST_DECL, "[]"),
-            entry(STR_LIST_DECL, "[]"),
-            entry(BOOL_LIST_DECL, "[]"),
-            entry(COLOR_LIST_DECL, "[]"),
-            entry(SOUND_LIST_DECL, "[]"),
-            entry(NUM_VAR_VOID, Vars.NIL),
-            entry(STR_VAR_VOID, Vars.NIL),
-            entry(BOOL_VAR_VOID, Vars.NIL),
-            entry(COLOR_VAR_VOID, Vars.NIL),
-            entry(SOUND_VAR_VOID, Vars.NIL),
-            entry(NUM_LIST_VOID, "[]"),
-            entry(STR_LIST_VOID, "[]"),
-            entry(BOOL_LIST_VOID, "[]"),
-            entry(COLOR_LIST_VOID, "[]"),
-            entry(SOUND_LIST_VOID, "[]")
+            entry(numVarDecl, "0"),
+            entry(strVarDecl, "''"),
+            entry(boolVarDecl, "false"),
+            entry(colorVarDecl, Vars.NIL_COLOR),
+            entry(soundVarDecl, Vars.NIL_SOUND),
+            entry(numListDecl, "[]"),
+            entry(strListDecl, "[]"),
+            entry(boolListDecl, "[]"),
+            entry(colorListDecl, "[]"),
+            entry(soundListDecl, "[]")
         ));
-
-    public static final Set<String> VAR_VOID_LIST =
-        new HashSet<>(java.util.List.of(
-            NUM_VAR_VOID,
-            STR_VAR_VOID,
-            BOOL_VAR_VOID,
-            COLOR_VAR_VOID,
-            SOUND_VAR_VOID,
-            NUM_LIST_VOID,
-            STR_LIST_VOID,
-            BOOL_LIST_VOID,
-            COLOR_LIST_VOID,
-            SOUND_LIST_VOID));
 
     /** 変数名を保持するノードが接続されるコネクタのリスト. */
-    public static final Set<String> VAR_NAME_CNCTR_LIST =
+    final Set<String> varNameCnctrList =
         new HashSet<>(java.util.List.of(
-            VAR_NAME,
-            LIST_NAME));
+            varName,
+            listName));
   }
 
-  /** 特定の分類を設けない statement に関するシンボル名. */
-  public static class Stat {
-    public static final String STAT_VOID = "StatVoid";
-    public static final String STAT_LIST = "StatList";
-    public static final String NEXT_STAT = "NextStat";
-  }
+  /** 文に関するシンボル名. */
+  static class Statement {
 
-  /** コンパイル時に無視される文. */
-  public static class StatToBeIgnored {
-    public static final String COMMENT_PART = "CommentPart";
+    final Ignored ignored = new Ignored();
+    final AssignStat assign = new AssignStat();
+    final ControlStat ctrl = new ControlStat();
+    final PredefFunc predefFunc;
 
-    public static final Set<String> LIST =
-        new HashSet<>(java.util.List.of(
-            COMMENT_PART));
-  }
+    final String statVoid = "StatVoid";
+    final String statList = "StatList";
+    final String nextStat = "NextStat";
 
-  /** 代入文に関するシンボル名. */
-  public static class AssignStat {
+    private Statement(SymbolNames.PredefFunc builtInFunc, ListCtrl listCtrl) {
+      predefFunc = new PredefFunc(builtInFunc, listCtrl);
+    }
 
-    public static final String NUM_ADD_ASSIGN_STAT = "NumAddAssignStat";
-    public static final String STR_ADD_ASSIGN_STAT = "StrAddAssignStat";
-    public static final String ANY_ASSIGN_STAT = "AnyAssignStat";
-    public static final String ANY_LIST_ASSIGN_STAT = "AnyListAssignStat";
-    public static final String LEFT_VAR = "LeftVar";
+    /** コンパイルの対象にならない文. */
+    static class Ignored {
+      final String commentPart = "CommentPart";
 
-    public static final Set<String> LIST =
-        new HashSet<>(java.util.List.of(
-            ANY_ASSIGN_STAT,
-            ANY_LIST_ASSIGN_STAT,
-            NUM_ADD_ASSIGN_STAT,
-            STR_ADD_ASSIGN_STAT));
-  }
+      final Set<String> list =
+          new HashSet<>(java.util.List.of(
+              commentPart));
+    }
 
-  /** 制御文に関するシンボル名. */
-  public static class ControlStat {
+    /** 代入文に関するシンボル名. */
+    static class AssignStat {
 
-    public static final String LOCAL_VAR_DECL = "LocalVarDecl";
-    public static final String IF_STAT = "IfStat";
-    public static final String IF_ELSE_STAT = "IfElseStat";
-    public static final String WHILE_STAT = "WhileStat";
-    public static final String REPEAT_STAT = "RepeatStat";
-    public static final String THEN_STAT = "ThenStat";
-    public static final String ELSE_STAT = "ElseStat";
-    public static final String COND_EXP = "CondExp";
-    public static final String LOOP_STAT = "LoopStat";
-    public static final String COMPOUND_STAT = "CompoundStat";
-    public static final String CONTINUE_STAT = "ContinueStat";
-    public static final String BREAK_STAT = "BreakStat";
-    public static final String RETURN_STAT = "ReturnStat";
-    public static final String MUTEX_BLOCK_STAT = "MutexBlockStat";
-    public static final String EXCLUSIVE_STAT = "ExclusiveStat";
-    public static final String EXP_ADAPTER_STAT = "ExpAdapterStat";
-    public static final String LIST_ADAPTER_STAT = "ListAdapterStat";
-    public static final String TARGET = "Target";
+      final String numAddAssignStat = "NumAddAssignStat";
+      final String strAddAssignStat = "StrAddAssignStat";
+      final String anyAssignStat = "AnyAssignStat";
+      final String anyListAssignStat = "AnyListAssignStat";
+      final String leftVar = "LeftVar";
 
-    public static final Set<String> LIST =
-        new HashSet<>(java.util.List.of(
-            IF_STAT,
-            IF_ELSE_STAT,
-            WHILE_STAT,
-            REPEAT_STAT,
-            COMPOUND_STAT,
-            CONTINUE_STAT,
-            BREAK_STAT,
-            RETURN_STAT,
-            MUTEX_BLOCK_STAT,
-            EXP_ADAPTER_STAT,
-            LIST_ADAPTER_STAT));
-  }
+      final Set<String> list =
+          new HashSet<>(java.util.List.of(
+              anyAssignStat,
+              anyListAssignStat,
+              numAddAssignStat,
+              strAddAssignStat));
+    }
 
-  /** 二項演算式に関するシンボル名. */
-  public static class BinaryExp {
+    /** 制御文に関するシンボル名. */
+    static class ControlStat {
 
-    public static final String FOUR_ARITH_EXP = "FourArithExp";
-    public static final String BINARY_BOOL_EXP = "BinaryBoolExp";
-    public static final String MOD_EXP = "ModExp";
-    public static final String NUM_COMP_EXP = "NumCompExp";
-    public static final String STR_COMP_EXP = "StrCompExp";
-    public static final String LEFT_EXP = "LeftExp";
-    public static final String RIGHT_EXP = "RightExp";
-    public static final String OPERATOR = "Operator";
+      final String localVarDecl = "LocalVarDecl";
+      final String ifStat = "IfStat";
+      final String ifElseStat = "IfElseStat";
+      final String whileStat = "WhileStat";
+      final String repeatStat = "RepeatStat";
+      final String thenStat = "ThenStat";
+      final String elseStat = "ElseStat";
+      final String condExp = "CondExp";
+      final String loopStat = "LoopStat";
+      final String compoundStat = "CompoundStat";
+      final String continueStat = "ContinueStat";
+      final String breakStat = "BreakStat";
+      final String returnStat = "ReturnStat";
+      final String mutexBlockStat = "MutexBlockStat";
+      final String exclusiveStat = "ExclusiveStat";
+      final String expAdapterStat = "ExpAdapterStat";
+      final String listAdapterStat = "ListAdapterStat";
+      final String target = "Target";
 
-    public static final String OP_ADD = "add";
-    public static final String OP_SUB = "sub";
-    public static final String OP_DIV = "div";
-    public static final String OP_MUL = "mul";
-    public static final String OP_MOD = "mod";
-    public static final String OP_AND = "and";
-    public static final String OP_OR = "or";
-    public static final String OP_EQ = "eq";
-    public static final String OP_NEQ = "neq";
-    public static final String OP_LT = "lt";
-    public static final String OP_LTE = "lte";
-    public static final String OP_GT = "gt";
-    public static final String OP_GTE = "gte";
+      final Set<String> list =
+          new HashSet<>(java.util.List.of(
+              ifStat,
+              ifElseStat,
+              whileStat,
+              repeatStat,
+              compoundStat,
+              continueStat,
+              breakStat,
+              returnStat,
+              mutexBlockStat,
+              expAdapterStat,
+              listAdapterStat));
+    }
 
-    /** 二項演算のリスト. */
-    public static final Set<String> LIST =
-        new HashSet<>(java.util.List.of(
-            FOUR_ARITH_EXP,
-            MOD_EXP,
-            BINARY_BOOL_EXP,
-            NUM_COMP_EXP,
-            STR_COMP_EXP));
+    /** 定義済み関数に関するシンボル名. */
+    static class PredefFunc {
 
-    /** 論理二項演算のリスト. */
-    public static final Set<String> LOGICAL_LIST =
-        new HashSet<>(java.util.List.of(BINARY_BOOL_EXP));
+      /** 定義済み関数文のリスト. */
+      final Set<String> list;
 
-    /** 非論理二項演算のリスト. */
-    public static final Set<String> NONLOGICAL_LIST =
-        new HashSet<>(java.util.List.of(
-            FOUR_ARITH_EXP,
-            MOD_EXP,
-            NUM_COMP_EXP,
-            STR_COMP_EXP));
+      private PredefFunc(SymbolNames.PredefFunc predef, ListCtrl listCtrl) {
+        list = new HashSet<>(java.util.List.of(
+              predef.printStat,
+              predef.moveStat,
+              predef.stopRaspiCarStat,
+              predef.sleepStat,
+              predef.playMelodyStat,
+              predef.playSoundListStat,
+              predef.sayStat,
+              predef.lightEyeStat,
+              predef.syncTimerAwaitStat,
+              predef.resetSyncTimerStat,
+              predef.syncTimerCountdownStat,
+              predef.semaphoreAcquireStat,
+              predef.semaphoreReleaseStat,
+              predef.saveTextStat,
+              predef.deleteTextFileStat,
+              predef.deleteTextFilesStat,
+              predef.setAudioVolumeStat,
+              predef.recordAudioStat,
+              predef.playAudioStat,
+              predef.deleteAudioFileStat,
+              predef.deleteAudioFilesStat,
 
-    public static final Map<String, String> OPERATOR_MAP =
-        new HashMap<>(Map.ofEntries(
-            entry(OP_ADD, " + "),
-            entry(OP_SUB, " - "),
-            entry(OP_DIV, " / "),
-            entry(OP_MUL, " * "),
-            entry(OP_MOD, " % "),
-            entry(OP_AND, " && "),
-            entry(OP_OR,  " || "),
-            entry(OP_EQ,  " === "),
-            entry(OP_NEQ, " !== "),
-            entry(OP_LT,  " < "),
-            entry(OP_LTE, " <= "),
-            entry(OP_GT,  " > "),
-            entry(OP_GTE, " >= ")
-        ));
-  }
-
-  /** 単項演算式に関するシンボル名. */
-  public static class UnaryExp {
-
-    public static final String NOT_EXP = "NotExp";
-    public static final String NEG_EXP = "NegExp";
-    public static final String PRIMARY_EXP = "PrimaryExp";
-    public static final Set<String> LIST =
-        new HashSet<>(java.util.List.of(
-            NOT_EXP,
-            NEG_EXP));
-
-    public static final Map<String, String> OPERATOR_MAP =
-        new HashMap<>(Map.ofEntries(
-            entry(NOT_EXP, "!"),
-            entry(NEG_EXP, "-")
-        ));
-  }
-
-  /** BhProgram にあらかじめ定義されたメソッドを呼び出す処理に関するシンボル名. */
-  public static class PreDefFunc {
-
-    public static final String ARG = "Arg";
-    public static final String OUT_ARG = "OutArg";
-    public static final String OPTION = "Option";
-
-    //ノード名
-    public static final String STR_TO_NUM_EXP = "StrToNumExp";
-    public static final String STR_TO_NUM_WITH_DEFAULT_VAL_EXP = "StrToNumWithDefaultValExp";
-    public static final String ANY_TO_STR_EXP = "AnyToStrExp";
-    public static final String SCAM_EXP = "ScanExp";
-    public static final String RANDOM_INT_EXP = "RandomIntExp";
-    public static final String NUM_ROUND_EXP = "NumRoundExp";
-    public static final String ABS_EXP = "AbsExp";
-    public static final String MAX_MIN_EXP = "MaxMinExp";
-    public static final String MEASURE_DISTANCE_EXP = "MeasureDistanceExp";
-    public static final String MELODY_EXP = "MelodyExp";
-    public static final String ANY_COMP_EXP = "AnyCompExp";
-    public static final String BINARY_COLOR_EXP = "BinaryColorExp";
-    public static final String DETECT_COLOR_EXP = "DetectColorExp";
-    public static final String GET_TIME_SINCE_PROGRAM_STARTED_EXP = "GetTimeSinceProgramStartedExp";
-    public static final String STR_CHAIN_LINK_EXP = "StrChainLinkExp";
-    public static final String STR_LINE_FEED_CHAIN_LINK_EXP = "StrLineFeedChainLinkExp";
-    public static final String STR_CHAIN_EXP = "StrChainExp";
-    public static final String GET_SYNC_TIMER_COUNT_EXP = "GetSyncTimerCountExp";
-    public static final String SYNC_TIMER_TIMED_AWAIT_EXP = "SyncTimerTimedAwaitExp";
-    public static final String ANY_LIST_TO_STR_EXP = "AnyListToStrExp";
-    public static final String CHECK_NUM_TYPE_EXP = "CheckNumTypeExp";
-    public static final String NUM_POW_EXP = "NumPowExp";
-    public static final String NUM_CLAMP_EXP = "NumClampExp";
-    public static final String OUT_ARG_TEST_EXP = "OutArgTestExp";
-    public static final String LOAD_TEXT_EXP = "LoadTextExp";
-    public static final String GET_TEXT_FILES_EXP = "GetTextFilesExp";
-    public static final String GET_AUDIO_FILES_EXP = "GetAudioFilesExp";
-    public static final String GET_AUDIO_VOLUME_EXP = "GetAudioVolumeExp";
-    public static final String MEASURE_SOUND_PRESSURE_EXP = "MeasureSoundPressureExp";
-    public static final String PRINT_STAT = "PrintStat";
-    public static final String MOVE_STAT = "MoveStat";
-    public static final String STOP_RASPI_CAR_STAT = "StopRaspiCarStat";
-    public static final String SLEEP_STAT = "SleepStat";
-    public static final String PLAY_MELODY_STAT = "PlayMelodyStat";
-    public static final String PLAY_SOUND_LIST_STAT = "PlaySoundListStat";
-    public static final String SAY_STAT = "SayStat";
-    public static final String LIGHT_EYE_STAT = "LightEyeStat";
-    public static final String SYNC_TIMER_AWAIT_STAT = "SyncTimerAwaitStat";
-    public static final String RESET_SYNC_TIMER_STAT = "ResetSyncTimerStat";
-    public static final String SYNC_TIMER_COUNTDOWN_STAT = "SyncTimerCountdownStat";
-    public static final String SEMAPHORE_ACQUIRE_STAT = "SemaphoreAcquireStat";
-    public static final String SEMAPHORE_TRY_ACQUIRE_EXP = "SemaphoreTryAcquireExp";
-    public static final String SEMAPHORE_RELEASE_STAT = "SemaphoreReleaseStat";
-    public static final String GET_NUM_SEMAPHORE_PERMITS_EXP = "GetNumSemaphorePermitsExp";
-    public static final String SAVE_TEXT_STAT = "SaveTextStat";
-    public static final String DELETE_TEXT_FILE_STAT = "DeleteTextFileStat";
-    public static final String DELETE_TEXT_FILES_STAT = "DeleteTextFilesStat";
-    public static final String RECORD_AUDIO_STAT = "RecordAudioStat";
-    public static final String PLAY_AUDIO_STAT = "PlayAudioStat";
-    public static final String SET_AUDIO_VOLUME_STAT = "SetAudioVolumeStat";
-    public static final String DELETE_AUDIO_FILE_STAT = "DeleteAudioFileStat";
-    public static final String DELETE_AUDIO_FILES_STAT = "DeleteAudioFilesStat";
-
-    //オプション名
-    public static final String OPT_ROUND = "round";
-    public static final String OPT_CEIL = "ceil";
-    public static final String OPT_FLOOR = "floor";
-    public static final String OPT_TRUNC = "trunc";
-    public static final String OPT_MAX = "max";
-    public static final String OPT_MIN = "min";
-    public static final String OPT_PEAK = "peak";
-    public static final String OPT_AVERAGE = "average";
-    public static final String OPT_MOVE_FORWARD = "moveForward";
-    public static final String OPT_MOVE_BACKWARD = "moveBackward";
-    public static final String OPT_TURN_RIGHT = "turnRight";
-    public static final String OPT_TURN_LEFT = "turnLeft";
-    public static final String OPT_ADD = "add";
-    public static final String OPT_SUB = "sub";
-    public static final String OPT_REMOVE = "remove";
-    public static final String OPT_EXTRACT = "extract";
-    public static final String OPT_FIRST = "first";
-    public static final String OPT_LAST = "last";
-    public static final String OPT_EQ = "eq";
-    public static final String OPT_NEQ = "neq";
-    public static final String OPT_SUBSET = "subset";
-    public static final String OPT_PROPER_SUBSET = "properSubset";
-    public static final String OPT_SUPERSET = "superset";
-    public static final String OPT_PROPER_SUPERSET = "properSuperset";
-    public static final String OPT_FINITE = "finite";
-    public static final String OPT_INFINITE = "infinite";
-    public static final String OPT_POS_INF = "posInf";
-    public static final String OPT_NEG_INF = "negInf";
-    public static final String OPT_NAN = "nan";
-    public static final String OPT_WITH_LINE_BREAK = "withLineBreak";
-    public static final String OPT_WITHOUT_LINE_BREAK = "withoutLineBreak";
-    public static final String OPT_WITH_COUNTDOWN = "withCountdown";
-    public static final String OPT_WITHOUT_COUNTDOWN = "withoutCountdown";
-    public static final String OPT_IN_PLACE = "inPlace";
-    public static final String OPT_NOT_IN_PLACE = "notInPlace";
-
-    /** 定義済み関数式のリスト. */
-    public static final Set<String> EXP_LIST =
-        new HashSet<>(java.util.List.of(
-            STR_TO_NUM_EXP,
-            STR_TO_NUM_WITH_DEFAULT_VAL_EXP,
-            ANY_TO_STR_EXP,
-            SCAM_EXP,
-            NUM_ROUND_EXP,
-            RANDOM_INT_EXP,
-            ABS_EXP,
-            MAX_MIN_EXP,
-            MEASURE_DISTANCE_EXP,
-            MELODY_EXP,
-            ANY_COMP_EXP,
-            BINARY_COLOR_EXP,
-            DETECT_COLOR_EXP,
-            GET_TIME_SINCE_PROGRAM_STARTED_EXP,
-            STR_CHAIN_LINK_EXP,
-            STR_LINE_FEED_CHAIN_LINK_EXP,
-            STR_CHAIN_EXP,
-            GET_SYNC_TIMER_COUNT_EXP,
-            SYNC_TIMER_TIMED_AWAIT_EXP,
-            SEMAPHORE_TRY_ACQUIRE_EXP,
-            GET_NUM_SEMAPHORE_PERMITS_EXP,
-            ANY_LIST_TO_STR_EXP,
-            CHECK_NUM_TYPE_EXP,
-            NUM_POW_EXP,
-            NUM_CLAMP_EXP,
-            OUT_ARG_TEST_EXP,
-            LOAD_TEXT_EXP,
-            GET_TEXT_FILES_EXP,
-            GET_AUDIO_VOLUME_EXP,
-            GET_AUDIO_FILES_EXP,
-            MEASURE_SOUND_PRESSURE_EXP,
-
-            List.NUM_LIST_GET_EXP,
-            List.NUM_LIST_SLICE_EXP,
-            List.NUM_LIST_REVERSE_EXP,
-            List.NUM_LIST_SORT_EXP,
-            List.NUM_LIST_MAX_MIN_EXP,
-            List.STR_LIST_GET_EXP,
-            List.STR_LIST_SLICE_EXP,
-            List.STR_LIST_REVERSE_EXP,
-            List.STR_LIST_SORT_EXP,
-            List.STR_LIST_MAX_MIN_EXP,
-            List.BOOL_LIST_GET_EXP,
-            List.BOOL_LIST_SLICE_EXP,
-            List.BOOL_LIST_REVERSE_EXP,
-            List.COLOR_LIST_GET_EXP,
-            List.COLOR_LIST_SLICE_EXP,
-            List.COLOR_LIST_REVERSE_EXP,
-            List.SOUND_LIST_GET_EXP,
-            List.SOUND_LIST_SLICE_EXP,
-            List.SOUND_LIST_REVERSE_EXP,
-            List.ANY_LIST_LEN_EXP,
-            List.ANY_LIST_INDEX_OF_EXP,
-            List.ANY_LIST_INCLUDES_EXP,
-            List.ANY_LIST_COMP_EXP,
-            List.ANY_SET_COMP_EXP));
-
-    /** 定義済み関数文のリスト. */
-    public static final Set<String> STAT_LIST =
-        new HashSet<>(java.util.List.of(
-            PRINT_STAT,
-            MOVE_STAT,
-            STOP_RASPI_CAR_STAT,
-            SLEEP_STAT,
-            PLAY_MELODY_STAT,
-            PLAY_SOUND_LIST_STAT,
-            SAY_STAT,
-            LIGHT_EYE_STAT,
-            SYNC_TIMER_AWAIT_STAT,
-            RESET_SYNC_TIMER_STAT,
-            SYNC_TIMER_COUNTDOWN_STAT,
-            SEMAPHORE_ACQUIRE_STAT,
-            SEMAPHORE_RELEASE_STAT,
-            SAVE_TEXT_STAT,
-            DELETE_TEXT_FILE_STAT,
-            DELETE_TEXT_FILES_STAT,
-            SET_AUDIO_VOLUME_STAT,
-            RECORD_AUDIO_STAT,
-            PLAY_AUDIO_STAT,
-            DELETE_AUDIO_FILE_STAT,
-            DELETE_AUDIO_FILES_STAT,
-
-            List.ANY_LIST_PUSH_STAT,
-            List.ANY_LIST_INSERT_ALL_STAT,
-            List.ANY_LIST_INSERT_STAT,
-            List.ANY_LIST_SPLICE_STAT,
-            List.ANY_LIST_SET_STAT));
-
-    //  (関数呼び出しノード名, 関数呼び出しオプション...) -> 関数名
-    public static final Map<FuncId, String> NAME_MAP = new HashMap<>(Map.ofEntries(
-        entry(FuncId.of(STR_TO_NUM_EXP), Funcs.STR_TO_NUM),
-        entry(FuncId.of(STR_TO_NUM_WITH_DEFAULT_VAL_EXP), Funcs.STR_TO_NUM),
-        entry(FuncId.of(ANY_TO_STR_EXP), Funcs.STR),
-        entry(FuncId.of(PRINT_STAT, OPT_WITH_LINE_BREAK), Funcs.PRINTLN),
-        entry(FuncId.of(PRINT_STAT, OPT_WITHOUT_LINE_BREAK), Funcs.PRINT),
-        entry(FuncId.of(SYNC_TIMER_AWAIT_STAT, OPT_WITH_COUNTDOWN),
-            Funcs.SYNC_TIMER_COUNTDOWN_AND_AWAIT),
-        entry(FuncId.of(SYNC_TIMER_AWAIT_STAT, OPT_WITHOUT_COUNTDOWN), Funcs.SYNC_TIMER_AWAIT),
-        entry(FuncId.of(RESET_SYNC_TIMER_STAT), Funcs.RESET_SYNC_TIMER),
-        entry(FuncId.of(SYNC_TIMER_COUNTDOWN_STAT), Funcs.SYNC_TIMER_COUNTDOWN),
-        entry(FuncId.of(SEMAPHORE_ACQUIRE_STAT), Funcs.SEMAPHORE_ACQUIRE),
-        entry(FuncId.of(SEMAPHORE_RELEASE_STAT), Funcs.SEMAPHORE_RELEASE),
-        entry(FuncId.of(SCAM_EXP), Funcs.SCAN),
-        entry(FuncId.of(NUM_ROUND_EXP, OPT_ROUND), "Math.round"),
-        entry(FuncId.of(NUM_ROUND_EXP, OPT_CEIL), "Math.ceil"),
-        entry(FuncId.of(NUM_ROUND_EXP, OPT_FLOOR), "Math.floor"),
-        entry(FuncId.of(NUM_ROUND_EXP, OPT_TRUNC), "Math.trunc"),
-        entry(FuncId.of(ABS_EXP), "Math.abs"),
-        entry(FuncId.of(MAX_MIN_EXP, OPT_MAX), "Math.max"),
-        entry(FuncId.of(MAX_MIN_EXP, OPT_MIN), "Math.min"),
-        entry(FuncId.of(RANDOM_INT_EXP), Funcs.RANDOM_INT),
-        entry(FuncId.of(MEASURE_DISTANCE_EXP), Funcs.MEASURE_DISTANCE),
-        entry(FuncId.of(MELODY_EXP), Funcs.PUSH_SOUND),
-        entry(FuncId.of(ANY_COMP_EXP, OPT_EQ), Funcs.ANY_EQ),
-        entry(FuncId.of(ANY_COMP_EXP, OPT_NEQ), Funcs.ANY_NEQ),
-        entry(FuncId.of(BINARY_COLOR_EXP, OPT_ADD), Funcs.ADD_COLOR),
-        entry(FuncId.of(BINARY_COLOR_EXP, OPT_SUB), Funcs.SUB_COLOR),
-        entry(FuncId.of(DETECT_COLOR_EXP), Funcs.DETECT_COLOR),
-        entry(FuncId.of(GET_TIME_SINCE_PROGRAM_STARTED_EXP), Funcs.GET_TIMER_VAL),
-        entry(FuncId.of(STR_CHAIN_LINK_EXP), Funcs.STRCAT),
-        entry(FuncId.of(STR_LINE_FEED_CHAIN_LINK_EXP), Funcs.STRCAT_LF),
-        entry(FuncId.of(STR_CHAIN_EXP), Funcs.IDENTITY),
-        entry(FuncId.of(GET_SYNC_TIMER_COUNT_EXP), Funcs.GET_SYNC_TIMER_COUNT),
-        entry(FuncId.of(SYNC_TIMER_TIMED_AWAIT_EXP, OPT_WITH_COUNTDOWN),
-            Funcs.SYNC_TIMER_COUNTDOWN_AND_TIMED_AWAIT),
-        entry(FuncId.of(SYNC_TIMER_TIMED_AWAIT_EXP, OPT_WITHOUT_COUNTDOWN),
-            Funcs.SYNC_TIMER_TIMED_AWAIT),
-        entry(FuncId.of(SEMAPHORE_TRY_ACQUIRE_EXP), Funcs.SEMAPHORE_TRY_ACQUIRE),
-        entry(FuncId.of(GET_NUM_SEMAPHORE_PERMITS_EXP), Funcs.GET_NUM_SEMAPHORE_PERMITS),
-        entry(FuncId.of(ANY_LIST_TO_STR_EXP), Funcs.LIST_TO_STR),
-        entry(FuncId.of(CHECK_NUM_TYPE_EXP, OPT_FINITE), "Number.isFinite"),
-        entry(FuncId.of(CHECK_NUM_TYPE_EXP, OPT_INFINITE), Funcs.IS_NUM_INFINITE),
-        entry(FuncId.of(CHECK_NUM_TYPE_EXP, OPT_POS_INF), Funcs.IS_NUM_POS_INF),
-        entry(FuncId.of(CHECK_NUM_TYPE_EXP, OPT_NEG_INF), Funcs.IS_NUM_NEG_INF),
-        entry(FuncId.of(CHECK_NUM_TYPE_EXP, OPT_NAN), "Number.isNaN"),
-        entry(FuncId.of(NUM_POW_EXP), "Math.pow"),
-        entry(FuncId.of(NUM_CLAMP_EXP), Funcs.NUM_CLAMP),
-        entry(FuncId.of(LOAD_TEXT_EXP), Funcs.LOAD_TEXT),
-        entry(FuncId.of(GET_TEXT_FILES_EXP), Funcs.GET_TEXT_FILES),
-        entry(FuncId.of(GET_AUDIO_VOLUME_EXP), Funcs.GET_AUDIO_VOLUME),
-        entry(FuncId.of(GET_AUDIO_FILES_EXP), Funcs.GET_AUDIO_FILES),
-        entry(FuncId.of(MEASURE_SOUND_PRESSURE_EXP, OPT_PEAK), Funcs.FIND_SOUND_PRESSURE_PEAK),
-        entry(FuncId.of(MEASURE_SOUND_PRESSURE_EXP, OPT_AVERAGE),
-            Funcs.FIND_SOUND_PRESSURE_AVERAGE),
-        entry(FuncId.of(OUT_ARG_TEST_EXP), Funcs.OUT_ARG_TEST),
-        entry(FuncId.of(MOVE_STAT, OPT_MOVE_FORWARD), Funcs.MOVE_FORWARD),
-        entry(FuncId.of(MOVE_STAT, OPT_MOVE_BACKWARD), Funcs.MOVE_BACKWARD),
-        entry(FuncId.of(MOVE_STAT, OPT_TURN_RIGHT), Funcs.TURN_RIGHT),
-        entry(FuncId.of(MOVE_STAT, OPT_TURN_LEFT), Funcs.TURN_LEFT),
-        entry(FuncId.of(STOP_RASPI_CAR_STAT), Funcs.STOP_RASPI_CAR),
-        entry(FuncId.of(SLEEP_STAT), Funcs.SLEEP),
-        entry(FuncId.of(PLAY_MELODY_STAT), Funcs.PLAY_MELODIES),
-        entry(FuncId.of(PLAY_SOUND_LIST_STAT), Funcs.PLAY_MELODIES),
-        entry(FuncId.of(SAY_STAT), Funcs.SAY),
-        entry(FuncId.of(LIGHT_EYE_STAT), Funcs.LIGHT_EYE),
-        entry(FuncId.of(GlobalData.MUTEX_BLOCK_DECL), Funcs.NEW_LOCK_OBJ),
-        entry(FuncId.of(GlobalData.SYNC_TIMER_DECL), Funcs.NEW_SYNC_TIMER),
-        entry(FuncId.of(GlobalData.SEMAPHORE_DECL), Funcs.NEW_SEMAPHORE),
-        entry(FuncId.of(SAVE_TEXT_STAT), Funcs.SAVE_TEXT),
-        entry(FuncId.of(DELETE_TEXT_FILE_STAT), Funcs.DELETE_TEXT_FILE),
-        entry(FuncId.of(DELETE_TEXT_FILES_STAT), Funcs.DELETE_TEXT_FILES),
-        entry(FuncId.of(SET_AUDIO_VOLUME_STAT), Funcs.SET_AUDIO_VOLUME),
-        entry(FuncId.of(RECORD_AUDIO_STAT), Funcs.RECORD_AUDIO),
-        entry(FuncId.of(PLAY_AUDIO_STAT), Funcs.PLAY_AUDIO),
-        entry(FuncId.of(DELETE_AUDIO_FILE_STAT), Funcs.DELETE_AUDIO_FILE),
-        entry(FuncId.of(DELETE_AUDIO_FILES_STAT), Funcs.DELETE_AUDIO_FILES),
-
-        entry(FuncId.of(List.ANY_LIST_PUSH_STAT), Funcs.LIST_PUSH),
-        entry(FuncId.of(List.ANY_LIST_LEN_EXP), Funcs.LIST_LEN),
-        entry(FuncId.of(List.ANY_LIST_INSERT_STAT), Funcs.LIST_INSERT),
-        entry(FuncId.of(List.ANY_LIST_INSERT_ALL_STAT), Funcs.LIST_INSERT_ALL),
-        entry(FuncId.of(List.ANY_LIST_SPLICE_STAT, OPT_REMOVE), Funcs.LIST_REMOVE),
-        entry(FuncId.of(List.ANY_LIST_SPLICE_STAT, OPT_EXTRACT), Funcs.LIST_EXTRACT),
-        entry(FuncId.of(List.ANY_LIST_SET_STAT), Funcs.LIST_SET),
-        entry(FuncId.of(List.ANY_LIST_INDEX_OF_EXP, OPT_FIRST), Funcs.LIST_FIRST_INDEX_OF),
-        entry(FuncId.of(List.ANY_LIST_INDEX_OF_EXP, OPT_LAST), Funcs.LIST_LAST_INDEX_OF),
-        entry(FuncId.of(List.ANY_LIST_INCLUDES_EXP), Funcs.LIST_INCLUDES),
-        entry(FuncId.of(List.ANY_LIST_COMP_EXP, OPT_EQ), Funcs.LIST_EQ),
-        entry(FuncId.of(List.ANY_LIST_COMP_EXP, OPT_NEQ), Funcs.LIST_NEQ),
-
-        entry(FuncId.of(List.ANY_SET_COMP_EXP, OPT_SUBSET), Funcs.IS_SUBSET),
-        entry(FuncId.of(List.ANY_SET_COMP_EXP, OPT_PROPER_SUBSET), Funcs.IS_PROPER_SUBSET),
-        entry(FuncId.of(List.ANY_SET_COMP_EXP, OPT_SUPERSET), Funcs.IS_SUPERSET),
-        entry(FuncId.of(List.ANY_SET_COMP_EXP, OPT_PROPER_SUPERSET), Funcs.IS_PROPER_SUPERSET),
-        entry(FuncId.of(List.ANY_SET_COMP_EXP, OPT_EQ), Funcs.SET_EQ),
-        entry(FuncId.of(List.ANY_SET_COMP_EXP, OPT_NEQ), Funcs.SET_NEQ),
-
-        entry(FuncId.of(List.STR_LIST_GET_EXP), Funcs.LIST_GET),
-        entry(FuncId.of(List.STR_LIST_SLICE_EXP), Funcs.LIST_SLICE),
-        entry(FuncId.of(List.STR_LIST_REVERSE_EXP, OPT_IN_PLACE), Funcs.LIST_REVERSE),
-        entry(FuncId.of(List.STR_LIST_REVERSE_EXP, OPT_NOT_IN_PLACE), Funcs.LIST_REVERSED),
-        entry(FuncId.of(List.STR_LIST_SORT_EXP, OPT_IN_PLACE), Funcs.LIST_SORT),
-        entry(FuncId.of(List.STR_LIST_SORT_EXP, OPT_NOT_IN_PLACE), Funcs.LIST_SORTED),
-        entry(FuncId.of(List.STR_LIST_MAX_MIN_EXP, OPT_MAX), Funcs.LIST_MAX),
-        entry(FuncId.of(List.STR_LIST_MAX_MIN_EXP, OPT_MIN), Funcs.LIST_MIN),
-
-        entry(FuncId.of(List.NUM_LIST_GET_EXP), Funcs.LIST_GET),
-        entry(FuncId.of(List.NUM_LIST_SLICE_EXP), Funcs.LIST_SLICE),
-        entry(FuncId.of(List.NUM_LIST_REVERSE_EXP, OPT_IN_PLACE), Funcs.LIST_REVERSE),
-        entry(FuncId.of(List.NUM_LIST_REVERSE_EXP, OPT_NOT_IN_PLACE), Funcs.LIST_REVERSED),
-        entry(FuncId.of(List.NUM_LIST_SORT_EXP, OPT_IN_PLACE), Funcs.LIST_NUM_SORT),
-        entry(FuncId.of(List.NUM_LIST_SORT_EXP, OPT_NOT_IN_PLACE), Funcs.LIST_NUM_SORTED),
-        entry(FuncId.of(List.NUM_LIST_MAX_MIN_EXP, OPT_MAX), Funcs.LIST_NUM_MAX),
-        entry(FuncId.of(List.NUM_LIST_MAX_MIN_EXP, OPT_MIN), Funcs.LIST_NUM_MIN),
-
-        entry(FuncId.of(List.BOOL_LIST_GET_EXP), Funcs.LIST_GET),
-        entry(FuncId.of(List.BOOL_LIST_SLICE_EXP), Funcs.LIST_SLICE),
-        entry(FuncId.of(List.BOOL_LIST_REVERSE_EXP, OPT_IN_PLACE), Funcs.LIST_REVERSE),
-        entry(FuncId.of(List.BOOL_LIST_REVERSE_EXP, OPT_NOT_IN_PLACE), Funcs.LIST_REVERSED),
-
-        entry(FuncId.of(List.COLOR_LIST_GET_EXP), Funcs.LIST_GET),
-        entry(FuncId.of(List.COLOR_LIST_SLICE_EXP), Funcs.LIST_SLICE),
-        entry(FuncId.of(List.COLOR_LIST_REVERSE_EXP, OPT_IN_PLACE), Funcs.LIST_REVERSE),
-        entry(FuncId.of(List.COLOR_LIST_REVERSE_EXP, OPT_NOT_IN_PLACE), Funcs.LIST_REVERSED),
-
-        entry(FuncId.of(List.SOUND_LIST_GET_EXP), Funcs.LIST_GET),
-        entry(FuncId.of(List.SOUND_LIST_SLICE_EXP), Funcs.LIST_SLICE),
-        entry(FuncId.of(List.SOUND_LIST_REVERSE_EXP, OPT_IN_PLACE), Funcs.LIST_REVERSE),
-        entry(FuncId.of(List.SOUND_LIST_REVERSE_EXP, OPT_NOT_IN_PLACE), Funcs.LIST_REVERSED)
-      ));
-  }
-
-  /** ユーザ定義関数に関するシンボル名. */
-  public static class UserDefFunc {
-
-    public static final String ARG = "Arg";
-    public static final String OUT_ARG = "OutArg";
-    public static final String NEXT_ARG = "NextArg";
-    public static final String ARG_VOID = "ArgVoid";
-    public static final String PARAM_DECL = "ParamDecl";
-    public static final String OUT_PARAM_DECL = "OutParamDecl";
-    public static final String FUNC_NAME = "FuncName";
-    public static final String VOID_FUNC_DEF = "VoidFuncDef";
-    public static final String VOID_FUNC_CALL = "VoidFuncCall";
-
-    /** 関数定義ノードのリスト. */
-    public static final Set<String> LIST =
-        new HashSet<>(java.util.List.of(
-            VOID_FUNC_DEF));
-
-    /** ユーザ定義関数文のリスト. */
-    public static final Set<String> CALL_STAT_LIST =
-        new HashSet<>(java.util.List.of(
-            VOID_FUNC_CALL));
-  }
-
-  /** イベントを発生させる処理に関するシンボル名. */
-  public static class Event {
-
-    public static final String KEY_PRESS_EVENT = "KeyPressedEvent";
-    public static final String DELAYED_START_EVENT = "DelayedStartEvent";
-    public static final String KEY_CODE = "KeyCode";
-    public static final String DELAY_TIME = "DelayTime";
-
-    /** イベントノードのリスト. */
-    public static final Set<String> LIST =
-        new HashSet<>(java.util.List.of(
-            KEY_PRESS_EVENT,
-            DELAYED_START_EVENT));
-  }
-
-  /** リテラルに関するシンボル名. */
-  public static class Literal {
-    public static final String STR_LITERAL = "StrLiteral";
-    public static final String NEW_LINE = "NewLine";
-    public static final String NUM_LITERAL = "NumLiteral";
-    public static final String BOOL_LITERAL = "BoolLiteral";
-    public static final String FREQ_SOUND_LITERAL = "FreqSoundLiteral";
-    public static final String SCALE_SOUND_LITERAL = "ScaleSoundLiteral";
-    public static final String COLOR_LITERAL = "ColorLiteral";
-
-    public static final String STR_LITERAL_EXP = "StrLiteralExp";
-    public static final String NUM_LITERAL_EXP = "NumLiteralExp";
-    public static final String BOOL_LITERAL_EXP = "BoolLiteralExp";
-    public static final String COLOR_LITERAL_EXP = "ColorLiteralExp";
-    public static final String FREQ_SOUND_LITERAL_EXP = "FreqSoundLiteralExp";
-    public static final String SCALE_SOUND_LITERAL_EXP = "ScaleSoundLiteralExp";
-    
-    public static final Set<String> LIST =
-        new HashSet<>(java.util.List.of(
-            STR_LITERAL,
-            NUM_LITERAL,
-            BOOL_LITERAL,
-            FREQ_SOUND_LITERAL,
-            SCALE_SOUND_LITERAL,
-            COLOR_LITERAL));
-
-    public static final Set<String> EXP_LIST =
-        new HashSet<>(java.util.List.of(
-            STR_LITERAL_EXP,
-            NEW_LINE,
-            NUM_LITERAL_EXP,
-            BOOL_LITERAL_EXP,
-            COLOR_LITERAL_EXP,
-            FREQ_SOUND_LITERAL_EXP,
-            SCALE_SOUND_LITERAL_EXP));
-
-    /** 音リテラルに関するシンボル名. */
-    public static class Sound {
-      public static final String VOLUME = "Volume";
-      public static final String DURATION = "Duration";
-      public static final String FREQUENCY = "Frequency";
-      public static final String SCALE_SOUND = "ScaleSound";
-      public static final String OCTAVE = "Octave";
+              listCtrl.anyListPushStat,
+              listCtrl.anyListInsertAllStat,
+              listCtrl.anyListInsertStat,
+              listCtrl.anyListSpliceStat,
+              listCtrl.anyListSetStat));
+      }
     }
   }
 
-  /** リストに関するシンボル名. */
-  public static class List {
+  /** 式に関するシンボル名. */
+  static class Expression {
 
-    public static final String ANY_LIST_PUSH_STAT = "AnyListPushStat";
-    public static final String ANY_LIST_LEN_EXP = "AnyListLengthExp";
-    public static final String ANY_LIST_INSERT_ALL_STAT = "AnyListInsertAllStat";
-    public static final String ANY_LIST_INSERT_STAT = "AnyListInsertStat";
-    public static final String ANY_LIST_SPLICE_STAT = "AnyListSpliceStat";
-    public static final String ANY_LIST_SET_STAT = "AnyListSetStat";
-    public static final String ANY_LIST_INDEX_OF_EXP = "AnyListIndexOfExp";
-    public static final String ANY_LIST_INCLUDES_EXP = "AnyListIncludesExp";
-    public static final String ANY_LIST_COMP_EXP = "AnyListCompExp";
-    public static final String ANY_SET_COMP_EXP = "AnySetCompExp";
+    final BinaryExp binary = new BinaryExp();
+    final UnaryExp unary = new UnaryExp();
+    final Literal literal = new Literal();
+    final Variable variable = new Variable();
+    final GlobalDataVar globalDataVar = new GlobalDataVar();
+    final ConstantValue constant = new ConstantValue();
+    final PredefFunc predefFunc;
 
-    public static final String STR_LIST_GET_EXP = "StrListGetExp";
-    public static final String STR_LIST_SLICE_EXP = "StrListSliceExp";
-    public static final String STR_LIST_REVERSE_EXP = "StrListReverseExp";
-    public static final String STR_LIST_SORT_EXP = "StrListSortExp";
-    public static final String STR_LIST_MAX_MIN_EXP = "StrListMaxMinExp";
+    private Expression(SymbolNames.PredefFunc predefFunc, ListCtrl listCtrl) {
+      this.predefFunc = new PredefFunc(predefFunc, listCtrl);
+    }
 
-    public static final String NUM_LIST_GET_EXP = "NumListGetExp";
-    public static final String NUM_LIST_SLICE_EXP = "NumListSliceExp";
-    public static final String NUM_LIST_REVERSE_EXP = "NumListReverseExp";
-    public static final String NUM_LIST_SORT_EXP = "NumListSortExp";
-    public static final String NUM_LIST_MAX_MIN_EXP = "NumListMaxMinExp";
+    /** 二項演算式に関するシンボル名. */
+    static class BinaryExp {
 
-    public static final String BOOL_LIST_GET_EXP = "BoolListGetExp";
-    public static final String BOOL_LIST_SLICE_EXP = "BoolListSliceExp";
-    public static final String BOOL_LIST_REVERSE_EXP = "BoolListReverseExp";
+      final String fourArithExp = "FourArithExp";
+      final String binaryBoolExp = "BinaryBoolExp";
+      final String modExp = "ModExp";
+      final String numCompExp = "NumCompExp";
+      final String strCompExp = "StrCompExp";
+      final String leftExp = "LeftExp";
+      final String rightExp = "RightExp";
+      final String operator = "Operator";
 
-    public static final String COLOR_LIST_GET_EXP = "ColorListGetExp";
-    public static final String COLOR_LIST_SLICE_EXP = "ColorListSliceExp";
-    public static final String COLOR_LIST_REVERSE_EXP = "ColorListReverseExp";
+      final String opAdd = "add";
+      final String opSub = "sub";
+      final String opDiv = "div";
+      final String opMul = "mul";
+      final String opMod = "mod";
+      final String opAnd = "and";
+      final String opOr = "or";
+      final String opEq = "eq";
+      final String opNeq = "neq";
+      final String opLt = "lt";
+      final String opLte = "lte";
+      final String opGt = "gt";
+      final String opGte = "gte";
 
-    public static final String SOUND_LIST_GET_EXP = "SoundListGetExp";
-    public static final String SOUND_LIST_SLICE_EXP = "SoundListSliceExp";
-    public static final String SOUND_LIST_REVERSE_EXP = "SoundListReverseExp";
+      /** 二項演算のリスト. */
+      final Set<String> list =
+          new HashSet<>(java.util.List.of(
+              fourArithExp,
+              modExp,
+              binaryBoolExp,
+              numCompExp,
+              strCompExp));
+
+      /** 論理二項演算のリスト. */
+      final Set<String> logicalList =
+          new HashSet<>(java.util.List.of(binaryBoolExp));
+
+      /** 非論理二項演算のリスト. */
+      final Set<String> nonlogicalList =
+          new HashSet<>(java.util.List.of(
+              fourArithExp,
+              modExp,
+              numCompExp,
+              strCompExp));
+
+      final Map<String, String> operatorMap =
+          new HashMap<>(Map.ofEntries(
+              entry(opAdd, " + "),
+              entry(opSub, " - "),
+              entry(opDiv, " / "),
+              entry(opMul, " * "),
+              entry(opMod, " % "),
+              entry(opAnd, " && "),
+              entry(opOr,  " || "),
+              entry(opEq,  " === "),
+              entry(opNeq, " !== "),
+              entry(opLt,  " < "),
+              entry(opLte, " <= "),
+              entry(opGt,  " > "),
+              entry(opGte, " >= ")
+          ));
+    }
+
+    /** 単項演算式に関するシンボル名. */
+    static class UnaryExp {
+
+      final String notExp = "NotExp";
+      final String negExp = "NegExp";
+      final String primaryExp = "PrimaryExp";
+      final Set<String> list =
+          new HashSet<>(java.util.List.of(
+              notExp,
+              negExp));
+
+      final Map<String, String> operatorMap =
+          new HashMap<>(Map.ofEntries(
+              entry(notExp, "!"),
+              entry(negExp, "-")
+          ));
+    }
+
+    /** リテラルに関するシンボル名. */
+    static class Literal {
+
+      final String strLiteral = "StrLiteral";
+      final String newLine = "NewLine";
+      final String numLiteral = "NumLiteral";
+      final String boolLiteral = "BoolLiteral";
+      final String freqSoundLiteral = "FreqSoundLiteral";
+      final String scaleSoundLiteral = "ScaleSoundLiteral";
+      final String colorLiteral = "ColorLiteral";
+
+      final String strLiteralExp = "StrLiteralExp";
+      final String numLiteralExp = "NumLiteralExp";
+      final String boolLiteralExp = "BoolLiteralExp";
+      final String colorLiteralExp = "ColorLiteralExp";
+      final String freqSoundLiteralExp = "FreqSoundLiteralExp";
+      final String scaleSoundLiteralExp = "ScaleSoundLiteralExp";
+
+      final Sound sound = new Sound();
+
+      final Set<String> values =
+          new HashSet<>(java.util.List.of(
+              strLiteral,
+              numLiteral,
+              boolLiteral,
+              freqSoundLiteral,
+              scaleSoundLiteral,
+              colorLiteral));
+
+      final Set<String> list =
+          new HashSet<>(java.util.List.of(
+              strLiteralExp,
+              newLine,
+              numLiteralExp,
+              boolLiteralExp,
+              colorLiteralExp,
+              freqSoundLiteralExp,
+              scaleSoundLiteralExp));
+
+      /** 音リテラルに関するシンボル名. */
+      static class Sound {
+        final String volume = "Volume";
+        final String duration = "Duration";
+        final String frequency = "Frequency";
+        final String scaleSound = "ScaleSound";
+        final String octave = "Octave";
+      }
+    }
+
+    /** 変数に関するシンボル名. */
+    static class Variable {
+
+      final String numVar = "NumVar";
+      final String numVarVoid = "NumVarVoid";
+      final String numList = "NumList";
+      final String numListVoid = "NumListVoid";
+
+      final String strVar = "StrVar";
+      final String strVarVoid = "StrVarVoid";
+      final String strList = "StrList";
+      final String strListVoid = "StrListVoid";
+
+      final String boolVar = "BoolVar";
+      final String boolVarVoid = "BoolVarVoid";
+      final String boolList = "BoolList";
+      final String boolListVoid = "BoolListVoid";
+
+      final String colorVar = "ColorVar";
+      final String colorVarVoid = "ColorVarVoid";
+      final String colorList = "ColorList";
+      final String colorListVoid = "ColorListVoid";
+
+      final String soundVar = "SoundVar";
+      final String soundVarVoid = "SoundVarVoid";
+      final String soundList = "SoundList";
+      final String soundListVoid = "SoundListVoid";
+
+      final Set<String> list =
+          new HashSet<>(java.util.List.of(
+              numVar,
+              numList,
+              strVar,
+              strList,
+              boolVar,
+              boolList,
+              colorVar,
+              colorList,
+              soundVar,
+              soundList));
+
+      final Set<String> voidList =
+          new HashSet<>(java.util.List.of(
+              numVarVoid,
+              strVarVoid,
+              boolVarVoid,
+              colorVarVoid,
+              soundVarVoid,
+              numListVoid,
+              strListVoid,
+              boolListVoid,
+              colorListVoid,
+              soundListVoid));
+
+      final Map<String, String> initValMap =
+          new HashMap<>(Map.ofEntries(
+              entry(numVarVoid, Vars.NIL),
+              entry(strVarVoid, Vars.NIL),
+              entry(boolVarVoid, Vars.NIL),
+              entry(colorVarVoid, Vars.NIL),
+              entry(soundVarVoid, Vars.NIL),
+              entry(numListVoid, "[]"),
+              entry(strListVoid, "[]"),
+              entry(boolListVoid, "[]"),
+              entry(colorListVoid, "[]"),
+              entry(soundListVoid, "[]")
+          ));
+    }
+
+    /** グローバルデータを格納する変数に関するシンボル名. */
+    static class GlobalDataVar {
+
+      final String syncTimerVar = "SyncTimerVar";
+      final String semaphoreVar = "SemaphoreVar";
+
+      final Set<String> list =
+          new HashSet<>(java.util.List.of(
+              syncTimerVar,
+              semaphoreVar));
+    }
+
+    /** 定数もしくは常に同じ値に評価される式のシンボル名. */
+    static class ConstantValue {
+      final String anyExpVoid = "AnyExpVoid";
+      final String numExpVoid = "NumExpVoid";
+      final String strExpVoid = "StrExpVoid";
+      final String boolExpVoid = "BoolExpVoid";
+      final String colorExpVoid = "ColorExpVoid";
+      final String soundExpVoid = "SoundExpVoid";
+      final String melodyExpVoid = "MelodyExpVoid";
+      final String syncTimerVarVoid = "SyncTimerVarVoid";
+      final String semaphoreVarVoid = "SemaphoreVarVoid";
+      final String strChainLinkVoid = "StrChainLinkVoid";
+      final String lineFeed = "LineFeed";
+      final String anyListExpVoid = "AnyListExpVoid";
+      final String numListExpVoid = "NumListExpVoid";
+      final String strListExpVoid = "StrListExpVoid";
+      final String boolListExpVoid = "BoolListExpVoid";
+      final String colorListExpVoid = "ColorListExpVoid";
+      final String soundListExpVoid = "SoundListExpVoid";
+
+      final Set<String> list =
+          new HashSet<>(java.util.List.of(
+              anyExpVoid,
+              numExpVoid,
+              strExpVoid,
+              boolExpVoid,
+              colorExpVoid,
+              soundExpVoid,
+              melodyExpVoid,
+              syncTimerVarVoid,
+              semaphoreVarVoid,
+              strChainLinkVoid,
+              lineFeed,
+              anyListExpVoid,
+              numListExpVoid,
+              strListExpVoid,
+              boolListExpVoid,
+              colorListExpVoid,
+              soundListExpVoid));
+
+      final Map<String, String> valueMap =
+          new HashMap<>(Map.ofEntries(
+              entry(anyExpVoid, Vars.NIL),
+              entry(numExpVoid, Vars.NIL),
+              entry(strExpVoid, Vars.NIL),
+              entry(boolExpVoid, Vars.NIL),
+              entry(colorExpVoid, Vars.NIL),
+              entry(soundExpVoid, Vars.NIL),
+              entry(melodyExpVoid, "[]"),
+              entry(syncTimerVarVoid, Vars.NIL),
+              entry(semaphoreVarVoid, Vars.NIL),
+              entry(strChainLinkVoid, "''"),
+              entry(lineFeed, "'\\n'"),
+              entry(anyListExpVoid, "[]"),
+              entry(numListExpVoid, "[]"),
+              entry(strListExpVoid, "[]"),
+              entry(boolListExpVoid, "[]"),
+              entry(colorListExpVoid, "[]"),
+              entry(soundListExpVoid, "[]")
+          ));
+    }
+
+    /** 定義済み関数に関するシンボル名. */
+    static class PredefFunc {
+
+      SymbolNames.PredefFunc predefFunc;
+
+      /** 定義済み関数式のリスト. */
+      final Set<String> list;
+
+      PredefFunc(SymbolNames.PredefFunc predefFunc, ListCtrl listCtrl) {
+        this.predefFunc = predefFunc;
+
+        list = new HashSet<>(java.util.List.of(
+            predefFunc.strToNumExp,
+            predefFunc.strToNumWithDefaultValExp,
+            predefFunc.anyToStrExp,
+            predefFunc.scamExp,
+            predefFunc.numRoundExp,
+            predefFunc.randomIntExp,
+            predefFunc.absExp,
+            predefFunc.maxMinExp,
+            predefFunc.measureDistanceExp,
+            predefFunc.melodyExp,
+            predefFunc.anyCompExp,
+            predefFunc.binaryColorExp,
+            predefFunc.detectColorExp,
+            predefFunc.getTimeSinceProgramStartedExp,
+            predefFunc.strChainLinkExp,
+            predefFunc.strLineFeedChainLinkExp,
+            predefFunc.strChainExp,
+            predefFunc.getSyncTimerCountExp,
+            predefFunc.syncTimerTimedAwaitExp,
+            predefFunc.semaphoreTryAcquireExp,
+            predefFunc.getNumSemaphorePermitsExp,
+            predefFunc.anyListToStrExp,
+            predefFunc.checkNumTypeExp,
+            predefFunc.numPowExp,
+            predefFunc.numClampExp,
+            predefFunc.outArgTestExp,
+            predefFunc.loadTextExp,
+            predefFunc.getTextFilesExp,
+            predefFunc.getAudioVolumeExp,
+            predefFunc.getAudioFilesExp,
+            predefFunc.measureSoundPressureExp,
+
+            listCtrl.numListGetExp,
+            listCtrl.numListSliceExp,
+            listCtrl.numListReverseExp,
+            listCtrl.numListSortExp,
+            listCtrl.numListMaxMinExp,
+            listCtrl.strListGetExp,
+            listCtrl.strListSliceExp,
+            listCtrl.strListReverseExp,
+            listCtrl.strListSortExp,
+            listCtrl.strListMaxMinExp,
+            listCtrl.boolListGetExp,
+            listCtrl.boolListSliceExp,
+            listCtrl.boolListReverseExp,
+            listCtrl.colorListGetExp,
+            listCtrl.colorListSliceExp,
+            listCtrl.colorListReverseExp,
+            listCtrl.soundListGetExp,
+            listCtrl.soundListSliceExp,
+            listCtrl.soundListReverseExp,
+            listCtrl.anyListLenExp,
+            listCtrl.anyListIndexOfExp,
+            listCtrl.anyListIncludesExp,
+            listCtrl.anyListCompExp,
+            listCtrl.anySetCompExp));
+      }
+
+      /** 定義済み関数の ID から名前を取得する. */
+      String getFuncName(FuncId id) {
+        return predefFunc.nameMap.get(id);
+      }
+    }
+  }
+
+  /** BhProgram にあらかじめ定義されたメソッドを呼び出す処理に関するシンボル名. */
+  static class PredefFunc {
+
+    final String arg = "Arg";
+    final String outArg = "OutArg";
+    final String option = "Option";
+
+    //ノード名
+    private final String strToNumExp = "StrToNumExp";
+    private final String strToNumWithDefaultValExp = "StrToNumWithDefaultValExp";
+    private final String anyToStrExp = "AnyToStrExp";
+    private final String scamExp = "ScanExp";
+    private final String randomIntExp = "RandomIntExp";
+    private final String numRoundExp = "NumRoundExp";
+    private final String absExp = "AbsExp";
+    private final String maxMinExp = "MaxMinExp";
+    private final String measureDistanceExp = "MeasureDistanceExp";
+    private final String melodyExp = "MelodyExp";
+    private final String anyCompExp = "AnyCompExp";
+    private final String binaryColorExp = "BinaryColorExp";
+    private final String detectColorExp = "DetectColorExp";
+    private final String getTimeSinceProgramStartedExp = "GetTimeSinceProgramStartedExp";
+    private final String strChainLinkExp = "StrChainLinkExp";
+    private final String strLineFeedChainLinkExp = "StrLineFeedChainLinkExp";
+    private final String strChainExp = "StrChainExp";
+    private final String getSyncTimerCountExp = "GetSyncTimerCountExp";
+    private final String syncTimerTimedAwaitExp = "SyncTimerTimedAwaitExp";
+    final String anyListToStrExp = "AnyListToStrExp";
+    private final String checkNumTypeExp = "CheckNumTypeExp";
+    private final String numPowExp = "NumPowExp";
+    private final String numClampExp = "NumClampExp";
+    private final String outArgTestExp = "OutArgTestExp";
+    private final String loadTextExp = "LoadTextExp";
+    private final String getTextFilesExp = "GetTextFilesExp";
+    private final String getAudioFilesExp = "GetAudioFilesExp";
+    private final String getAudioVolumeExp = "GetAudioVolumeExp";
+    private final String measureSoundPressureExp = "MeasureSoundPressureExp";
+    private final String printStat = "PrintStat";
+    private final String moveStat = "MoveStat";
+    private final String stopRaspiCarStat = "StopRaspiCarStat";
+    private final String sleepStat = "SleepStat";
+    private final String playMelodyStat = "PlayMelodyStat";
+    private final String playSoundListStat = "PlaySoundListStat";
+    private final String sayStat = "SayStat";
+    private final String lightEyeStat = "LightEyeStat";
+    private final String syncTimerAwaitStat = "SyncTimerAwaitStat";
+    private final String resetSyncTimerStat = "ResetSyncTimerStat";
+    private final String syncTimerCountdownStat = "SyncTimerCountdownStat";
+    private final String semaphoreAcquireStat = "SemaphoreAcquireStat";
+    private final String semaphoreTryAcquireExp = "SemaphoreTryAcquireExp";
+    private final String semaphoreReleaseStat = "SemaphoreReleaseStat";
+    private final String getNumSemaphorePermitsExp = "GetNumSemaphorePermitsExp";
+    private final String saveTextStat = "SaveTextStat";
+    private final String deleteTextFileStat = "DeleteTextFileStat";
+    private final String deleteTextFilesStat = "DeleteTextFilesStat";
+    private final String recordAudioStat = "RecordAudioStat";
+    private final String playAudioStat = "PlayAudioStat";
+    private final String setAudioVolumeStat = "SetAudioVolumeStat";
+    private final String deleteAudioFileStat = "DeleteAudioFileStat";
+    private final String deleteAudioFilesStat = "DeleteAudioFilesStat";
+
+    /** (関数呼び出しノード名, 関数呼び出しオプション...) -> 関数名. */
+    private final Map<FuncId, String> nameMap;
+
+    private PredefFunc(GlobalDataDecl globalDataDecl, ListCtrl listCtrl) {
+
+      //オプション名
+      final String optRound = "round";
+      final String optCeil = "ceil";
+      final String optFloor = "floor";
+      final String optTrunc = "trunc";
+      final String optMax = "max";
+      final String optMin = "min";
+      final String optPeak = "peak";
+      final String optAverage = "average";
+      final String optMoveForward = "moveForward";
+      final String optMoveBackward = "moveBackward";
+      final String optTurnRight = "turnRight";
+      final String optTurnLeft = "turnLeft";
+      final String optAdd = "add";
+      final String optSub = "sub";
+      final String optRemove = "remove";
+      final String optExtract = "extract";
+      final String optFirst = "first";
+      final String optLast = "last";
+      final String optEq = "eq";
+      final String optNeq = "neq";
+      final String optSubset = "subset";
+      final String optProperSubset = "properSubset";
+      final String optSuperset = "superset";
+      final String optProperSuperset = "properSuperset";
+      final String optFinite = "finite";
+      final String optInfinite = "infinite";
+      final String optPosInf = "posInf";
+      final String optNegInf = "negInf";
+      final String optNan = "nan";
+      final String optWithLineBreak = "withLineBreak";
+      final String optWithoutLineBreak = "withoutLineBreak";
+      final String optWithCountdown = "withCountdown";
+      final String optWithoutCountdown = "withoutCountdown";
+      final String optInPlace = "inPlace";
+      final String optNotInPlace = "notInPlace";
+
+      nameMap = new HashMap<>();
+      nameMap.put(FuncId.of(strToNumExp), Funcs.STR_TO_NUM);
+      nameMap.put(FuncId.of(strToNumWithDefaultValExp), Funcs.STR_TO_NUM);
+      nameMap.put(FuncId.of(anyToStrExp), Funcs.STR);
+      nameMap.put(FuncId.of(printStat, optWithLineBreak), Funcs.PRINTLN);
+      nameMap.put(FuncId.of(printStat, optWithoutLineBreak), Funcs.PRINT);
+      nameMap.put(
+          FuncId.of(syncTimerAwaitStat, optWithCountdown), Funcs.SYNC_TIMER_COUNTDOWN_AND_AWAIT);
+      nameMap.put(FuncId.of(syncTimerAwaitStat, optWithoutCountdown), Funcs.SYNC_TIMER_AWAIT);
+      nameMap.put(FuncId.of(resetSyncTimerStat), Funcs.RESET_SYNC_TIMER);
+      nameMap.put(FuncId.of(syncTimerCountdownStat), Funcs.SYNC_TIMER_COUNTDOWN);
+      nameMap.put(FuncId.of(semaphoreAcquireStat), Funcs.SEMAPHORE_ACQUIRE);
+      nameMap.put(FuncId.of(semaphoreReleaseStat), Funcs.SEMAPHORE_RELEASE);
+      nameMap.put(FuncId.of(scamExp), Funcs.SCAN);
+      nameMap.put(FuncId.of(numRoundExp, optRound), "Math.round");
+      nameMap.put(FuncId.of(numRoundExp, optCeil), "Math.ceil");
+      nameMap.put(FuncId.of(numRoundExp, optFloor), "Math.floor");
+      nameMap.put(FuncId.of(numRoundExp, optTrunc), "Math.trunc");
+      nameMap.put(FuncId.of(absExp), "Math.abs");
+      nameMap.put(FuncId.of(maxMinExp, optMax), "Math.max");
+      nameMap.put(FuncId.of(maxMinExp, optMin), "Math.min");
+      nameMap.put(FuncId.of(randomIntExp), Funcs.RANDOM_INT);
+      nameMap.put(FuncId.of(measureDistanceExp), Funcs.MEASURE_DISTANCE);
+      nameMap.put(FuncId.of(melodyExp), Funcs.PUSH_SOUND);
+      nameMap.put(FuncId.of(anyCompExp, optEq), Funcs.ANY_EQ);
+      nameMap.put(FuncId.of(anyCompExp, optNeq), Funcs.ANY_NEQ);
+      nameMap.put(FuncId.of(binaryColorExp, optAdd), Funcs.ADD_COLOR);
+      nameMap.put(FuncId.of(binaryColorExp, optSub), Funcs.SUB_COLOR);
+      nameMap.put(FuncId.of(detectColorExp), Funcs.DETECT_COLOR);
+      nameMap.put(FuncId.of(getTimeSinceProgramStartedExp), Funcs.GET_TIMER_VAL);
+      nameMap.put(FuncId.of(strChainLinkExp), Funcs.STRCAT);
+      nameMap.put(FuncId.of(strLineFeedChainLinkExp), Funcs.STRCAT_LF);
+      nameMap.put(FuncId.of(strChainExp), Funcs.IDENTITY);
+      nameMap.put(FuncId.of(getSyncTimerCountExp), Funcs.GET_SYNC_TIMER_COUNT);
+      nameMap.put(
+          FuncId.of(syncTimerTimedAwaitExp, optWithCountdown),
+          Funcs.SYNC_TIMER_COUNTDOWN_AND_TIMED_AWAIT);
+      nameMap.put(
+          FuncId.of(syncTimerTimedAwaitExp, optWithoutCountdown), Funcs.SYNC_TIMER_TIMED_AWAIT);
+      nameMap.put(FuncId.of(semaphoreTryAcquireExp), Funcs.SEMAPHORE_TRY_ACQUIRE);
+      nameMap.put(FuncId.of(getNumSemaphorePermitsExp), Funcs.GET_NUM_SEMAPHORE_PERMITS);
+      nameMap.put(FuncId.of(anyListToStrExp), Funcs.LIST_TO_STR);
+      nameMap.put(FuncId.of(checkNumTypeExp, optFinite), "Number.isFinite");
+      nameMap.put(FuncId.of(checkNumTypeExp, optInfinite), Funcs.IS_NUM_INFINITE);
+      nameMap.put(FuncId.of(checkNumTypeExp, optPosInf), Funcs.IS_NUM_POS_INF);
+      nameMap.put(FuncId.of(checkNumTypeExp, optNegInf), Funcs.IS_NUM_NEG_INF);
+      nameMap.put(FuncId.of(checkNumTypeExp, optNan), "Number.isNaN");
+      nameMap.put(FuncId.of(numPowExp), "Math.pow");
+      nameMap.put(FuncId.of(numClampExp), Funcs.NUM_CLAMP);
+      nameMap.put(FuncId.of(loadTextExp), Funcs.LOAD_TEXT);
+      nameMap.put(FuncId.of(getTextFilesExp), Funcs.GET_TEXT_FILES);
+      nameMap.put(FuncId.of(getAudioVolumeExp), Funcs.GET_AUDIO_VOLUME);
+      nameMap.put(FuncId.of(getAudioFilesExp), Funcs.GET_AUDIO_FILES);
+      nameMap.put(FuncId.of(measureSoundPressureExp, optPeak), Funcs.FIND_SOUND_PRESSURE_PEAK);
+      nameMap.put(
+          FuncId.of(measureSoundPressureExp, optAverage), Funcs.FIND_SOUND_PRESSURE_AVERAGE);
+      nameMap.put(FuncId.of(outArgTestExp), Funcs.OUT_ARG_TEST);
+      nameMap.put(FuncId.of(moveStat, optMoveForward), Funcs.MOVE_FORWARD);
+      nameMap.put(FuncId.of(moveStat, optMoveBackward), Funcs.MOVE_BACKWARD);
+      nameMap.put(FuncId.of(moveStat, optTurnRight), Funcs.TURN_RIGHT);
+      nameMap.put(FuncId.of(moveStat, optTurnLeft), Funcs.TURN_LEFT);
+      nameMap.put(FuncId.of(stopRaspiCarStat), Funcs.STOP_RASPI_CAR);
+      nameMap.put(FuncId.of(sleepStat), Funcs.SLEEP);
+      nameMap.put(FuncId.of(playMelodyStat), Funcs.PLAY_MELODIES);
+      nameMap.put(FuncId.of(playSoundListStat), Funcs.PLAY_MELODIES);
+      nameMap.put(FuncId.of(sayStat), Funcs.SAY);
+      nameMap.put(FuncId.of(lightEyeStat), Funcs.LIGHT_EYE);
+      nameMap.put(FuncId.of(globalDataDecl.mutexBlockDecl), Funcs.NEW_LOCK_OBJ);
+      nameMap.put(FuncId.of(globalDataDecl.syncTimerDecl), Funcs.NEW_SYNC_TIMER);
+      nameMap.put(FuncId.of(globalDataDecl.semaphoreDecl), Funcs.NEW_SEMAPHORE);
+      nameMap.put(FuncId.of(saveTextStat), Funcs.SAVE_TEXT);
+      nameMap.put(FuncId.of(deleteTextFileStat), Funcs.DELETE_TEXT_FILE);
+      nameMap.put(FuncId.of(deleteTextFilesStat), Funcs.DELETE_TEXT_FILES);
+      nameMap.put(FuncId.of(setAudioVolumeStat), Funcs.SET_AUDIO_VOLUME);
+      nameMap.put(FuncId.of(recordAudioStat), Funcs.RECORD_AUDIO);
+      nameMap.put(FuncId.of(playAudioStat), Funcs.PLAY_AUDIO);
+      nameMap.put(FuncId.of(deleteAudioFileStat), Funcs.DELETE_AUDIO_FILE);
+      nameMap.put(FuncId.of(deleteAudioFilesStat), Funcs.DELETE_AUDIO_FILES);
+
+      nameMap.put(FuncId.of(listCtrl.anyListPushStat), Funcs.LIST_PUSH);
+      nameMap.put(FuncId.of(listCtrl.anyListLenExp), Funcs.LIST_LEN);
+      nameMap.put(FuncId.of(listCtrl.anyListInsertStat), Funcs.LIST_INSERT);
+      nameMap.put(FuncId.of(listCtrl.anyListInsertAllStat), Funcs.LIST_INSERT_ALL);
+      nameMap.put(FuncId.of(listCtrl.anyListSpliceStat, optRemove), Funcs.LIST_REMOVE);
+      nameMap.put(FuncId.of(listCtrl.anyListSpliceStat, optExtract), Funcs.LIST_EXTRACT);
+      nameMap.put(FuncId.of(listCtrl.anyListSetStat), Funcs.LIST_SET);
+      nameMap.put(FuncId.of(listCtrl.anyListIndexOfExp, optFirst), Funcs.LIST_FIRST_INDEX_OF);
+      nameMap.put(FuncId.of(listCtrl.anyListIndexOfExp, optLast), Funcs.LIST_LAST_INDEX_OF);
+      nameMap.put(FuncId.of(listCtrl.anyListIncludesExp), Funcs.LIST_INCLUDES);
+      nameMap.put(FuncId.of(listCtrl.anyListCompExp, optEq), Funcs.LIST_EQ);
+      nameMap.put(FuncId.of(listCtrl.anyListCompExp, optNeq), Funcs.LIST_NEQ);
+
+      nameMap.put(FuncId.of(listCtrl.anySetCompExp, optSubset), Funcs.IS_SUBSET);
+      nameMap.put(FuncId.of(listCtrl.anySetCompExp, optProperSubset), Funcs.IS_PROPER_SUBSET);
+      nameMap.put(FuncId.of(listCtrl.anySetCompExp, optSuperset), Funcs.IS_SUPERSET);
+      nameMap.put(FuncId.of(listCtrl.anySetCompExp, optProperSuperset), Funcs.IS_PROPER_SUPERSET);
+      nameMap.put(FuncId.of(listCtrl.anySetCompExp, optEq), Funcs.SET_EQ);
+      nameMap.put(FuncId.of(listCtrl.anySetCompExp, optNeq), Funcs.SET_NEQ);
+
+      nameMap.put(FuncId.of(listCtrl.strListGetExp), Funcs.LIST_GET);
+      nameMap.put(FuncId.of(listCtrl.strListSliceExp), Funcs.LIST_SLICE);
+      nameMap.put(FuncId.of(listCtrl.strListReverseExp, optInPlace), Funcs.LIST_REVERSE);
+      nameMap.put(FuncId.of(listCtrl.strListReverseExp, optNotInPlace), Funcs.LIST_REVERSED);
+      nameMap.put(FuncId.of(listCtrl.strListSortExp, optInPlace), Funcs.LIST_SORT);
+      nameMap.put(FuncId.of(listCtrl.strListSortExp, optNotInPlace), Funcs.LIST_SORTED);
+      nameMap.put(FuncId.of(listCtrl.strListMaxMinExp, optMax), Funcs.LIST_MAX);
+      nameMap.put(FuncId.of(listCtrl.strListMaxMinExp, optMin), Funcs.LIST_MIN);
+
+      nameMap.put(FuncId.of(listCtrl.numListGetExp), Funcs.LIST_GET);
+      nameMap.put(FuncId.of(listCtrl.numListSliceExp), Funcs.LIST_SLICE);
+      nameMap.put(FuncId.of(listCtrl.numListReverseExp, optInPlace), Funcs.LIST_REVERSE);
+      nameMap.put(FuncId.of(listCtrl.numListReverseExp, optNotInPlace), Funcs.LIST_REVERSED);
+      nameMap.put(FuncId.of(listCtrl.numListSortExp, optInPlace), Funcs.LIST_NUM_SORT);
+      nameMap.put(FuncId.of(listCtrl.numListSortExp, optNotInPlace), Funcs.LIST_NUM_SORTED);
+      nameMap.put(FuncId.of(listCtrl.numListMaxMinExp, optMax), Funcs.LIST_NUM_MAX);
+      nameMap.put(FuncId.of(listCtrl.numListMaxMinExp, optMin), Funcs.LIST_NUM_MIN);
+
+      nameMap.put(FuncId.of(listCtrl.boolListGetExp), Funcs.LIST_GET);
+      nameMap.put(FuncId.of(listCtrl.boolListSliceExp), Funcs.LIST_SLICE);
+      nameMap.put(FuncId.of(listCtrl.boolListReverseExp, optInPlace), Funcs.LIST_REVERSE);
+      nameMap.put(FuncId.of(listCtrl.boolListReverseExp, optNotInPlace), Funcs.LIST_REVERSED);
+
+      nameMap.put(FuncId.of(listCtrl.colorListGetExp), Funcs.LIST_GET);
+      nameMap.put(FuncId.of(listCtrl.colorListSliceExp), Funcs.LIST_SLICE);
+      nameMap.put(FuncId.of(listCtrl.colorListReverseExp, optInPlace), Funcs.LIST_REVERSE);
+      nameMap.put(FuncId.of(listCtrl.colorListReverseExp, optNotInPlace), Funcs.LIST_REVERSED);
+
+      nameMap.put(FuncId.of(listCtrl.soundListGetExp), Funcs.LIST_GET);
+      nameMap.put(FuncId.of(listCtrl.soundListSliceExp), Funcs.LIST_SLICE);
+      nameMap.put(FuncId.of(listCtrl.soundListReverseExp, optInPlace), Funcs.LIST_REVERSE);
+      nameMap.put(FuncId.of(listCtrl.soundListReverseExp, optNotInPlace), Funcs.LIST_REVERSED);
+    }
+  }
+
+  /** ユーザ定義関数に関するシンボル名. */
+  static class UserDefFunc {
+
+    final String arg = "Arg";
+    final String outArg = "OutArg";
+    final String nextArg = "NextArg";
+    final String argVoid = "ArgVoid";
+    final String paramDecl = "ParamDecl";
+    final String outParamDecl = "OutParamDecl";
+    final String funcName = "FuncName";
+    final String voidFuncDef = "VoidFuncDef";
+    final String voidFuncCall = "VoidFuncCall";
+
+    /** 関数定義ノードのリスト. */
+    final Set<String> list =
+        new HashSet<>(java.util.List.of(
+            voidFuncDef));
+
+    /** ユーザ定義関数文のリスト. */
+    final Set<String> callStatList =
+        new HashSet<>(java.util.List.of(
+            voidFuncCall));
+  }
+
+  /** イベントを発生させる処理に関するシンボル名. */
+  static class Event {
+
+    final String keyPressEvent = "KeyPressedEvent";
+    final String delayedStartEvent = "DelayedStartEvent";
+    final String keyCode = "KeyCode";
+    final String delayTime = "DelayTime";
+
+    /** イベントノードのリスト. */
+    final Set<String> list =
+        new HashSet<>(java.util.List.of(
+            keyPressEvent,
+            delayedStartEvent));
+  }
+
+  /** リスト操作に関するシンボル名. */
+  static class ListCtrl {
+
+    final String anyListPushStat = "AnyListPushStat";
+    final String anyListLenExp = "AnyListLengthExp";
+    final String anyListInsertAllStat = "AnyListInsertAllStat";
+    final String anyListInsertStat = "AnyListInsertStat";
+    final String anyListSpliceStat = "AnyListSpliceStat";
+    final String anyListSetStat = "AnyListSetStat";
+    final String anyListIndexOfExp = "AnyListIndexOfExp";
+    final String anyListIncludesExp = "AnyListIncludesExp";
+    final String anyListCompExp = "AnyListCompExp";
+    final String anySetCompExp = "AnySetCompExp";
+
+    final String strListGetExp = "StrListGetExp";
+    final String strListSliceExp = "StrListSliceExp";
+    final String strListReverseExp = "StrListReverseExp";
+    final String strListSortExp = "StrListSortExp";
+    final String strListMaxMinExp = "StrListMaxMinExp";
+
+    final String numListGetExp = "NumListGetExp";
+    final String numListSliceExp = "NumListSliceExp";
+    final String numListReverseExp = "NumListReverseExp";
+    final String numListSortExp = "NumListSortExp";
+    final String numListMaxMinExp = "NumListMaxMinExp";
+
+    final String boolListGetExp = "BoolListGetExp";
+    final String boolListSliceExp = "BoolListSliceExp";
+    final String boolListReverseExp = "BoolListReverseExp";
+
+    final String colorListGetExp = "ColorListGetExp";
+    final String colorListSliceExp = "ColorListSliceExp";
+    final String colorListReverseExp = "ColorListReverseExp";
+
+    final String soundListGetExp = "SoundListGetExp";
+    final String soundListSliceExp = "SoundListSliceExp";
+    final String soundListReverseExp = "SoundListReverseExp";
   }
 
   /** グローバルデータに関するシンボル名. */
-  public static class GlobalData {
+  static class GlobalDataDecl {
 
-    public static final String MUTEX_BLOCK_DECL = "MutexBlockDecl";
-    public static final String SYNC_TIMER_DECL = "SyncTimerDecl";
-    public static final String SYNC_TIMER_VAR = "SyncTimerVar";
-    public static final String SEMAPHORE_DECL = "SemaphoreDecl";
-    public static final String SEMAPHORE_VAR = "SemaphoreVar";
+    final String mutexBlockDecl = "MutexBlockDecl";
+    final String syncTimerDecl = "SyncTimerDecl";
+    final String semaphoreDecl = "SemaphoreDecl";
 
-    public static final String MUTEX_BLOCK_NAME = "MutexBlockName";
-    public static final String SYNC_TIMER_NAME = "SyncTimerName";
-    public static final String SEMAPHORE_NAME = "SemaphoreName";
-    public static final String NEXT_GLOBAL_DATA_DECL = "NextGlobalDataDecl";
+    final String mutexBlockName = "MutexBlockName";
+    final String syncTimerName = "SyncTimerName";
+    final String semaphoreName = "SemaphoreName";
+    final String nextGlobalDataDecl = "NextGlobalDataDecl";
 
-    public static final Set<String> LIST =
+    final Set<String> list =
         new HashSet<>(java.util.List.of(
-            MUTEX_BLOCK_DECL,
-            SYNC_TIMER_DECL,
-            SEMAPHORE_DECL,
-            NEXT_GLOBAL_DATA_DECL));
-
-    public static final Set<String> VAR_LIST =
-        new HashSet<>(java.util.List.of(
-            SYNC_TIMER_VAR,
-            SEMAPHORE_VAR));
+            mutexBlockDecl,
+            syncTimerDecl,
+            semaphoreDecl,
+            nextGlobalDataDecl));
 
     /** グローバルデータの名前を保持するノードが接続されるコネクタのリスト. */
-    public static final Set<String> DATA_NAME_CNCTR_LIST =
+    final Set<String> dataNameCnctrList =
         new HashSet<>(java.util.List.of(
-            MUTEX_BLOCK_NAME,
-            SYNC_TIMER_NAME,
-            SEMAPHORE_NAME));
-  }
-
-  /** BhProgram に定義されたシンボル名. */
-  public static class ConstantValue {
-    public static final String ANY_EXP_VOID = "AnyExpVoid";
-    public static final String NUM_EXP_VOID = "NumExpVoid";
-    public static final String STR_EXP_VOID = "StrExpVoid";
-    public static final String BOOL_EXP_VOID = "BoolExpVoid";
-    public static final String COLOR_EXP_VOID = "ColorExpVoid";
-    public static final String SOUND_EXP_VOID = "SoundExpVoid";
-    public static final String MELODY_EXP_VOID = "MelodyExpVoid";
-    public static final String SYNC_TIMER_VAR_VOID = "SyncTimerVarVoid";
-    public static final String SEMAPHORE_VAR_VOID = "SemaphoreVarVoid";
-    public static final String STR_CHAIN_LINK_VOID = "StrChainLinkVoid";
-    public static final String LINE_FEED = "LineFeed";
-    public static final String ANY_LIST_EXP_VOID = "AnyListExpVoid";
-    public static final String NUM_LIST_EXP_VOID = "NumListExpVoid";
-    public static final String STR_LIST_EXP_VOID = "StrListExpVoid";
-    public static final String BOOL_LIST_EXP_VOID = "BoolListExpVoid";
-    public static final String COLOR_LIST_EXP_VOID = "ColorListExpVoid";
-    public static final String SOUND_LIST_EXP_VOID = "SoundListExpVoid";
-
-    public static final Set<String> LIST =
-        new HashSet<>(java.util.List.of(
-            ANY_EXP_VOID,
-            NUM_EXP_VOID,
-            STR_EXP_VOID,
-            BOOL_EXP_VOID,
-            COLOR_EXP_VOID,
-            SOUND_EXP_VOID,
-            MELODY_EXP_VOID,
-            SYNC_TIMER_VAR_VOID,
-            SEMAPHORE_VAR_VOID,
-            STR_CHAIN_LINK_VOID,
-            LINE_FEED,
-            ANY_LIST_EXP_VOID,
-            NUM_LIST_EXP_VOID,
-            STR_LIST_EXP_VOID,
-            BOOL_LIST_EXP_VOID,
-            COLOR_LIST_EXP_VOID,
-            SOUND_LIST_EXP_VOID));
-
-    public static final Map<String, String> VALUE_MAP =
-        new HashMap<>(Map.ofEntries(
-            entry(ANY_EXP_VOID, Vars.NIL),
-            entry(NUM_EXP_VOID, Vars.NIL),
-            entry(STR_EXP_VOID, Vars.NIL),
-            entry(BOOL_EXP_VOID, Vars.NIL),
-            entry(COLOR_EXP_VOID, Vars.NIL),
-            entry(SOUND_EXP_VOID, Vars.NIL),
-            entry(MELODY_EXP_VOID, "[]"),
-            entry(SYNC_TIMER_VAR_VOID, Vars.NIL),
-            entry(SEMAPHORE_VAR_VOID, Vars.NIL),
-            entry(STR_CHAIN_LINK_VOID, "''"),
-            entry(LINE_FEED, "'\\n'"),
-            entry(ANY_LIST_EXP_VOID, "[]"),
-            entry(NUM_LIST_EXP_VOID, "[]"),
-            entry(STR_LIST_EXP_VOID, "[]"),
-            entry(BOOL_LIST_EXP_VOID, "[]"),
-            entry(COLOR_LIST_EXP_VOID, "[]"),
-            entry(SOUND_LIST_EXP_VOID, "[]")
-        ));
+            mutexBlockName,
+            syncTimerName,
+            semaphoreName));
   }
 }

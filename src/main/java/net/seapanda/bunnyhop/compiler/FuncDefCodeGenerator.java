@@ -20,7 +20,6 @@ import static net.seapanda.bunnyhop.compiler.Keywords.newLine;
 
 import java.util.Collection;
 import java.util.List;
-import net.seapanda.bunnyhop.compiler.SymbolNames.UserDefFunc;
 import net.seapanda.bunnyhop.compiler.VarDeclCodeGenerator.ParamList;
 import net.seapanda.bunnyhop.compiler.api.CompilableSyntaxTreeNode;
 import net.seapanda.bunnyhop.compiler.api.CompileOption;
@@ -32,15 +31,18 @@ import net.seapanda.bunnyhop.compiler.api.CompileOption;
  */
 class FuncDefCodeGenerator {
 
+  private final SymbolNames symbols;
   private final CommonCodeGenerator common;
   private final StatCodeGenerator statCodeGen;
   private final VarDeclCodeGenerator varDeclCodeGen;
 
   /** コンストラクタ. */
   FuncDefCodeGenerator(
+      SymbolNames symbols,
       CommonCodeGenerator common,
       StatCodeGenerator statCodeGen,
       VarDeclCodeGenerator varDeclCodeGen) {
+    this.symbols = symbols;
     this.common = common;
     this.statCodeGen = statCodeGen;
     this.varDeclCodeGen = varDeclCodeGen;
@@ -60,7 +62,7 @@ class FuncDefCodeGenerator {
       int nestLevel,
       CompileOption option) {
     for (CompilableSyntaxTreeNode symbol : nodes) {
-      if (UserDefFunc.LIST.contains(symbol.getSymbolName())) {
+      if (symbols.userDefFunc.list.contains(symbol.getSymbolName())) {
         generateFuncDef(symbol, code, nestLevel, option);
       }
     }
@@ -86,13 +88,13 @@ class FuncDefCodeGenerator {
         .append("(");
     if (option.withComments) {
       CompilableSyntaxTreeNode funcNameNode =
-          funcDefNode.findDescendantOf("*", "*", UserDefFunc.FUNC_NAME, "*");
+          funcDefNode.findDescendantOf("*", "*", symbols.userDefFunc.funcName, "*");
       code.append(" /*").append(funcNameNode.getLexeme()).append("*/");
     }
     CompilableSyntaxTreeNode param =
-        funcDefNode.findDescendantOf("*", "*", UserDefFunc.PARAM_DECL, "*");
+        funcDefNode.findDescendantOf("*", "*", symbols.userDefFunc.paramDecl, "*");
     CompilableSyntaxTreeNode outParam =
-        funcDefNode.findDescendantOf("*", "*", UserDefFunc.OUT_PARAM_DECL, "*");
+        funcDefNode.findDescendantOf("*", "*", symbols.userDefFunc.outParamDecl, "*");
     var commonParams = List.of(ScriptIdentifiers.Vars.THREAD_CONTEXT);
     final ParamList params = varDeclCodeGen.generateParamList(
         commonParams, param, outParam, code, nestLevel + 1, option);
@@ -135,7 +137,7 @@ class FuncDefCodeGenerator {
         .append(newLine);
     
     CompilableSyntaxTreeNode stat =
-        funcDefNode.findDescendantOf("*", "*", SymbolNames.Stat.STAT_LIST, "*");
+        funcDefNode.findDescendantOf("*", "*", symbols.stat.statList, "*");
     statCodeGen.generateStatement(stat, code, nestLevel + 1, option);
     code.append(common.indent(nestLevel))
         .append("}")

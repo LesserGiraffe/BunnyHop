@@ -19,7 +19,6 @@ package net.seapanda.bunnyhop.compiler;
 import static net.seapanda.bunnyhop.compiler.Keywords.Js;
 import static net.seapanda.bunnyhop.compiler.Keywords.Prefix;
 import static net.seapanda.bunnyhop.compiler.Keywords.newLine;
-import static net.seapanda.bunnyhop.compiler.SymbolNames.UserDefFunc;
 
 import java.util.ArrayList;
 import java.util.SequencedCollection;
@@ -32,6 +31,12 @@ import net.seapanda.bunnyhop.compiler.api.CompileOption;
  * @author K.Koike
  */
 class CommonCodeGenerator {
+
+  private final SymbolNames symbols;
+
+  CommonCodeGenerator(SymbolNames symbols) {
+    this.symbols = symbols;
+  }
 
   /**
    * {@code varDecl} から変数名を生成する.
@@ -109,7 +114,7 @@ class CommonCodeGenerator {
    * @return {@code varDecl} が出力引数である場合 true を返す.
    */
   boolean isOutputParam(CompilableSyntaxTreeNode varDecl) {
-    return varDecl.findAncestor(1, true, UserDefFunc.OUT_PARAM_DECL) != null;
+    return varDecl.findAncestor(1, true, symbols.userDefFunc.outParamDecl) != null;
   }
 
   /** 出力引数の値を取得するコードを生成する. */

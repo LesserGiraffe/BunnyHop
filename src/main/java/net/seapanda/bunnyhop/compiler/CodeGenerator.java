@@ -49,44 +49,20 @@ import net.seapanda.bunnyhop.compiler.api.SourceSet;
  */
 public class CodeGenerator implements BhCompiler {
 
-  private final VarDeclCodeGenerator varDeclCodeGen;
-  private final FuncDefCodeGenerator funcDefCodeGen;
-  private final ExpCodeGenerator expCodeGen;
-  private final StatCodeGenerator statCodeGen;
-  private final EventHandlerCodeGenerator eventHandlerCodeGen;
-  private final CommonCodeGenerator common;
-  private final GlobalDataDeclCodeGenerator globalDataDeclCodeGen;
-
-  /**
-   * コンストラクタ.
-   */
-  public CodeGenerator() {
-    common = new CommonCodeGenerator();
-    varDeclCodeGen = new VarDeclCodeGenerator(common);
-    expCodeGen = new ExpCodeGenerator(common, varDeclCodeGen);
-    statCodeGen = new StatCodeGenerator(common, expCodeGen, varDeclCodeGen);
-    funcDefCodeGen = new FuncDefCodeGenerator(common, statCodeGen, varDeclCodeGen);
-    eventHandlerCodeGen = new EventHandlerCodeGenerator(common, statCodeGen, varDeclCodeGen);
-    globalDataDeclCodeGen = new GlobalDataDeclCodeGenerator(common, expCodeGen);
-  }
-
-  private void generateLibCode(SequencedCollection<String> libPaths, StringBuilder code)
-      throws IOException {
-    for (String libPath : libPaths) {
-      code.append(Files.readString(Paths.get(libPath), StandardCharsets.UTF_8))
-          .append(newLine);
-    }
-  }
+  private VarDeclCodeGenerator varDeclCodeGen;
+  private FuncDefCodeGenerator funcDefCodeGen;
+  private ExpCodeGenerator expCodeGen;
+  private StatCodeGenerator statCodeGen;
+  private EventHandlerCodeGenerator eventHandlerCodeGen;
+  private CommonCodeGenerator common;
+  private GlobalDataDeclCodeGenerator globalDataDeclCodeGen;
 
   @Override
-  public Path compile(SourceSet sourceSet, CompileOption option)
-      throws CompileError {
-    var targets = new ArrayList<>(sourceSet.getRootNodes());
-    CompilableSyntaxTreeNode mainEntryPoint = sourceSet.getSelectedEntryPoint();
-    if (mainEntryPoint != null && !targets.contains(mainEntryPoint)) {
-      targets.add(mainEntryPoint);
-    }
-    Preprocessor.process(sourceSet.getInstanceIdToNode());
+  public Path compile(SourceSet sourceSet, CompileOption option) throws CompileError {
+    var symbols = new SymbolNames();
+    initCodeGenerators(symbols);
+
+    new Preprocessor(symbols).process(sourceSet.getInstanceIdToNode());
     StringBuilder code = new StringBuilder();
     try {
       new File(option.outFile.getParent().toAbsolutePath().toString()).mkdirs();
@@ -107,6 +83,31 @@ public class CodeGenerator implements BhCompiler {
       throw new CompileError(option.outFile.toString(), e);
     }
     return option.outFile;
+  }
+
+  /**
+   * 各種コードジェネレータを生成し, フィールドに設定する.
+   *
+   * @param symbols 各コードジェネレータが使用するシンボル名一覧
+   */
+  private void initCodeGenerators(SymbolNames symbols) {
+    common = new CommonCodeGenerator(symbols);
+    varDeclCodeGen = new VarDeclCodeGenerator(symbols, common);
+    expCodeGen = new ExpCodeGenerator(symbols, common, varDeclCodeGen);
+    statCodeGen = new StatCodeGenerator(symbols, common, expCodeGen, varDeclCodeGen);
+    funcDefCodeGen = new FuncDefCodeGenerator(symbols, common, statCodeGen, varDeclCodeGen);
+    eventHandlerCodeGen =
+        new EventHandlerCodeGenerator(symbols, common, statCodeGen, varDeclCodeGen);
+    globalDataDeclCodeGen = new GlobalDataDeclCodeGenerator(symbols, common, expCodeGen);
+  }
+
+
+  private void generateLibCode(SequencedCollection<String> libPaths, StringBuilder code)
+      throws IOException {
+    for (String libPath : libPaths) {
+      code.append(Files.readString(Paths.get(libPath), StandardCharsets.UTF_8))
+          .append(newLine);
+    }
   }
 
   /**

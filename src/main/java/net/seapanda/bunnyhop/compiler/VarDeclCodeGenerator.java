@@ -38,9 +38,11 @@ import net.seapanda.bunnyhop.compiler.api.CompileOption;
  */
 class VarDeclCodeGenerator {
 
+  private final SymbolNames symbols;
   private final CommonCodeGenerator common;
 
-  VarDeclCodeGenerator(CommonCodeGenerator common) {
+  VarDeclCodeGenerator(SymbolNames symbols, CommonCodeGenerator common) {
+    this.symbols = symbols;
     this.common = common;
   }
 
@@ -162,7 +164,7 @@ class VarDeclCodeGenerator {
    */
   private VarDeclInfo toVarDeclInfo(CompilableSyntaxTreeNode varDecl) {
     String comment =
-        SymbolNames.VarDecl.VAR_NAME_CNCTR_LIST.stream()
+        symbols.varDecl.varNameCnctrList.stream()
         .map(cnctrName -> varDecl.findDescendantOf("*", cnctrName, "*"))
         .filter(Objects::nonNull)
         .findFirst()
@@ -170,16 +172,16 @@ class VarDeclCodeGenerator {
         .orElse("");
     String varName = common.generateVarName(varDecl);
     String outArgName = common.generateVarAccessorName(varDecl);
-    String initVal = SymbolNames.VarDecl.INIT_VAL_MAP.get(varDecl.getSymbolName());
+    String initVal = symbols.varDecl.initValMap.get(varDecl.getSymbolName());
     return new VarDeclInfo(varName, outArgName, initVal, varDecl.getInstanceId(), comment);
   }
 
   /** {@code node} から辿れる変数宣言ノードを集める. */
   private List<CompilableSyntaxTreeNode> collectVarDecls(CompilableSyntaxTreeNode node) {
     var varDecls = new ArrayList<CompilableSyntaxTreeNode>();
-    while (node != null && SymbolNames.VarDecl.LIST.contains(node.getSymbolName())) {
+    while (node != null && symbols.varDecl.list.contains(node.getSymbolName())) {
       varDecls.add(node);
-      node = node.findDescendantOf("*", SymbolNames.VarDecl.NEXT_VAR_DECL, "*");
+      node = node.findDescendantOf("*", symbols.varDecl.nextVarDecl, "*");
     }
     return varDecls;
   }

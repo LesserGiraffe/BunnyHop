@@ -32,6 +32,7 @@ import net.seapanda.bunnyhop.compiler.api.CompileOption;
  */
 class StatCodeGenerator {
 
+  private final SymbolNames symbols;
   private final CommonCodeGenerator common;
   private final ExpCodeGenerator expCodeGen;
   private final VarDeclCodeGenerator varDeclCodeGen;
@@ -40,9 +41,11 @@ class StatCodeGenerator {
 
   /** コンストラクタ. */
   StatCodeGenerator(
+      SymbolNames symbols,
       CommonCodeGenerator common,
       ExpCodeGenerator expCodeGen,
       VarDeclCodeGenerator varDeclCodeGen) {
+    this.symbols = symbols;
     this.common = common;
     this.expCodeGen = expCodeGen;
     this.varDeclCodeGen = varDeclCodeGen;
@@ -64,27 +67,27 @@ class StatCodeGenerator {
       CompileOption option) {
     String statSymbolName = statementNode.getSymbolName();
     // void がつながっているときは, そこで文は終了する
-    if (statSymbolName.equals(SymbolNames.Stat.STAT_VOID)) {
+    if (statSymbolName.equals(symbols.stat.statVoid)) {
       return;
     }
-    if (SymbolNames.AssignStat.LIST.contains(statSymbolName)) {
+    if (symbols.stat.assign.list.contains(statSymbolName)) {
       generateAssignStat(statementNode, code, nestLevel, option);
-    } else if (SymbolNames.UserDefFunc.CALL_STAT_LIST.contains(statSymbolName)) {
+    } else if (symbols.userDefFunc.callStatList.contains(statSymbolName)) {
       expCodeGen.generateUserDefFuncCallExp(statementNode, code, nestLevel, option, false);
-    } else if (SymbolNames.PreDefFunc.STAT_LIST.contains(statSymbolName)) {
+    } else if (symbols.stat.predefFunc.list.contains(statSymbolName)) {
       expCodeGen.generatePreDefFuncCallExp(statementNode, code, nestLevel, option, false);
-    } else if (SymbolNames.ControlStat.LIST.contains(statSymbolName)) {
+    } else if (symbols.stat.ctrl.list.contains(statSymbolName)) {
       generateControlStat(statementNode, code, nestLevel, option);
-    } else if (SymbolNames.StatToBeIgnored.LIST.contains(statSymbolName)) {
+    } else if (symbols.stat.ignored.list.contains(statSymbolName)) {
       /* do nothing */
     } else {
       return;
     }
     CompilableSyntaxTreeNode nextStat =
-        statementNode.findDescendantOf("*", SymbolNames.Stat.NEXT_STAT, "*");
+        statementNode.findDescendantOf("*", symbols.stat.nextStat, "*");
     if (nextStat == null) {
       // for compoundStat
-      nextStat = statementNode.findDescendantOf("*", "*", SymbolNames.Stat.NEXT_STAT, "*");
+      nextStat = statementNode.findDescendantOf("*", "*", symbols.stat.nextStat, "*");
     }
     if (nextStat != null) {
       generateStatement(nextStat, code, nestLevel, option);
@@ -107,17 +110,17 @@ class StatCodeGenerator {
     // 右辺の値が無い代入文でブレークが指定されたときのために, ここでインスタンス ID を保存する.
     generateDebugCode(assignStatNode, code, nestLevel, option);
     CompilableSyntaxTreeNode rightExp =
-        assignStatNode.findDescendantOf("*", SymbolNames.BinaryExp.RIGHT_EXP, "*");
+        assignStatNode.findDescendantOf("*", symbols.exp.binary.rightExp, "*");
     String rightExpCode = expCodeGen.generateExpression(rightExp, code, nestLevel, option);
     if (rightExpCode == null) {
       return;
     }
     CompilableSyntaxTreeNode destVarNode =
-        assignStatNode.findDescendantOf("*", SymbolNames.AssignStat.LEFT_VAR, "*");
+        assignStatNode.findDescendantOf("*", symbols.stat.assign.leftVar, "*");
     String addAssignStatName = assignStatNode.getSymbolName();
     boolean isAddAssign =
-        addAssignStatName.equals(SymbolNames.AssignStat.NUM_ADD_ASSIGN_STAT)
-        || addAssignStatName.equals(SymbolNames.AssignStat.STR_ADD_ASSIGN_STAT);
+        addAssignStatName.equals(symbols.stat.assign.numAddAssignStat)
+        || addAssignStatName.equals(symbols.stat.assign.strAddAssignStat);
     generateAssignCode(destVarNode, rightExpCode, isAddAssign, code, nestLevel);
   }
 
@@ -136,7 +139,7 @@ class StatCodeGenerator {
       boolean isAddAssign,
       StringBuilder code,
       int nestLevel) {
-    if (!SymbolNames.VarDecl.VAR_LIST.contains(destVarNode.getSymbolName())) {
+    if (!symbols.exp.variable.list.contains(destVarNode.getSymbolName())) {
       return;
     }
     CompilableSyntaxTreeNode varDecl = destVarNode.getOriginal();
@@ -177,47 +180,29 @@ class StatCodeGenerator {
       CompileOption option) {
     String symbolName = controlStatNode.getSymbolName();
     generateDebugCode(controlStatNode, code, nestLevel, option);
-    switch (symbolName) {
-      case SymbolNames.ControlStat.BREAK_STAT:
-        generateBreakStat(code, nestLevel, option);
-        break;
 
-      case SymbolNames.ControlStat.CONTINUE_STAT:
-        generateContinueStat(code, nestLevel, option);
-        break;
-
-      case SymbolNames.ControlStat.IF_ELSE_STAT:
-      case SymbolNames.ControlStat.IF_STAT:
-        generateIfElseStat(controlStatNode, code, nestLevel, option);
-        break;
-
-      case SymbolNames.ControlStat.WHILE_STAT:
-        generateWhileStat(controlStatNode, code, nestLevel, option);
-        break;
-
-      case SymbolNames.ControlStat.COMPOUND_STAT:
-        generateCompoundStat(controlStatNode, code, nestLevel, option);
-        break;
-
-      case SymbolNames.ControlStat.REPEAT_STAT:
-        generateRepeatStat(controlStatNode, code, nestLevel, option);
-        break;
-
-      case SymbolNames.ControlStat.RETURN_STAT:
-        generateReturnStat(code, nestLevel);
-        break;
-
-      case SymbolNames.ControlStat.MUTEX_BLOCK_STAT:
-        generateMutexBlockStat(controlStatNode, code, nestLevel, option);
-        break;
-
-      case SymbolNames.ControlStat.EXP_ADAPTER_STAT:
-      case SymbolNames.ControlStat.LIST_ADAPTER_STAT:
-        generateAdapterStat(controlStatNode, code, nestLevel, option);
-        break;
-
-      default:
-        throw new AssertionError("Invalid control stat " + symbolName);
+    if (symbols.stat.ctrl.breakStat.equals(symbolName)) {
+      generateBreakStat(code, nestLevel, option);
+    } else if (symbols.stat.ctrl.continueStat.equals(symbolName)) {
+      generateContinueStat(code, nestLevel, option);
+    } else if (symbols.stat.ctrl.ifElseStat.equals(symbolName)
+        || symbols.stat.ctrl.ifStat.equals(symbolName)) {
+      generateIfElseStat(controlStatNode, code, nestLevel, option);
+    } else if (symbols.stat.ctrl.whileStat.equals(symbolName)) {
+      generateWhileStat(controlStatNode, code, nestLevel, option);
+    } else if (symbols.stat.ctrl.compoundStat.equals(symbolName)) {
+      generateCompoundStat(controlStatNode, code, nestLevel, option);
+    } else if (symbols.stat.ctrl.repeatStat.equals(symbolName)) {
+      generateRepeatStat(controlStatNode, code, nestLevel, option);
+    } else if (symbols.stat.ctrl.returnStat.equals(symbolName)) {
+      generateReturnStat(code, nestLevel);
+    } else if (symbols.stat.ctrl.mutexBlockStat.equals(symbolName)) {
+      generateMutexBlockStat(controlStatNode, code, nestLevel, option);
+    } else if (symbols.stat.ctrl.expAdapterStat.equals(symbolName)
+        || symbols.stat.ctrl.listAdapterStat.equals(symbolName)) {
+      generateAdapterStat(controlStatNode, code, nestLevel, option);
+    } else {
+      throw new AssertionError("Invalid control stat " + symbolName);
     }
   }
 
@@ -236,7 +221,7 @@ class StatCodeGenerator {
       CompileOption option) {
     //conditional part
     CompilableSyntaxTreeNode condExp =
-        ifElseStatNode.findDescendantOf("*", SymbolNames.ControlStat.COND_EXP, "*");
+        ifElseStatNode.findDescendantOf("*", symbols.stat.ctrl.condExp, "*");
     String condExpCode = expCodeGen.generateExpression(condExp, code, nestLevel, option);
     condExpCode = condExpCode + " === " + Js._true;
     code.append(common.indent(nestLevel))
@@ -248,7 +233,7 @@ class StatCodeGenerator {
 
     //then part
     CompilableSyntaxTreeNode thenStat =
-        ifElseStatNode.findDescendantOf("*", SymbolNames.ControlStat.THEN_STAT, "*");
+        ifElseStatNode.findDescendantOf("*", symbols.stat.ctrl.thenStat, "*");
     generateStatement(thenStat, code, nestLevel + 1, option);
     code.append(common.indent(nestLevel))
         .append("}")
@@ -256,7 +241,7 @@ class StatCodeGenerator {
 
     //else part
     CompilableSyntaxTreeNode elseStat =
-        ifElseStatNode.findDescendantOf("*", SymbolNames.ControlStat.ELSE_STAT, "*");
+        ifElseStatNode.findDescendantOf("*", symbols.stat.ctrl.elseStat, "*");
     if (elseStat != null) {
       code.append(common.indent(nestLevel))
           .append(Js._else_)
@@ -291,7 +276,7 @@ class StatCodeGenerator {
         .append(newLine);
 
     CompilableSyntaxTreeNode condExp =
-        whileStatNode.findDescendantOf("*", SymbolNames.ControlStat.COND_EXP, "*");
+        whileStatNode.findDescendantOf("*", symbols.stat.ctrl.condExp, "*");
     String condExpCode = expCodeGen.generateExpression(condExp, code, nestLevel + 1, option);
     condExpCode = condExpCode + " !== " + Js._true;
     code.append(common.indent(nestLevel + 1))
@@ -310,7 +295,7 @@ class StatCodeGenerator {
 
     //loop part
     CompilableSyntaxTreeNode loopStat =
-        whileStatNode.findDescendantOf("*", SymbolNames.ControlStat.LOOP_STAT, "*");
+        whileStatNode.findDescendantOf("*", symbols.stat.ctrl.loopStat, "*");
     numLocalVarsStack.addLast(0);
     generateStatement(loopStat, code, nestLevel + 1, option);
     numLocalVarsStack.removeLast();
@@ -336,12 +321,12 @@ class StatCodeGenerator {
         .append("{")
         .append(newLine);
     CompilableSyntaxTreeNode param = compoundStatNode.findDescendantOf(
-        "*", "*", SymbolNames.ControlStat.LOCAL_VAR_DECL, "*");
+        "*", "*", symbols.stat.ctrl.localVarDecl, "*");
     SequencedCollection<CompilableSyntaxTreeNode> varDecls =
         varDeclCodeGen.generateVarDecls(param, code, nestLevel + 1, option);
     common.generatePushToVarFrame(varDecls, code, nestLevel + 1, option);
     CompilableSyntaxTreeNode stat =
-        compoundStatNode.findDescendantOf("*", "*", SymbolNames.Stat.STAT_LIST, "*");
+        compoundStatNode.findDescendantOf("*", "*", symbols.stat.statList, "*");
     numLocalVarsStack.addLast(numLocalVarsStack.removeLast() + varDecls.size());
     generateStatement(stat, code, nestLevel + 1, option);
     numLocalVarsStack.addLast(numLocalVarsStack.removeLast() - varDecls.size());
@@ -365,7 +350,7 @@ class StatCodeGenerator {
       int nestLevel,
       CompileOption option) {
     CompilableSyntaxTreeNode condExp =
-        repeatStatNode.findDescendantOf("*", SymbolNames.ControlStat.COND_EXP, "*");
+        repeatStatNode.findDescendantOf("*", symbols.stat.ctrl.condExp, "*");
     String condExpCode = expCodeGen.generateExpression(condExp, code, nestLevel, option);
     String loopCounter = common.generateVarName(repeatStatNode);
     String numRepetitionVar = "_" + loopCounter;
@@ -397,7 +382,7 @@ class StatCodeGenerator {
 
     //loop part
     CompilableSyntaxTreeNode loopStat =
-        repeatStatNode.findDescendantOf("*", SymbolNames.ControlStat.LOOP_STAT, "*");
+        repeatStatNode.findDescendantOf("*", symbols.stat.ctrl.loopStat, "*");
     numLocalVarsStack.addLast(0);
     generateStatement(loopStat, code, nestLevel + 1, option);
     numLocalVarsStack.removeLast();
@@ -434,7 +419,7 @@ class StatCodeGenerator {
         .append(newLine);
 
     CompilableSyntaxTreeNode exclusiveStat =
-        mutexBlockNode.findDescendantOf("*", SymbolNames.ControlStat.EXCLUSIVE_STAT, "*");
+        mutexBlockNode.findDescendantOf("*", symbols.stat.ctrl.exclusiveStat, "*");
     generateStatement(exclusiveStat, code, nestLevel + 1, option);
 
     // end of "try {"
@@ -515,7 +500,7 @@ class StatCodeGenerator {
       int nestLevel,
       CompileOption option) {
     CompilableSyntaxTreeNode exp =
-        adapterStatNode.findDescendantOf("*", SymbolNames.ControlStat.TARGET, "*");
+        adapterStatNode.findDescendantOf("*", symbols.stat.ctrl.target, "*");
     expCodeGen.generateExpression(exp, code, nestLevel, option);
   }
 

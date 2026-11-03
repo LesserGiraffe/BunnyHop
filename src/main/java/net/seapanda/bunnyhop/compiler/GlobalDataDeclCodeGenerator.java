@@ -30,10 +30,13 @@ import net.seapanda.bunnyhop.compiler.api.CompileOption;
  */
 class GlobalDataDeclCodeGenerator {
 
+  private final SymbolNames symbols;
   private final CommonCodeGenerator common;
   private final ExpCodeGenerator expCodeGen;
 
-  GlobalDataDeclCodeGenerator(CommonCodeGenerator common, ExpCodeGenerator expCodeGen) {
+  GlobalDataDeclCodeGenerator(
+      SymbolNames symbols, CommonCodeGenerator common, ExpCodeGenerator expCodeGen) {
+    this.symbols = symbols;
     this.common = common;
     this.expCodeGen = expCodeGen;
   }
@@ -41,21 +44,17 @@ class GlobalDataDeclCodeGenerator {
   /**
    * グローバルデータを定義するコードを作成する.
    *
-   * @param nodeListToCompile コンパイル対象のノードリスト
+   * @param targets コンパイル対象のノードリスト
    * @param code 生成したコードの格納先
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
   void generateGlobalDataDecls(
-      Collection<CompilableSyntaxTreeNode> nodeListToCompile,
+      Collection<CompilableSyntaxTreeNode> targets,
       StringBuilder code,
       int nestLevel,
       CompileOption option) {
-    nodeListToCompile.forEach(node -> {
-      if (SymbolNames.GlobalData.LIST.contains(node.getSymbolName())) {
-        generateGlobalDataDecls(node, code, nestLevel, option);
-      }
-    });
+    targets.forEach(node -> generateGlobalDataDecls(node, code, nestLevel, option));
   }
 
   /**
@@ -71,11 +70,11 @@ class GlobalDataDeclCodeGenerator {
       StringBuilder code,
       int nestLevel,
       CompileOption option) {
-    if (!SymbolNames.GlobalData.LIST.contains(globalDataDeclNode.getSymbolName())) {
+    if (!symbols.globalDataDecl.list.contains(globalDataDeclNode.getSymbolName())) {
       return;
     }
     if (option.withComments) {
-      SymbolNames.GlobalData.DATA_NAME_CNCTR_LIST.stream()
+      symbols.globalDataDecl.dataNameCnctrList.stream()
           .map(cnctrName -> globalDataDeclNode.findDescendantOf("*", cnctrName, "*"))
           .filter(Objects::nonNull)
           .findFirst()
@@ -100,8 +99,8 @@ class GlobalDataDeclCodeGenerator {
           .append(newLine);
     }
 
-    CompilableSyntaxTreeNode nextGlobalDataDecl = globalDataDeclNode.findDescendantOf(
-        "*", SymbolNames.GlobalData.NEXT_GLOBAL_DATA_DECL, "*");
+    CompilableSyntaxTreeNode nextGlobalDataDecl =
+        globalDataDeclNode.findDescendantOf("*", symbols.globalDataDecl.nextGlobalDataDecl, "*");
     if (nextGlobalDataDecl != null) {
       generateGlobalDataDecls(nextGlobalDataDecl, code, nestLevel, option);
     }
