@@ -3,20 +3,28 @@
     {
       "id": "local",
       "mainRoutine": "_bhMain",
+      "extensions": [
+        "./Extension/Extension.json"
+      ],
       "libs": [
         "./Libs/Language/${language}/TextDb.js",
         "./Libs/Common.js",
-        "./Libs/LocalCommon.js"
+        "./Libs/LocalCommon.js",
+        "./Libs/Extension.js"
       ]
     },
 
     {
       "id": "remote",
       "mainRoutine": "_bhMain",
+      "extensions": [
+        "./Extension/Extension.json"
+      ],
       "libs": [
         "./Libs/Language/${language}/TextDb.js",
         "./Libs/Common.js",
-        "./Libs/RemoteCommon.js"
+        "./Libs/RemoteCommon.js",
+        "./Libs/Extension.js"
       ]
     }
   ]

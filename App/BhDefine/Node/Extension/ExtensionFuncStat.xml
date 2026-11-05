@@ -1,0 +1,54 @@
+<Node
+  type="connective"
+  bhNodeID="idExtensionFuncStat"
+  name="ExtensionFuncStat"
+  nodeStyleID="ExtensionFuncStat.json"
+  breakpoint="set"
+  entryPoint="selectable"
+  onMovedFromChildToWS="OnStatMovedToWS.js"
+  onMovedFromWsToChild="OnStatMovedToChild.js"
+  onDeletionRequested="OnStatOrDeclDeletionRequested.js"
+  onCutRequested="OnCutRequested.js"
+  onCopyRequested="OnCopyRequested.js"
+  onUiEventReceived="OnUiEventReceivedByStat.js"
+  onAliasAsked="OnAliasAsked.js"
+  version="bhn-0.1.0">
+
+  <ConnectorSection name="Statement">
+
+    <Connector
+      bhConnectorID="idExtensionFuncStat.cnctr0"
+      import="idNumExpCnctr"
+      name="Arg0"/>
+
+    <Connector
+      bhConnectorID="idExtensionFuncStat.cnctr1"
+      import="idNumExpCnctr"
+      name="Arg1"/>
+
+    <Connector
+      bhConnectorID="idExtensionFuncStat.cnctr2"
+      import="idNumVarCnctr"
+      name="OutArg0"/>
+
+    <Connector
+      bhConnectorID="idExtensionFuncStat.cnctr3"
+      name="Option0"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idExtensionFuncStat.node0"
+        name="ExtensionAddSubOpe"
+        nodeStyleID="WordComboBox.json"
+        breakpoint="specifyParent"
+        entryPoint="none"
+        onTextOptionsCreating="CreateExtAddSubOpts.js"
+        version="bhn-0.1.0"/>
+    </Connector>
+
+    <Connector
+      bhConnectorID="idExtensionFuncStat.cnctr4"
+      import="idStatCnctr"
+      name="NextStat"/>
+  </ConnectorSection>
+</Node>

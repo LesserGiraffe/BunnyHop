@@ -24,6 +24,7 @@ import net.seapanda.bunnyhop.utility.concurrent.reference.ConcurrentDouble;
 import net.seapanda.bunnyhop.utility.concurrent.reference.ConcurrentInteger;
 import net.seapanda.bunnyhop.utility.concurrent.reference.ConcurrentString;
 import net.seapanda.bunnyhop.utility.concurrent.reference.ConcurrentValue;
+import net.seapanda.bunnyhop.utility.concurrent.reference.ObservableAtomicBoolean;
 
 /**
  * BunnyHop の設定一式をまとめたクラス.
@@ -90,7 +91,8 @@ public class BhSettings {
     /** 通知ビューとそれ以外の部分を分ける位置. */
     public final ConcurrentDouble notificationSplitPos = new ConcurrentDouble(-1);
     /** 通知ビューが隠れているか. */
-    public final ConcurrentBoolean notificationViewHidden = new ConcurrentBoolean(false);
+    public final ObservableAtomicBoolean notificationViewShowed =
+        new ObservableAtomicBoolean(true);
   }
 
   /** ウィンドウの状態を保持するクラス. */

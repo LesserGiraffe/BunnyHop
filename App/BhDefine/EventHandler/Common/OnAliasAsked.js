@@ -5,9 +5,11 @@ let nodeToSuffixPos = {
   'MaxMinExp':                ['*', '*', 'MaxMinOpe'],
   'NumRoundExp':              ['*', '*', 'NumRoundOpe'],
   'CheckNumTypeExp':          ['*', '*', 'Function'],
-  "NumListMaxMinExp":        ['*', '*', 'MaxMinOpe'],
-  "StrListMaxMinExp":        ['*', '*', 'MaxMinOpe'],
-  "MeasureSoundPressureExp":  ['*', '*', 'MeasureOpe'],
+  'NumListMaxMinExp':         ['*', '*', 'MaxMinOpe'],
+  'StrListMaxMinExp':         ['*', '*', 'MaxMinOpe'],
+  'MeasureSoundPressureExp':  ['*', '*', 'MeasureOpe'],
+  'ExtensionFuncExp':         ['*', '*', 'ExtensionAddSubOpe'],
+  'ExtensionFuncStat':        ['*', '*', 'ExtensionAddSubOpe']
 };
 
 let nodeToNamePos = {

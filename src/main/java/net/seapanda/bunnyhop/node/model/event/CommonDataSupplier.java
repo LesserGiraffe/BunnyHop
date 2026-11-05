@@ -63,14 +63,14 @@ public class CommonDataSupplier {
 
     synchronized (this) {
       if (commonObj == null) {
-        commonObj = genCommonJsObj();
+        commonObj = createCommonJsObj();
       }
       return commonObj;
     }
   }
 
   /** 各スクリプトが共通で使う JavaScript オブジェクトを生成する. */
-  private Object genCommonJsObj() {
+  private Object createCommonJsObj() {
     if (!repository.allExist(BhConstants.Path.File.BH_UTILITY_JS)) {
       return new NativeObject();
     }

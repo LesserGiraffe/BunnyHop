@@ -21,10 +21,13 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Optional;
+import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.CustomMenuItem;
+import javafx.scene.control.Labeled;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
@@ -56,6 +59,7 @@ public class MenuBarController {
   @FXML private MenuItem versionInfo;
   @FXML private MenuItem license;
   @FXML private MenuItem freeMemory;
+  @FXML private MenuItem showNotifView;
   @FXML private MenuItem focusSimulator;
   @FXML private MenuItem trackNodeInCurrentWs;
   @FXML private MenuItem trackNodeInInactiveWs;
@@ -105,17 +109,23 @@ public class MenuBarController {
     versionInfo.setOnAction(action -> showBunnyVersion());
     license.setOnAction(action -> openLicenseFolder());
 
+    BhSettings.Ui ui = settings.ui;
+    showNotifView.setOnAction(action -> ui.notificationViewShowed.negate());
+    ui.notificationViewShowed
+        .addOnValueChanged(event -> setMenuChecked(showNotifView, event.newVal()));
+    setMenuChecked(showNotifView, ui.notificationViewShowed.get());
+
     focusSimulator.setOnAction(action ->
         setMenuChecked(focusSimulator, settings.simulator.focusOnStartBhProgram.negate()));
     setMenuChecked(focusSimulator, settings.simulator.focusOnStartBhProgram.get());
 
     trackNodeInCurrentWs.setOnAction(action ->
-        setMenuChecked(trackNodeInCurrentWs, settings.ui.trackNodeInCurrentWorkspace.negate()));
-    setMenuChecked(trackNodeInCurrentWs, settings.ui.trackNodeInCurrentWorkspace.get());
+        setMenuChecked(trackNodeInCurrentWs, ui.trackNodeInCurrentWorkspace.negate()));
+    setMenuChecked(trackNodeInCurrentWs, ui.trackNodeInCurrentWorkspace.get());
 
     trackNodeInInactiveWs.setOnAction(action ->
-        setMenuChecked(trackNodeInInactiveWs, settings.ui.trackNodeInInactiveWorkspace.negate()));
-    setMenuChecked(trackNodeInInactiveWs, settings.ui.trackNodeInInactiveWorkspace.get());
+        setMenuChecked(trackNodeInInactiveWs, ui.trackNodeInInactiveWorkspace.negate()));
+    setMenuChecked(trackNodeInInactiveWs, ui.trackNodeInInactiveWorkspace.get());
 
     textChangeUndoEnabled.setOnAction(action ->
         setMenuChecked(textChangeUndoEnabled, settings.undo.textChangeUndoEnabled.negate()));
@@ -320,11 +330,17 @@ public class MenuBarController {
    * @param checked true の場合チェックマークを表示する.
    */
   private static void setMenuChecked(MenuItem menu, boolean checked) {
-    String text = menu.getText();
+    StringProperty textProperty = menu.textProperty();
+    if (menu instanceof CustomMenuItem customMenu) {
+      if (customMenu.getContent() instanceof Labeled textInputCtrl) {
+        textProperty = textInputCtrl.textProperty();
+      }
+    }
+    String text = textProperty.get();
     if (checked) {
-      menu.setText(text + " ✓");
+      textProperty.set(text + " ✓");
     } else if (text.endsWith(" ✓")) {
-      menu.setText(text.substring(0, text.length() - 2));
+      textProperty.set(text.substring(0, text.length() - 2));
     }
   }
 
@@ -346,6 +362,6 @@ public class MenuBarController {
   public enum MenuBarItem {
     SAVE,
     SAVE_AS,
-    FREE_MEMORY,
+    FREE_MEMORY
   }
 }

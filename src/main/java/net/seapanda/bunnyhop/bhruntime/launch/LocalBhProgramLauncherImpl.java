@@ -76,6 +76,7 @@ public class LocalBhProgramLauncherImpl implements LocalBhProgramLauncher {
   private Optional<Path> compile(SourceSet sourceSet) {
     CompileOption option = CompileOption.builder()
         .libPaths(compileConfig.getLibPaths())
+        .extensionPaths(compileConfig.getExtensionPaths())
         .outFile(Paths.get(Utility.execPath, Dir.COMPILED, File.APP_FILE_NAME_JS))
         .mainRoutineLaunchEvent(PROGRAM_START.toString())
         .mainRoutineName(compileConfig.getMainRoutineName())

@@ -31,7 +31,7 @@ class Preprocessor {
   private final SymbolNames symbols;
   private final Map<String, Consumer<CompilableSyntaxTreeNode>> symbolToPreprocessor;
 
-  Preprocessor(SymbolNames symbols) {
+  private Preprocessor(SymbolNames symbols) {
     this.symbols = symbols;
     symbolToPreprocessor =
         Map.of(symbols.predefFunc.anyListToStrExp, this::preprocessAnyListToStrExp);
@@ -40,9 +40,19 @@ class Preprocessor {
   /**
    * コンパイル前の処理を行う.
    *
+   * @param symbols ノードのシンボル情報を格納したオブジェクト
    * @param instIdToNode 処理するノードとそのノードのインスタンス ID を格納したマップ.
    */
-  void process(Map<String, CompilableSyntaxTreeNode> instIdToNode) {
+  static void process(SymbolNames symbols, Map<String, CompilableSyntaxTreeNode> instIdToNode) {
+    new Preprocessor(symbols).process(instIdToNode);
+  }
+
+  /**
+   * コンパイル前の処理を行う.
+   *
+   * @param instIdToNode 処理するノードとそのノードのインスタンス ID を格納したマップ.
+   */
+  private void process(Map<String, CompilableSyntaxTreeNode> instIdToNode) {
     Consumer<CompilableSyntaxTreeNode> nop = n -> {};
     instIdToNode.values().forEach(
         node -> symbolToPreprocessor.getOrDefault(node.getSymbolName(), nop).accept(node));

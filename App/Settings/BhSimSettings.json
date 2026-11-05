@@ -6,9 +6,9 @@
   },
   "window": {
     "width": 1000,
-    "height": 550,
-    "posX": 892,
-    "posY": 461,
+    "height": 750,
+    "posX": 460,
+    "posY": 141,
     "maximized": false
   },
   "closeOnRequested": false,

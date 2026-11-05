@@ -1,3 +1,5 @@
+let _hwCtrl = createHwCtrl();
+
 let _MOVE_CMD = {
   FORWARD: 'fwd',
   BACKWARD: 'bwd',
@@ -5,6 +7,12 @@ let _MOVE_CMD = {
   COUNTERCLOCKWISE: 'ccw',
   STOP: 'stop'
 };
+
+function createHwCtrl() {
+  let execPath = bhScriptHelper.util.getExecPath();
+  let hwCtrlPath = _jPaths.get(execPath, 'Actions', 'hwctrl').toAbsolutePath();
+  return bhScriptHelper.factory.newStdioCmdDispatcher(hwCtrlPath);
+}
 
 function _isCmdSuccessful(cmdResult) {
   return String(cmdResult[0].toLowerCase()) === 'true';
@@ -16,7 +24,7 @@ function _moveAny(speed, time, cmd) {
   try {
     let command = ['move', cmd, String(speed), String(time)];
     for (let i = 0; i < 3; ++i) {
-      let res = bhScriptHelper.hw.sendCmd(command);
+      let res = _hwCtrl.sendCmd(command);
       if (_isCmdSuccessful(res)) {
         return;
       }
@@ -47,7 +55,7 @@ function _stopRaspiCar() {
   try {
     let command = ['move', _MOVE_CMD.STOP];
     for (let i = 0; i < 3; ++i) {
-      let res = bhScriptHelper.hw.sendCmd(command);
+      let res = _hwCtrl.sendCmd(command);
       if (_isCmdSuccessful(res)) {
         return;
       }
@@ -62,7 +70,7 @@ function _measureDistance() {
   try {
     let command = 'measure-distance';
     for (let i = 0; i < 3; ++i) {
-      let res = bhScriptHelper.hw.sendCmd(command);
+      let res = _hwCtrl.sendCmd(command);
       if (_isCmdSuccessful(res)) {
         return Number(String(res[2])) / 10000;
       }
@@ -79,7 +87,7 @@ function _getColor() {
     let exposureTime = 0.05; // sec
     let command = ['detect-color', exposureTime];
     for (let i = 0; i < 10; ++i) {
-      let res = bhScriptHelper.hw.sendCmd(command);
+      let res = _hwCtrl.sendCmd(command);
       if (_isCmdSuccessful(res)) {
         return new _Color(Number(String(res[2])), Number(String(res[3])), Number(String(res[4])));
       }
@@ -160,7 +168,7 @@ function _lightEye(eyeSel, color) {
     command.push(color.red === 0 ? '0' : '1');
     command.push(color.green === 0 ? '0' : '1');
     command.push(color.blue === 0 ? '0' : '1');
-    let res = bhScriptHelper.hw.sendCmd(command);
+    let res = _hwCtrl.sendCmd(command);
     if (_isCmdSuccessful(res)) {
       return;
     }

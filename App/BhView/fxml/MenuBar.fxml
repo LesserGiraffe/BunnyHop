@@ -14,6 +14,8 @@
     <TextFetcher fx:id="saveAsText" textId="gui,menu-bar,save-as"/>
     <TextFetcher fx:id="operationText" textId="gui,menu-bar,operation"/>
     <TextFetcher fx:id="freeMemoryText" textId="gui,menu-bar,free-memory"/>
+    <TextFetcher fx:id="showNotifViewText" textId="gui,menu-bar,show-notification-view"/>
+    <TextFetcher fx:id="showNotifViewTooltipText" textId="gui,menu-bar,tooltip,show-notification-view"/>
     <TextFetcher fx:id="settingsText" textId="gui,menu-bar,settings"/>
     <TextFetcher fx:id="focusSimulatorText" textId="gui,menu-bar,focus-simulator"/>
     <TextFetcher fx:id="undoRedoText" textId="gui,menu-bar,undo-redo"/>
@@ -31,6 +33,15 @@
   </Menu>
   <Menu text="$operationText.text">
     <MenuItem fx:id="freeMemory" text="$freeMemoryText.text"/>
+    <CustomMenuItem fx:id="showNotifView">
+      <content>
+        <Label fx:id="showNotifViewLabel" text="$showNotifViewText.text">
+          <tooltip>
+            <Tooltip text="$showNotifViewTooltipText.text" styleClass="uiFunctionTooltip"/>
+          </tooltip>
+        </Label>
+      </content>
+    </CustomMenuItem>
   </Menu>
   <Menu text="$settingsText.text">
     <MenuItem fx:id="focusSimulator" text="$focusSimulatorText.text"/>

@@ -40,7 +40,12 @@ import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.runtime.api.message.BhProgramEvent;
 import net.seapanda.bunnyhop.service.KeyCodeConverter;
+import net.seapanda.bunnyhop.ui.control.MenuBarController.MenuBarItem;
+import net.seapanda.bunnyhop.ui.control.MenuViewController.MenuOperation;
 import net.seapanda.bunnyhop.ui.model.NodeManipulationMode;
+import net.seapanda.bunnyhop.utility.concurrent.reference.ConcurrentBoolean;
+import net.seapanda.bunnyhop.utility.reference.WritableBoolean;
+import net.seapanda.bunnyhop.utility.reference.WritableDouble;
 import net.seapanda.bunnyhop.workspace.control.WorkspaceSetController;
 import net.seapanda.bunnyhop.workspace.view.WorkspaceViewPane;
 
@@ -120,16 +125,15 @@ public class FoundationController {
       }
     });
 
-    stage.setOnShown(event -> {
-      initializeHorizontalSplitPane();
-    });
+    settings.ui.notificationViewShowed.addOnValueChanged(
+        event -> setNotificationViewVisibility(event.newVal()));
 
-    Divider divider = verticalSplitPane.getDividers().getFirst();
-    divider.positionProperty().addListener(
-        (obs, oldVal, newVal) -> settings.ui.nodeSelectionSplitPos.set(newVal.doubleValue()));
-    if (settings.ui.nodeSelectionSplitPos.get() >= 0) {
-      divider.setPosition(settings.ui.nodeSelectionSplitPos.get());
-    }
+    stage.setOnShown(event -> {
+      BhSettings.Ui ui = settings.ui;
+      initializeSplitPane(
+          verticalSplitPane, ui.nodeSelectionSplitPos, new ConcurrentBoolean(false));
+      initializeSplitPane(horizontalSplitPane, ui.notificationSplitPos, ui.notificationViewShowed);
+    });
   }
 
   /** 基底ペインに転送すべきキーイベントかどうかを判断する. */
@@ -168,22 +172,51 @@ public class FoundationController {
             event.isMetaDown()));
   }
 
-  private void initializeHorizontalSplitPane() {
-    getHorizontalDivider().ifPresent(
-        divider -> divider.addEventHandler(MOUSE_DRAGGED, this::onHorizontalDividerDragged));
-    Divider divider = horizontalSplitPane.getDividers().getFirst();
-    if (settings.ui.notificationViewHidden.get()) {
+  /**
+   * {@code splitPane} の divider の位置を初期化し, ドラッグ時に位置を保存するハンドラを設定する.
+   *
+   * @param splitPane 初期化対象の {@link SplitPane}
+   * @param dividerPos divider の初期位置. およびドラッグ時の保存先.
+   * @param viewShowed {@code splitPane} が分割しているビューが表示されているかどうか.
+   *                   およびドラッグ時の保存先.
+   */
+  private void initializeSplitPane(
+      SplitPane splitPane, WritableDouble dividerPos, WritableBoolean viewShowed) {
+    getDivider(splitPane).ifPresent(
+        divider -> divider.addEventHandler(
+            MOUSE_DRAGGED, event -> onDividerDragged(splitPane, dividerPos, viewShowed)));
+
+    Divider divider = splitPane.getDividers().getFirst();
+    if (!viewShowed.get()) {
       divider.setPosition(1);
-    } else if (settings.ui.notificationSplitPos.get() >= 0) {
-      divider.setPosition(settings.ui.notificationSplitPos.get());
+    } else if (dividerPos.get() >= 0) {
+      divider.setPosition(dividerPos.get());
     }
   }
 
-  /** {@link #horizontalSplitPane} を分割する divider ノードを取得する. */
-  private Optional<Node> getHorizontalDivider() {
-    return horizontalSplitPane.lookupAll(".split-pane-divider").stream()
-            .filter(node -> node.getParent() == horizontalSplitPane)
+  /** {@code detDivider} を分割する divider ノードを取得する. */
+  private Optional<Node> getDivider(SplitPane splitPane) {
+    return splitPane.lookupAll(".split-pane-divider").stream()
+            .filter(node -> node.getParent() == splitPane)
             .findFirst();
+  }
+
+  /**
+   * {@code splitPane} の divider がマウスドラッグされたときに呼ばれる.
+   *
+   * <p>ドラッグ後の divider の位置を {@code dividerPos} に保存し,
+   * {@code viewHidden} を false に設定する.
+   *
+   * @param splitPane ドラッグされた divider を持つ {@link SplitPane}
+   * @param dividerPos divider の位置の保存先
+   * @param viewShowed {@code splitPane} が分割しているビューが表示されているかどうかの保存先
+   */
+  private static void onDividerDragged(
+      SplitPane splitPane, WritableDouble dividerPos, WritableBoolean viewShowed) {
+    double pos = splitPane.getDividers().getFirst().getPosition();
+    // 実際に divider をマウスドラッグしたときだけ, 分割位置を更新する.
+    dividerPos.set(pos);
+    viewShowed.set(true);
   }
 
   /** BunnyHop操作のためのイベントを発行する. */
@@ -191,55 +224,55 @@ public class FoundationController {
     switch (event.getCode()) {
       case C:
         if (event.isControlDown()) {
-          menuViewController.fireEvent(MenuViewController.MenuOperation.COPY);
+          menuViewController.fireEvent(MenuOperation.COPY);
         }
         break;
 
       case X:
         if (event.isControlDown()) {
-          menuViewController.fireEvent(MenuViewController.MenuOperation.CUT);
+          menuViewController.fireEvent(MenuOperation.CUT);
         }
         break;
 
       case V:
         if (event.isControlDown()) {
-          menuViewController.fireEvent(MenuViewController.MenuOperation.PASTE);
+          menuViewController.fireEvent(MenuOperation.PASTE);
         }
         break;
 
       case Z:
         if (event.isControlDown()) {
-          menuViewController.fireEvent(MenuViewController.MenuOperation.UNDO);
+          menuViewController.fireEvent(MenuOperation.UNDO);
         }
         break;
 
       case Y:
         if (event.isControlDown()) {
-          menuViewController.fireEvent(MenuViewController.MenuOperation.REDO);
+          menuViewController.fireEvent(MenuOperation.REDO);
         }
         break;
 
       case S:
         if (event.isControlDown()) {
-          menuBarController.fireEvent(MenuBarController.MenuBarItem.SAVE);
+          menuBarController.fireEvent(MenuBarItem.SAVE);
         }
         break;
 
       case F11:
-        menuBarController.fireEvent(MenuBarController.MenuBarItem.FREE_MEMORY);
+        menuBarController.fireEvent(MenuBarItem.FREE_MEMORY);
         break;
 
       case F12:
-        menuBarController.fireEvent(MenuBarController.MenuBarItem.SAVE_AS);
+        menuBarController.fireEvent(MenuBarItem.SAVE_AS);
         break;
 
       case DELETE:
-        menuViewController.fireEvent(MenuViewController.MenuOperation.DELETE);
+        menuViewController.fireEvent(MenuOperation.DELETE);
         break;
 
       case AT:
         if (event.isControlDown()) {
-          setNotificationViewVisibility(!settings.ui.notificationViewHidden.negate());
+          settings.ui.notificationViewShowed.negate();
         }
         break;
 
@@ -301,13 +334,5 @@ public class FoundationController {
   /** ノードの操作モードを変えるためのキーが押されているか調べる. */
   private boolean isNodeManipModeKeyPressed(MouseEvent event) {
     return event.isShiftDown() || event.isControlDown();
-  }
-
-  /** {@link #horizontalSplitPane} の divider がドラッグされたときの処理. */
-  private void onHorizontalDividerDragged(MouseEvent event) {
-    double pos = horizontalSplitPane.getDividers().getFirst().getPosition();
-    // 実際に divider をマウスドラッグしたときだけ, 分割位置を更新する.
-    settings.ui.notificationSplitPos.set(pos);
-    settings.ui.notificationViewHidden.set(false);
   }
 }

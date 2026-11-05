@@ -38,15 +38,27 @@ public class CompileConfig {
   private static final String LANGUAGE_PLACEHOLDER = "${language}";
 
   /** 設定の ID. */
-  private String id = "";
+  private final String id;
 
   /** コンパイルに使用するライブラリのパス. */
   @SerializedName("libs")
-  private List<String> libPaths = new ArrayList<>();
+  private ArrayList<String> libPaths;
+
+  /** コンパイラの拡張要素を記述したファイルのパス. */
+  @SerializedName("extensions")
+  private ArrayList<String> extensionPaths;
 
   /** メインルーチンの名前. */
   @SerializedName("mainRoutine")
-  private String mainRoutineName = "_bhMain";
+  private final String mainRoutineName;
+
+  /** コンストラクタ (デシリアライズ用). */
+  private CompileConfig() {
+    id = "";
+    libPaths = new ArrayList<>();
+    extensionPaths = new ArrayList<>();
+    mainRoutineName = "_bhMain";
+  }
 
   public String getId() {
     return id;
@@ -56,15 +68,28 @@ public class CompileConfig {
     return libPaths;
   }
 
+  public List<String> getExtensionPaths() {
+    return extensionPaths;
+  }
+
   public String getMainRoutineName() {
     return mainRoutineName;
   }
 
-  private void resolveLibPaths(Path base, String language) {
-    if (libPaths == null) {
-      return;
+  /**
+   * {@code paths} の各要素に含まれる言語プレースホルダを {@code language} で置換し,
+   * {@code base} を基準とした正規化済みの絶対パス文字列に変換する.
+   *
+   * @param paths 変換対象のパス文字列のリスト (nullable)
+   * @param base 相対パスの解決に使用する基準ディレクトリ
+   * @param language プレースホルダ ({@value #LANGUAGE_PLACEHOLDER}) を置換する言語名
+   * @return 変換後のパス文字列のリスト. {@code paths} が null の場合は null.
+   */
+  private static ArrayList<String> resolvePathList(List<String> paths, Path base, String language) {
+    if (paths == null) {
+      return null;
     }
-    libPaths = libPaths.stream()
+    return paths.stream()
         .map((String path) -> resolvePlaceHolder(path, language))
         .map(lib -> base.resolve(lib).normalize().toString())
         .collect(Collectors.toCollection(ArrayList::new));
@@ -85,8 +110,10 @@ public class CompileConfig {
     try (var jr = gson.newJsonReader(new FileReader(configFilePath.toString()))) {
       data = gson.fromJson(jr, Data.class);
     }
-    data.configurations.forEach(
-        config -> config.resolveLibPaths(configFilePath.getParent(), language));
+    data.configurations.forEach(config -> config.libPaths =
+        resolvePathList(config.libPaths, configFilePath.getParent(), language));
+    data.configurations.forEach(config -> config.extensionPaths =
+        resolvePathList(config.extensionPaths, configFilePath.getParent(), language));
 
     return data.configurations.stream()
       .collect(Collectors.toMap(CompileConfig::getId, Function.identity()));
@@ -104,6 +131,11 @@ public class CompileConfig {
 
   /** デシリアライズしたデータを格納するためのクラス. */
   private static class Data {
-    private ArrayList<CompileConfig> configurations;
+    private final ArrayList<CompileConfig> configurations;
+
+    /** コンストラクタ (デシリアライズ用). */
+    private Data() {
+      configurations = new ArrayList<>();
+    }
   }
 }

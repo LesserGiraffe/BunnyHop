@@ -32,12 +32,37 @@ class FuncId {
   /**
    * 識別子を作成する.
    *
-   * @param snippets IDを構成する情報
+   * @param snippets ID を構成する文字列群
    */
   public static FuncId of(String... snippets) {
-
     var retVal = new FuncId();
     retVal.id = new ArrayList<>(Arrays.asList(snippets));
+    return retVal;
+  }
+
+  /**
+   * 識別子を作成する.
+   *
+   * @param snippet ID を構成する文字列
+   * @param snippets ID を構成する文字列のリスト
+   */
+  public static FuncId of(String snippet, List<String> snippets) {
+    var list = new ArrayList<String>();
+    list.add(snippet);
+    list.addAll(snippets);
+    var retVal = new FuncId();
+    retVal.id = list;
+    return retVal;
+  }
+
+  /**
+   * 識別子を作成する.
+   *
+   * @param snippets ID を構成する文字列のリスト
+   */
+  public static FuncId of(List<String> snippets) {
+    var retVal = new FuncId();
+    retVal.id = new ArrayList<>(snippets);
     return retVal;
   }
 

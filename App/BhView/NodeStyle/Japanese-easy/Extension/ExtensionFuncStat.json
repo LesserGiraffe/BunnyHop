@@ -1,0 +1,11 @@
+{
+  "import" : ["../../Common/NumStat.json"],
+
+  "connective" : {
+    "inner" : {
+      "space" : 1.5,
+      "arrangement" : "Row",
+      "connectorList" : ["${L1}{かくちょうきのう B}", "Arg0", "Arg1", "OutArg0", "Option0"]
+    }
+  }
+}

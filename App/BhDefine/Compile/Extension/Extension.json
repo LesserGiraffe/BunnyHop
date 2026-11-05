@@ -1,0 +1,32 @@
+{
+  "extensions" : [
+    {
+      "type" : "predefFunc",
+      "symbolName" : "ExtensionFuncExp",
+      "options" : ["add"],
+      "hasRetVal" : true,
+      "funcName" : "extAddExp"
+    },
+    {
+      "type" : "predefFunc",
+      "symbolName" : "ExtensionFuncExp",
+      "options" : ["sub"],
+      "hasRetVal" : true,
+      "funcName" : "extSubExp"
+    },
+    {
+      "type" : "predefFunc",
+      "symbolName" : "ExtensionFuncStat",
+      "options" : ["add"],
+      "hasRetVal" : false,
+      "funcName" : "extAddStat"
+    },
+    {
+      "type" : "predefFunc",
+      "symbolName" : "ExtensionFuncStat",
+      "options" : ["sub"],
+      "hasRetVal" : false,
+      "funcName" : "extSubStat"
+    }
+  ]
+}

@@ -44,7 +44,7 @@ public enum BreakpointSetting {
         return val;
       }
     }
-    throw new IllegalArgumentException("unknown BreakpointSetting " + setting);
+    throw new IllegalArgumentException("unknown BreakpointSetting (%s)".formatted(setting));
   }
 
   public String getName() {

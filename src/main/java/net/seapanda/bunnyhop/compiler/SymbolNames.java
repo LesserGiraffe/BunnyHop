@@ -20,10 +20,27 @@ import static java.util.Map.entry;
 import static net.seapanda.bunnyhop.compiler.ScriptIdentifiers.Funcs;
 import static net.seapanda.bunnyhop.compiler.ScriptIdentifiers.Vars;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import java.io.IOException;
+import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.SequencedCollection;
 import java.util.Set;
+import net.seapanda.bunnyhop.compiler.api.CompileError;
+import net.seapanda.bunnyhop.compiler.extension.ExtPredefFunc;
+import net.seapanda.bunnyhop.compiler.extension.Extension;
+import net.seapanda.bunnyhop.compiler.extension.ExtensionType;
 
 /**
  * シンボル名を定義するクラス.
@@ -41,6 +58,64 @@ class SymbolNames {
   final UserDefFunc userDefFunc = new UserDefFunc();
   final Event event = new Event();
 
+  /** 拡張情報の JSON における "type" の値と, それに対応する {@link Extension} の具象クラスの対応表. */
+  private static final Map<ExtensionType, Class<? extends Extension>> EXTENSION_TYPE_TO_CLASS =
+      Map.of(ExtensionType.PREDEF_FUNC_EXP, ExtPredefFunc.class);
+
+  /**
+   * コンストラクタ.
+   *
+   * @param extensionFilePaths コンパイラの拡張要素を記述したファイルのパスのリスト
+   */
+  SymbolNames(SequencedCollection<String> extensionFilePaths) throws CompileError {
+    SequencedCollection<Path> filePaths = extensionFilePaths.stream().map(Paths::get).toList();
+    for (Path filePath : filePaths) {
+      readExtensions(filePath).forEach(this::registerExtension);
+    }
+  }
+
+  /**
+   * {@code filePath} で指定した JSON ファイルからコンパイラの拡張情報を読み込む.
+   *
+   * @param filePath 拡張情報が記述された JSON ファイルのパス
+   * @return {@code filePath} から読み込んだ {@link Extension} のリスト
+   */
+  private List<Extension> readExtensions(Path filePath) throws CompileError {
+    Gson gson = new Gson();
+    try (Reader reader = Files.newBufferedReader(filePath)) {
+      JsonObject root = gson.fromJson(reader, JsonObject.class);
+      JsonArray extensions = root.getAsJsonArray("extensions");
+      var result = new ArrayList<Extension>();
+      for (JsonElement extensionJson : extensions) {
+        String extensionType = extensionJson.getAsJsonObject().get("type").getAsString();
+        Class<? extends Extension> clazz =
+            EXTENSION_TYPE_TO_CLASS.get(ExtensionType.of(extensionType));
+        if (clazz == null) {
+          throw new CompileError(
+              "Unknown extension type (%s).  (%s)".formatted(extensionType, filePath));
+        }
+        result.add(gson.fromJson(extensionJson, clazz));
+      }
+      return result;
+    } catch (IOException | JsonParseException e) {
+      throw new CompileError("Failed to read an extension file.  (%s)".formatted(filePath), e);
+    }
+  }
+
+  /**
+   * {@code extension} の実際の型に応じて, それが持つ情報をこのオブジェクトのシンボル名一覧に登録する.
+   *
+   * @param extension 登録する拡張情報
+   */
+  private void registerExtension(Extension extension) {
+    if (extension instanceof ExtPredefFunc extPredefFunc) {
+      Set<String> predefFuncList =
+          extPredefFunc.hasRetVal ? exp.predefFunc.list : stat.predefFunc.list;
+      predefFuncList.add(extPredefFunc.symbolName);
+      var funcId = FuncId.of(extPredefFunc.symbolName, extPredefFunc.options);
+      predefFunc.nameMap.put(funcId, extPredefFunc.funcName);
+    }
+  }
 
   /** 変数宣言に関するシンボル名. */
   static class VarDecl {
@@ -543,7 +618,6 @@ class SymbolNames {
             predefFunc.checkNumTypeExp,
             predefFunc.numPowExp,
             predefFunc.numClampExp,
-            predefFunc.outArgTestExp,
             predefFunc.loadTextExp,
             predefFunc.getTextFilesExp,
             predefFunc.getAudioVolumeExp,
@@ -583,7 +657,7 @@ class SymbolNames {
     }
   }
 
-  /** BhProgram にあらかじめ定義されたメソッドを呼び出す処理に関するシンボル名. */
+  /** 定義済み関数のノード名, オプション名, およびそれらと実際の関数名との対応関係を保持するクラス. */
   static class PredefFunc {
 
     final String arg = "Arg";
@@ -614,7 +688,6 @@ class SymbolNames {
     private final String checkNumTypeExp = "CheckNumTypeExp";
     private final String numPowExp = "NumPowExp";
     private final String numClampExp = "NumClampExp";
-    private final String outArgTestExp = "OutArgTestExp";
     private final String loadTextExp = "LoadTextExp";
     private final String getTextFilesExp = "GetTextFilesExp";
     private final String getAudioFilesExp = "GetAudioFilesExp";
@@ -742,7 +815,6 @@ class SymbolNames {
       nameMap.put(FuncId.of(measureSoundPressureExp, optPeak), Funcs.FIND_SOUND_PRESSURE_PEAK);
       nameMap.put(
           FuncId.of(measureSoundPressureExp, optAverage), Funcs.FIND_SOUND_PRESSURE_AVERAGE);
-      nameMap.put(FuncId.of(outArgTestExp), Funcs.OUT_ARG_TEST);
       nameMap.put(FuncId.of(moveStat, optMoveForward), Funcs.MOVE_FORWARD);
       nameMap.put(FuncId.of(moveStat, optMoveBackward), Funcs.MOVE_BACKWARD);
       nameMap.put(FuncId.of(moveStat, optTurnRight), Funcs.TURN_RIGHT);

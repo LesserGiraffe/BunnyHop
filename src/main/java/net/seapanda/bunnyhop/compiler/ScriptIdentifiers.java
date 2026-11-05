@@ -110,7 +110,6 @@ class ScriptIdentifiers {
     public static final String IS_NUM_POS_INF = "_isNumPosInf";
     public static final String IS_NUM_NEG_INF = "_isNumNegInf";
     public static final String NUM_CLAMP = "_numClamp";
-    public static final String OUT_ARG_TEST = "_outArgTest";
     public static final String SAVE_TEXT = "_saveText";
     public static final String LOAD_TEXT = "_loadText";
     public static final String GET_TEXT_FILES = "_getTextFiles";

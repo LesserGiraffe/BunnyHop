@@ -49,58 +49,27 @@ import net.seapanda.bunnyhop.compiler.api.SourceSet;
  */
 public class CodeGenerator implements BhCompiler {
 
-  private VarDeclCodeGenerator varDeclCodeGen;
-  private FuncDefCodeGenerator funcDefCodeGen;
-  private ExpCodeGenerator expCodeGen;
-  private StatCodeGenerator statCodeGen;
-  private EventHandlerCodeGenerator eventHandlerCodeGen;
-  private CommonCodeGenerator common;
-  private GlobalDataDeclCodeGenerator globalDataDeclCodeGen;
-
   @Override
   public Path compile(SourceSet sourceSet, CompileOption option) throws CompileError {
-    var symbols = new SymbolNames();
-    initCodeGenerators(symbols);
-
-    new Preprocessor(symbols).process(sourceSet.getInstanceIdToNode());
     StringBuilder code = new StringBuilder();
-    try {
-      new File(option.outFile.getParent().toAbsolutePath().toString()).mkdirs();
-      generateLibCode(option.libPaths, code);
-    } catch (Exception e) {
-      throw new CompileError(option.outFile.toString(), e);
-    }
-    generateCode(sourceSet, code, option);
-
     try (BufferedWriter writer = Files.newBufferedWriter(
         option.outFile,
         StandardCharsets.UTF_8,
         StandardOpenOption.CREATE,
         StandardOpenOption.TRUNCATE_EXISTING,
         StandardOpenOption.WRITE)) {
+      var symbols = new SymbolNames(option.extensionPaths);
+      CodeGenerators codeGens = CodeGenerators.create(symbols);
+      Preprocessor.process(symbols, sourceSet.getInstanceIdToNode());
+      generateLibCode(option.libPaths, code);
+      generateCode(codeGens, sourceSet, code, option);
+      new File(option.outFile.getParent().toAbsolutePath().toString()).mkdirs();
       writer.write(code.toString());
     } catch (Exception e) {
-      throw new CompileError(option.outFile.toString(), e);
+      throw new CompileError("Failed to compile", e);
     }
     return option.outFile;
   }
-
-  /**
-   * 各種コードジェネレータを生成し, フィールドに設定する.
-   *
-   * @param symbols 各コードジェネレータが使用するシンボル名一覧
-   */
-  private void initCodeGenerators(SymbolNames symbols) {
-    common = new CommonCodeGenerator(symbols);
-    varDeclCodeGen = new VarDeclCodeGenerator(symbols, common);
-    expCodeGen = new ExpCodeGenerator(symbols, common, varDeclCodeGen);
-    statCodeGen = new StatCodeGenerator(symbols, common, expCodeGen, varDeclCodeGen);
-    funcDefCodeGen = new FuncDefCodeGenerator(symbols, common, statCodeGen, varDeclCodeGen);
-    eventHandlerCodeGen =
-        new EventHandlerCodeGenerator(symbols, common, statCodeGen, varDeclCodeGen);
-    globalDataDeclCodeGen = new GlobalDataDeclCodeGenerator(symbols, common, expCodeGen);
-  }
-
 
   private void generateLibCode(SequencedCollection<String> libPaths, StringBuilder code)
       throws IOException {
@@ -113,50 +82,57 @@ public class CodeGenerator implements BhCompiler {
   /**
    * プログラム全体のコードを生成する.
    *
+   * @param codeGens 各種コードジェネレータを保持するオブジェクト
    * @param sourceSet コンパイル対象のノードを提供するオブジェクト
    * @param code 生成したソースコードの格納先
    * @param option コンパイルオプション
    */
   private void generateCode(
-      SourceSet sourceSet, StringBuilder code, CompileOption option) {
+      CodeGenerators codeGens, SourceSet sourceSet, StringBuilder code, CompileOption option) {
     var rootNodes = sourceSet.getRootNodes();
     SequencedCollection<CompilableSyntaxTreeNode> globalVars =
-        varDeclCodeGen.generateVarDecls(rootNodes, code, 0, option);
-    generateSetGlobalVars(globalVars, code, 0, option);
-    globalDataDeclCodeGen.generateGlobalDataDecls(rootNodes, code, 0, option);
-    generateEntryPointIdsRegistration(sourceSet, code, 0);
+        codeGens.varDecl.generateVarDecls(rootNodes, code, 0, option);
+    generateSetGlobalVars(codeGens.common, globalVars, code, 0, option);
+    codeGens.globalDataDec.generateGlobalDataDecls(rootNodes, code, 0, option);
+    generateEntryPointIdsRegistration(codeGens.common, sourceSet, code, 0);
     code.append(newLine);
-    funcDefCodeGen.generateFuncDefs(rootNodes, code, 0, option);
-    eventHandlerCodeGen.generateEventHandlers(rootNodes, code, 0, option);
-    generateMainMethod(sourceSet.getSelectedEntryPoint(), code, option);
-    generateAddEventFuncCall(option.mainRoutineLaunchEvent, option.mainRoutineName, code, 0);
-    generateFooterSnippet(code, 0);
+    codeGens.funcDef.generateFuncDefs(rootNodes, code, 0, option);
+    codeGens.eventHandler.generateEventHandlers(rootNodes, code, 0, option);
+    generateMainMethod(codeGens, sourceSet.getSelectedEntryPoint(), code, option);
+    generateAddEventFuncCall(
+        codeGens.common, option.mainRoutineLaunchEvent, option.mainRoutineName, code, 0);
+    generateFooterSnippet(codeGens.common, code, 0);
   }
 
   /**
    * メインエントリポイントのコードを生成する.
    *
+   * @param codeGens 各種コードジェネレータを保持するオブジェクト
    * @param mainEntryPoint プログラム開始時に実行する最初のノード.  (nullable)
    * @param code 生成したソースコードの格納先
    * @param option コンパイルオプション
    */
   private void generateMainMethod(
-      CompilableSyntaxTreeNode mainEntryPoint, StringBuilder code, CompileOption option) {
+      CodeGenerators codeGens,
+      CompilableSyntaxTreeNode mainEntryPoint,
+      StringBuilder code,
+      CompileOption option) {
     if (mainEntryPoint == null) {
       code.append("function %s() {}\n".formatted(option.mainRoutineName));
       return;
     }
     String lockVar = Prefix.lockVar + option.mainRoutineName;
     CompilableSyntaxTreeNode mainRoutineSymbol = createMainRoutineNode(option);
-    eventHandlerCodeGen.generateHeaderSnippetOfEventCall(
+    codeGens.eventHandler.generateHeaderSnippetOfEventCall(
         code, mainRoutineSymbol, option.mainRoutineName, lockVar, 0, option);
-    expCodeGen.generateExpression(mainEntryPoint, code, 4, option);
-    statCodeGen.generateStatement(mainEntryPoint, code, 4, option);
-    eventHandlerCodeGen.generateFooterSnippetOfEventCall(code, lockVar, 0, option);
+    codeGens.exp.generateExpression(mainEntryPoint, code, 4, option);
+    codeGens.stat.generateStatement(mainEntryPoint, code, 4, option);
+    codeGens.eventHandler.generateFooterSnippetOfEventCall(code, lockVar, 0, option);
   }
 
   /** イベントとそれに対応するメソッドを追加する関数を呼ぶコードを生成する. */
   private void generateAddEventFuncCall(
+      CommonCodeGenerator common,
       String eventName,
       String funcName,
       StringBuilder code,
@@ -174,10 +150,12 @@ public class CodeGenerator implements BhCompiler {
   /**
    * プログラムの末尾に付くコードを生成する.
    *
+   * @param common コード生成機能を提供するオブジェクト
    * @param code 生成したコードの格納先
    * @param nestLevel ソースコードのネストレベル
    */
-  private void generateFooterSnippet(StringBuilder code, int nestLevel) {
+  private void generateFooterSnippet(
+      CommonCodeGenerator common, StringBuilder code, int nestLevel) {
     // プログラム開始時刻の更新
     code.append(common.indent(nestLevel))
         .append(common.generateFuncCall(Funcs.START_TIMER))
@@ -194,12 +172,14 @@ public class CodeGenerator implements BhCompiler {
   /**
    * グローバル変数のアクセサをデバッガに追加するコードを生成する.
    *
+   * @param common コード生成機能を提供するオブジェクト
    * @param variables グローバル変数の変数定義ノード一覧
    * @param code 生成したソースコードの格納先
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
   private void generateSetGlobalVars(
+      CommonCodeGenerator common,
       SequencedCollection<CompilableSyntaxTreeNode> variables,
       StringBuilder code,
       int nestLevel,
@@ -221,11 +201,13 @@ public class CodeGenerator implements BhCompiler {
    *
    * <p>この処理はデバッグオプションに関係なく行う.
    *
+   * @param common コード生成機能を提供するオブジェクト
    * @param sourceSet コンパイル対象のノードを提供するオブジェクト
    * @param code 生成したソースコードの格納先
    * @param nestLevel ソースコードのネストレベル
    */
   private void generateEntryPointIdsRegistration(
+      CommonCodeGenerator common,
       SourceSet sourceSet,
       StringBuilder code,
       int nestLevel) {
@@ -318,5 +300,35 @@ public class CodeGenerator implements BhCompiler {
         return false;
       }
     };
+  }
+
+  record CodeGenerators(
+      CommonCodeGenerator common,
+      VarDeclCodeGenerator varDecl,
+      ExpCodeGenerator exp,
+      StatCodeGenerator stat,
+      FuncDefCodeGenerator funcDef,
+      EventHandlerCodeGenerator eventHandler,
+      GlobalDataDeclCodeGenerator globalDataDec) {
+
+    static CodeGenerators create(SymbolNames symbols) {
+      var common = new CommonCodeGenerator(symbols);
+      var varDeclCodeGen = new VarDeclCodeGenerator(symbols, common);
+      var expCodeGen = new ExpCodeGenerator(symbols, common, varDeclCodeGen);
+      var statCodeGen = new StatCodeGenerator(symbols, common, expCodeGen, varDeclCodeGen);
+      var funcDefCodeGen = new FuncDefCodeGenerator(symbols, common, statCodeGen, varDeclCodeGen);
+      var eventHandlerCodeGen =
+              new EventHandlerCodeGenerator(symbols, common, statCodeGen, varDeclCodeGen);
+      var globalDataDeclCodeGen = new GlobalDataDeclCodeGenerator(symbols, common, expCodeGen);
+
+      return new CodeGenerators(
+          common,
+          varDeclCodeGen,
+          expCodeGen,
+          statCodeGen,
+          funcDefCodeGen,
+          eventHandlerCodeGen,
+          globalDataDeclCodeGen);
+    }
   }
 }

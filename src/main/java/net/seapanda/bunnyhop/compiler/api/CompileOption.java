@@ -18,6 +18,7 @@ package net.seapanda.bunnyhop.compiler.api;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.SequencedCollection;
 
@@ -38,6 +39,8 @@ public class CompileOption {
   public final boolean addConditionalWait;
   /** プログラムが依存するライブラリのパス. */
   public final SequencedCollection<String> libPaths;
+  /** コンパイラの拡張要素を記述したファイルのパス. */
+  public final SequencedCollection<String> extensionPaths;
   /** ソースコードにコメントを追加する場合 true. */
   public final boolean withComments;
   /** メインルーチンを起動する際に BhProgram が受け取るイベントの名前. */
@@ -53,6 +56,7 @@ public class CompileOption {
     addVarAccessorToVarStack = builder.isDebug;
     addConditionalWait = builder.isDebug;
     this.libPaths = builder.libPaths;
+    this.extensionPaths = builder.extensionPaths;
     this.withComments = builder.withComments;
     this.mainRoutineLaunchEvent = builder.mainRoutineLaunchEvent;
     this.mainRoutineName = builder.mainRoutineName;
@@ -70,7 +74,8 @@ public class CompileOption {
     private Builder() {}
 
     private boolean isDebug = true;
-    private SequencedCollection<String> libPaths;
+    private SequencedCollection<String> libPaths = new ArrayList<>();
+    private SequencedCollection<String> extensionPaths = new ArrayList<>();
     private boolean withComments = true;
     private String mainRoutineLaunchEvent = "PROGRAM_START";
     private String mainRoutineName = "_bhMain";
@@ -80,12 +85,24 @@ public class CompileOption {
     /**
      * プログラムが依存するライブラリのパスを設定する.
      *
-     * @param libPaths プログラムが依存するライブラリのパスを設定する.
+     * @param libPaths プログラムが依存するライブラリのパス
      * @return このオブジェクト
      */
     public Builder libPaths(SequencedCollection<String> libPaths) {
       Objects.requireNonNull(libPaths);
       this.libPaths = libPaths;
+      return this;
+    }
+
+    /**
+     * コンパイラの拡張要素を記述したファイルのパスを設定する.
+     *
+     * @param extensionPaths コンパイラの拡張要素を記述したファイルのパス
+     * @return このオブジェクト
+     */
+    public Builder extensionPaths(SequencedCollection<String> extensionPaths) {
+      Objects.requireNonNull(extensionPaths);
+      this.extensionPaths = extensionPaths;
       return this;
     }
 

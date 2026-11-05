@@ -41,6 +41,7 @@ import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.D
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.FOUNDATION_FXML;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.LANGUAGE_FILE;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.LOG_MSG;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.NODE_LANGUAGE_FILE;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.NODE_SELECTION_VIEW_FXML;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.NODE_SHIFTER_FXML;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.PRIVATE_TEMPLATE_BUTTON_FXML;
@@ -195,9 +196,10 @@ public class AppMain extends Application {
       final Path cnctrDir = Paths.get(execPath, BH_DEF, CONNECTOR_DEF);
       final Path compileConfigFile = Paths.get(execPath, BH_DEF, COMPILE, COMPILE_JSON);
       final Path simSettingFile = Paths.get(execPath, SETTINGS, BH_SIM_SETTINGS_JSON);
-      final Path simLangeFile = Paths.get(execPath, LANGUAGE, language, SIM_LANGUAGE_FILE);
+      final Path simLanguageFile = Paths.get(execPath, LANGUAGE, language, SIM_LANGUAGE_FILE);
+      final Path nodeLanguageFile = Paths.get(execPath, LANGUAGE, language, NODE_LANGUAGE_FILE);
 
-      BhSimulator simulator = createSimulator(simLangeFile, simSettingFile);
+      BhSimulator simulator = createSimulator(simLanguageFile, simSettingFile);
       simFuture = simulator.startAsync(settings.simulator.initTimeout.get());
       final SimulatorCmdProcessor simCmdProcessor = simulator.getCmdProcessor();
 
@@ -235,16 +237,18 @@ public class AppMain extends Application {
           nodeSelViewProxy,
           nodeViewSuperVisor,
           settings);
-      final var commonDataSupplier = new CommonDataSupplier(scriptRepository, nodeFactory, textDb);
+      final var nodeTextDb = new JsonTextDatabase(nodeLanguageFile);
+      final var commonDataSupplier =
+          new CommonDataSupplier(scriptRepository, nodeFactory, nodeTextDb);
       final var modelGenerator = new ModelGenerator(
           nodeFactory,
           new DerivativeReplacerWithCache(derivativeCache),
           new ScriptNodeEventInvokerImpl(
-              scriptRepository, commonDataSupplier, nodeFactory, textDb),
+              scriptRepository, commonDataSupplier, nodeFactory, nodeTextDb),
           new ScriptConnectorEventInvokerImpl(scriptRepository, commonDataSupplier));
-      nodeRepository.collect(nodeDir, cnctrDir, modelGenerator, textDb);
+      nodeRepository.collect(nodeDir, cnctrDir, modelGenerator, nodeTextDb);
       final var categoryTree =
-          new JsonBhNodeCategoryTree(nodeSelectionFile, nodeFactory, textDb);
+          new JsonBhNodeCategoryTree(nodeSelectionFile, nodeFactory, nodeTextDb);
       final var nodeCategoryBuilder = new BhNodeCategoryBuilder(categoryTree.getRoot());
       final var wsFactory = new WorkspaceFactoryImpl(
           wsViewFile,

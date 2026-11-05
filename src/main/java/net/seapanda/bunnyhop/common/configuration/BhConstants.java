@@ -169,6 +169,8 @@ public class BhConstants {
       public static final String BUNNY_HOP_ICON = "BunnyHop16.png";
       /** 言語ファイルの名前. */
       public static final String LANGUAGE_FILE = "BunnyHop.json";
+      /** 言語ファイルの名前. */
+      public static final String NODE_LANGUAGE_FILE = "BhNode.json";
       /** シミュレータの言語ファイルの名前. */
       public static final String SIM_LANGUAGE_FILE = "BhSimulator.json";
       /** 設定ファイルの名前. */
