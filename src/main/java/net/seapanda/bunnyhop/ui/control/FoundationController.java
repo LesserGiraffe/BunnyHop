@@ -131,7 +131,7 @@ public class FoundationController {
     stage.setOnShown(event -> {
       BhSettings.Ui ui = settings.ui;
       initializeSplitPane(
-          verticalSplitPane, ui.nodeSelectionSplitPos, new ConcurrentBoolean(false));
+          verticalSplitPane, ui.nodeSelectionSplitPos, new ConcurrentBoolean(true));
       initializeSplitPane(horizontalSplitPane, ui.notificationSplitPos, ui.notificationViewShowed);
     });
   }
