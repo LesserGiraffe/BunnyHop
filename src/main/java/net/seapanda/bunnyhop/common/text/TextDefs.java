@@ -382,6 +382,8 @@ public class TextDefs {
           TextId.of("msg", "menubar-opts", "version", "title"), params);
       public static final Getter system = params -> db.get(
           TextId.of("msg", "menubar-opts", "version", "system"), params);
+      public static final Getter compiler = params -> db.get(
+          TextId.of("msg", "menubar-opts", "version", "compiler"), params);
       public static final Getter runtime = params -> db.get(
           TextId.of("msg", "menubar-opts", "version", "runtime"), params);
       public static final Getter simulator = params -> db.get(

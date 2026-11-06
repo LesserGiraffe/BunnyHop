@@ -301,6 +301,7 @@
       "version": {
         "title": "バージョン一覧",
         "system": "システム",
+        "compiler": "コンパイラ",
         "runtime": "ランタイム",
         "simulator": "シミュレータ"    
       }

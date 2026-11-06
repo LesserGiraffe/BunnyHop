@@ -34,6 +34,7 @@ import javafx.stage.FileChooser;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.common.text.TextDefs;
+import net.seapanda.bunnyhop.compiler.api.BhCompilerInfo;
 import net.seapanda.bunnyhop.export.ProjectExporter;
 import net.seapanda.bunnyhop.export.ProjectImporter;
 import net.seapanda.bunnyhop.runtime.api.BhRuntimeInfo;
@@ -303,11 +304,14 @@ public class MenuBarController {
         %s: %s
         %s: %s
         %s: %s
+        %s: %s
         """,
         TextDefs.MenubarOps.Version.system.get(),
         BhConstants.SYS_VERSION,
         BhConstants.APP_NAME,
         BhConstants.APP_VERSION,
+        TextDefs.MenubarOps.Version.compiler.get(),
+        BhCompilerInfo.getVersion(),
         TextDefs.MenubarOps.Version.runtime.get(),
         BhRuntimeInfo.getVersion(),
         TextDefs.MenubarOps.Version.simulator.get(),
