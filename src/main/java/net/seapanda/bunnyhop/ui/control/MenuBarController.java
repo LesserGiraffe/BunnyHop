@@ -16,6 +16,8 @@
 
 package net.seapanda.bunnyhop.ui.control;
 
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.APP_NAME;
+
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
@@ -31,6 +33,7 @@ import javafx.scene.control.Labeled;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.common.text.TextDefs;
@@ -154,6 +157,7 @@ public class MenuBarController {
       boolean success = fileToSave.map(file -> exporter.export(file, wss)).orElse(false);
       if (success) {
         currentSaveFile = fileToSave.get();
+        setWindowTitle("%s  (%s)".formatted(APP_NAME, currentSaveFile.toPath()));
       }
       return success;
     } finally {
@@ -175,6 +179,11 @@ public class MenuBarController {
       new FileChooser.ExtensionFilter("All Files", "*.*"));
     File selectedFile = fileChooser.showSaveDialog(menuBar.getScene().getWindow());
     return Optional.ofNullable(selectedFile);
+  }
+
+  /** 引数の値をウィンドウのタイトルにする. */
+  private void setWindowTitle(String title) {
+    ((Stage) menuBar.getScene().getWindow()).setTitle(title);
   }
 
   /**
@@ -230,6 +239,7 @@ public class MenuBarController {
       boolean success = importer.imports(selectedFile, wss, clearWs.get(), context.userOpe());
       if (success) {
         currentSaveFile = selectedFile;
+        setWindowTitle("%s  (%s)".formatted(APP_NAME, currentSaveFile.toPath()));
       }
     } finally {
       notifService.end();
@@ -308,7 +318,7 @@ public class MenuBarController {
         """,
         TextDefs.MenubarOps.Version.system.get(),
         BhConstants.SYS_VERSION,
-        BhConstants.APP_NAME,
+        APP_NAME,
         BhConstants.APP_VERSION,
         TextDefs.MenubarOps.Version.compiler.get(),
         BhCompilerInfo.getVersion(),
