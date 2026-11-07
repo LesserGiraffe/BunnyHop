@@ -16,8 +16,8 @@
     "trackNodeInInactiveWorkspace": true,
     "currentNodeSelectionViewZoomLevel": -1,
     "currentWorkspaceZoomLevel": -1,
-    "nodeSelectionSplitPos": 0.9157973174366617,
-    "notificationSplitPos": 0.7115384615384616,
+    "nodeSelectionSplitPos": -1.0,
+    "notificationSplitPos": -1.0,
     "notificationViewShowed": true
   },
   "search": {
