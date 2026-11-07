@@ -16,6 +16,8 @@
 
 package net.seapanda.bunnyhop.bhruntime.ctrl;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -25,6 +27,8 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
@@ -63,6 +67,30 @@ public class BhRuntimeHelper {
     process.destroy();
     success &= waitForProcessEnd(process, timeout);
     return success;
+  }
+
+  /**
+   * {@code process} が管理するプロセスとその子孫プロセスを全て強制終了する.
+   *
+   * @param process 終わらせるプロセス (null 不可)
+   * @param timeout 全てのプロセスの終了を待つ時間 (秒)
+   * @return プロセスを終了できた場合 true.
+   */
+  public static boolean killProcessTree(Process process, int timeout) {
+    var procs = new ArrayList<ProcessHandle>();
+    procs.add(process.toHandle());
+    process.descendants().forEach(procs::add);
+    CompletableFuture<?>[] exits =
+        procs.stream().map(ProcessHandle::onExit).toArray(CompletableFuture[]::new);
+    procs.forEach(ProcessHandle::destroyForcibly);
+    try {
+      CompletableFuture.allOf(exits).get(timeout, SECONDS);
+      return true;
+    } catch (ExecutionException | TimeoutException | InterruptedException e) {
+      LogManager.logger().error(
+          "Some of the processes did not exit in %s seconds.  (%s)", timeout, e);
+    }
+    return false;
   }
 
   private static boolean closeStreams(Process process) {

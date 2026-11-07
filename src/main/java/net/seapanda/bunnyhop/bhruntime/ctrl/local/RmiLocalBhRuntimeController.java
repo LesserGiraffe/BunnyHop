@@ -180,7 +180,7 @@ public class RmiLocalBhRuntimeController implements LocalBhRuntimeController {
       msgService.info(TextDefs.BhRuntime.Local.preparingToEnd.get());
       boolean success = discardTransceiver(0);
       if (process != null) {
-        success &= BhRuntimeHelper.killProcess(process, BhConstants.BhRuntime.Timeout.PROC_END);
+        success &= BhRuntimeHelper.killProcessTree(process, BhConstants.BhRuntime.Timeout.PROC_END);
       }
       process = null;
       simCmdProcessor.halt();
