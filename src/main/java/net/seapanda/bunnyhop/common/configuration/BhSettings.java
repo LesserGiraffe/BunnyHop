@@ -89,7 +89,7 @@ public class BhSettings {
     /** ノード選択ビューとそれ以外の部分を分ける位置. */
     public final ConcurrentDouble nodeSelectionSplitPos = new ConcurrentDouble(-1);
     /** 通知ビューとそれ以外の部分を分ける位置. */
-    public final ConcurrentDouble notificationSplitPos = new ConcurrentDouble(-1);
+    public final ConcurrentDouble notificationSplitPos = new ConcurrentDouble(0.8);
     /** 通知ビューが隠れているか. */
     public final ObservableAtomicBoolean notificationViewShowed =
         new ObservableAtomicBoolean(true);

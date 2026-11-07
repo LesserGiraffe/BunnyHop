@@ -17,7 +17,7 @@
     "currentNodeSelectionViewZoomLevel": -1,
     "currentWorkspaceZoomLevel": -1,
     "nodeSelectionSplitPos": -1.0,
-    "notificationSplitPos": -1.0,
+    "notificationSplitPos": 0.8,
     "notificationViewShowed": true
   },
   "search": {
