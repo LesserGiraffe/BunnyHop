@@ -150,19 +150,19 @@ public class BhConfigurator extends Application {
       bhSimSettings.language.set(newVal.getValue());
     });
     resetWindowStatesButton.setOnAction(action -> {
-      var window = new BhSettings.Window();
-      bhSettings.mainWindow.width.set(window.width.get());
-      bhSettings.mainWindow.height.set(window.height.get());
-      bhSettings.mainWindow.posX.set(window.posX.get());
-      bhSettings.mainWindow.posY.set(window.posY.get());
-      bhSettings.mainWindow.maximized.set(window.maximized.get());
-      bhSettings.debugWindow.width.set(window.width.get());
-      bhSettings.debugWindow.height.set(window.height.get());
-      bhSettings.debugWindow.posX.set(window.posX.get());
-      bhSettings.debugWindow.posY.set(window.posY.get());
-      bhSettings.debugWindow.maximized.set(window.maximized.get());
-      bhSettings.ui.nodeSelectionSplitPos.set(-1);
-      bhSettings.ui.notificationSplitPos.set(-1);
+      var settings = new BhSettings();
+      bhSettings.mainWindow.width.set(settings.mainWindow.width.get());
+      bhSettings.mainWindow.height.set(settings.mainWindow.height.get());
+      bhSettings.mainWindow.posX.set(settings.mainWindow.posX.get());
+      bhSettings.mainWindow.posY.set(settings.mainWindow.posY.get());
+      bhSettings.mainWindow.maximized.set(settings.mainWindow.maximized.get());
+      bhSettings.debugWindow.width.set(settings.debugWindow.width.get());
+      bhSettings.debugWindow.height.set(settings.debugWindow.height.get());
+      bhSettings.debugWindow.posX.set(settings.debugWindow.posX.get());
+      bhSettings.debugWindow.posY.set(settings.debugWindow.posY.get());
+      bhSettings.debugWindow.maximized.set(settings.debugWindow.maximized.get());
+      bhSettings.ui.nodeSelectionSplitPos.set(settings.ui.nodeSelectionSplitPos.get());
+      bhSettings.ui.notificationSplitPos.set(settings.ui.notificationSplitPos.get());
 
       var simWindow = new BhSimulatorSettings.Window();
       bhSimSettings.window.width.set(simWindow.width.get());
