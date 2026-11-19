@@ -21,17 +21,17 @@ import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 
 /**
- * プライベートテンプレートボタンを作成する機能を規定したインタフェース.
+ * プライベートテンプレートボタンを作成する機能を規定したクラス.
  *
  * @author K.Koike
  */
 public interface PrivateTemplateButtonFactory {
-  
+
   /**
    * {@code node} のプライベートテンプレートを作成するボタンを作成する.
    *
    * @param node このノードのプライベートテンプレートを作成するボタンを作成する.
    * @return プライベートテンプレートを作成するボタン
    */
-  Button createButtonOf(BhNode node) throws ViewConstructionException;
+  Button create(BhNode node) throws ViewConstructionException;
 }

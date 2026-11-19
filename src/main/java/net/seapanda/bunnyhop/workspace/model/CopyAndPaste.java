@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory;
-import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory.MvcType;
+import net.seapanda.bunnyhop.node.model.factory.MvcType;
 import net.seapanda.bunnyhop.node.model.service.BhNodePlacer;
 import net.seapanda.bunnyhop.node.view.service.BhNodeLocation;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
@@ -126,7 +126,7 @@ public class CopyAndPaste {
 
     // 貼り付け処理
     for (var orgAndCopy : listOfOrgAndCopy) {
-      factory.setMvc(orgAndCopy.copy(), MvcType.DEFAULT);
+      factory.constructMvc(orgAndCopy.copy(), MvcType.DEFAULT);
       BhNodePlacer.moveToWs(
           destination,
           orgAndCopy.copy(),

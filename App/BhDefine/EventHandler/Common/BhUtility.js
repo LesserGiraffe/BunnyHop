@@ -3,7 +3,7 @@
   let BhNodeId = net.seapanda.bunnyhop.node.model.parameter.BhNodeId;
   let DerivativeBuilder = net.seapanda.bunnyhop.node.model.derivative.DerivativeBuilder;
   let DerivationId = net.seapanda.bunnyhop.node.model.parameter.DerivationId;
-  let MvcType = net.seapanda.bunnyhop.node.model.factory.BhNodeFactory.MvcType;
+  let MvcType = net.seapanda.bunnyhop.node.model.factory.MvcType;
   let bhUtility = {
     'bhNodeFactory': bhNodeFactory,
     'bhNodePlacer': bhNodePlacer
@@ -33,7 +33,7 @@
    */
   function addNewNodeToWS(bhNodeId, workspace, pos, bhUserOpe) {
     let newNode = createBhNode(bhNodeId, bhUserOpe)    
-    bhNodeFactory.setMvc(newNode, MvcType.DEFAULT);
+    bhNodeFactory.constructMvc(newNode, MvcType.DEFAULT);
     bhNodePlacer.moveToWs(workspace, newNode, pos.x, pos.y, bhUserOpe);
     return newNode;
   }

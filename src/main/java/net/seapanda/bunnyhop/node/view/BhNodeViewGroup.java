@@ -287,7 +287,7 @@ public class BhNodeViewGroup {
     private BhNodeViewBase createPseudoView(
         String definition, BhNodeViewFactory factory, boolean isTemplate)
         throws ViewConstructionException {
-      BhNodeView nodeView = factory.createViewOf(definition, isTemplate);
+      BhNodeView nodeView = factory.createView(definition, isTemplate);
       if (nodeView instanceof BhNodeViewBase view) {
         view.getTreeControl().setParentGroup(BhNodeViewGroup.this);
         return view;

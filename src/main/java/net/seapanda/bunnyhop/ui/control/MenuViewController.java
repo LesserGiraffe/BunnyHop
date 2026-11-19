@@ -52,7 +52,7 @@ import net.seapanda.bunnyhop.node.model.BhNode.Swapped;
 import net.seapanda.bunnyhop.node.model.event.CauseOfDeletion;
 import net.seapanda.bunnyhop.node.model.service.BhNodePlacer;
 import net.seapanda.bunnyhop.node.view.service.BhNodeLocation;
-import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionViewProxy;
+import net.seapanda.bunnyhop.nodeselection.control.BhNodeSelectionViewManager;
 import net.seapanda.bunnyhop.runtime.api.message.io.InputTextCmd;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.accesscontrol.ExclusionId;
@@ -149,8 +149,8 @@ public class MenuViewController {
   private final WorkspaceFactory wsFactory;
   /** Undo / Redo の実行に使用するオブジェクト. */
   private final UndoRedoAgent undoRedoAgent;
-  /** ノード選択ビューを操作するときに使用するオブジェクト. */
-  private final BhNodeSelectionViewProxy proxy;
+  /** ノード選択ビューを操作するためのオブジェクト. */
+  private final BhNodeSelectionViewManager nodeSelViewManager;
   /** ローカルマシン上での BhProgram の実行を制御するオブジェクト. */
   private final LocalBhProgramLauncher localCtrl;
   /** リモートマシン上での BhProgram の実行を制御するオブジェクト. */
@@ -178,7 +178,7 @@ public class MenuViewController {
       TransactionNotificationService notifService,
       WorkspaceFactory wsFactory,
       UndoRedoAgent undoRedoAgent,
-      BhNodeSelectionViewProxy proxy,
+      BhNodeSelectionViewManager nodeSelViewManager,
       LocalBhProgramLauncher localCtrl,
       RemoteBhProgramLauncher remoteCtrl,
       CopyAndPaste copyAndPaste,
@@ -193,7 +193,7 @@ public class MenuViewController {
     this.notifService = notifService;
     this.wsFactory = wsFactory;
     this.undoRedoAgent = undoRedoAgent;
-    this.proxy = proxy;
+    this.nodeSelViewManager = nodeSelViewManager;
     this.localCtrl = localCtrl;
     this.remoteCtrl = remoteCtrl;
     this.copyAndPaste = copyAndPaste;
@@ -421,8 +421,8 @@ public class MenuViewController {
   private void zoomIn(WorkspaceSet wss) {
     notifService.begin();
     try {
-      if (proxy.getCurrentCategoryName().isPresent()) {
-        proxy.zoom(true);
+      if (nodeSelViewManager.getCurrentNodeSelectionView().isPresent()) {
+        nodeSelViewManager.zoom(true);
         return;
       }
       Optional.ofNullable(wss.getCurrentWorkspace())
@@ -437,8 +437,8 @@ public class MenuViewController {
   private void zoomOut(WorkspaceSet wss) {
     notifService.begin();
     try {
-      if (proxy.getCurrentCategoryName().isPresent()) {
-        proxy.zoom(false);
+      if (nodeSelViewManager.getCurrentNodeSelectionView().isPresent()) {
+        nodeSelViewManager.zoom(false);
         return;
       }
       Optional.ofNullable(wss.getCurrentWorkspace())

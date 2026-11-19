@@ -588,7 +588,7 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
   }
 
   /** {@link WorkspaceView} に対してイベントハンドラを追加または削除する機能を提供するクラス. */
-  public class CallbackRegistryImpl implements CallbackRegistry {
+  class CallbackRegistryImpl implements CallbackRegistry {
 
     /** 関連するワークスペースビュー上でマウスボタンが押下されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<MouseEventInfo> onMousePressedInvoker =

@@ -19,10 +19,12 @@ package net.seapanda.bunnyhop.nodeselection.view;
 import java.util.SequencedSet;
 import javafx.scene.layout.Region;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
+import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
+import net.seapanda.bunnyhop.workspace.model.Workspace;
 import net.seapanda.bunnyhop.workspace.view.BhNodeViewContainer;
 
 /**
- * テンプレートノードを表示するビューの機能を規定したインタフェース.
+ * テンプレートノードを表示するビュー (= ノード選択ビュー) の機能を規定したインタフェース.
  *
  * @author K.Koike
  */
@@ -39,28 +41,14 @@ public interface BhNodeSelectionView extends BhNodeViewContainer {
   String getCategoryName();
 
   /**
-   * このノード選択ビューに対し {@code view} をルートとして指定する.
+   * テンプレートノードが所属するワークスペースを取得する.
    *
-   * @param view ルートとして指定するビュー
+   * @return テンプレートノードが所属するワークスペース
    */
-  void specifyNodeViewAsRoot(BhNodeView view);
-
-  /**
-   * このノード選択ビューに対し {@code view} を非ルートノードとして指定する.
-   *
-   * @param view 非ルートとして指定するビュー
-   */
-  void specifyNodeViewAsNotRoot(BhNodeView view);
+  Workspace getWorkspace();
 
   /** このオブジェクトが現在保持する {@link BhNodeView} のツリーの数を取得する. */
   long getNumNodeViewTrees();
-
-  /**
-   * ノード選択ビューのズーム処理を行う.
-   *
-   * @param zoomIn 拡大する場合 true
-   */
-  void zoom(boolean zoomIn);
 
   /** ノード選択ビューの拡大率を設定する. */
   void zoom(int level);
@@ -91,4 +79,49 @@ public interface BhNodeSelectionView extends BhNodeViewContainer {
    * @return このビューの可視性.
    */
   boolean isShowed();
+
+  /**
+   * このノード選択ビューに対するイベントハンドラの追加と削除を行うオブジェクトを返す.
+   *
+   * @return このノード選択ビューに対するイベントハンドラの追加と削除を行うオブジェクト
+   */
+  CallbackRegistry getCallbackRegistry();
+
+
+  /** {@link BhNodeSelectionView} に対してイベントハンドラを追加または削除する機能を規定したインタフェース. */
+  interface CallbackRegistry {
+
+    /** 関連するノード選択ビューにノードビューが追加されたときのイベントハンドラのレジストリを取得する. */
+    ConsumerInvoker<NodeAddedEvent>.Registry getOnNodeAdded();
+
+    /** 関連するノード選択ビューからノードビューが削除されたときのイベントハンドラのレジストリを取得する. */
+    ConsumerInvoker<NodeRemovedEvent>.Registry getOnNodeRemoved();
+
+    /** 関連するノード選択ビューの可視性が変更されたときのイベントハンドラのレジストリを取得する. */
+    ConsumerInvoker<VisibilityChangedEvent>.Registry getOnVisibilityChanged();
+  }
+
+  /**
+   * ノード選択ビューノードビューが追加されたときの情報を格納したレコード.
+   *
+   * @param nodeSelectionView {@code nodeView} が追加されたノード選択ビュー
+   * @param nodeView {@code wsView} に追加されたノードビュー
+   */
+  record NodeAddedEvent(BhNodeSelectionView nodeSelectionView, BhNodeView nodeView) {}
+
+  /**
+   * ノード選択ビューからノードビューが削除されたときの情報を格納したレコード.
+   *
+   * @param nodeSelectionView {@code nodeView} が追加されたノード選択ビュー
+   * @param nodeView {@code wsView} に追加されたノードビュー
+   */
+  record NodeRemovedEvent(BhNodeSelectionView nodeSelectionView, BhNodeView nodeView) {}
+
+  /**
+   * ノード選択ビューの可視性が変更されたときの情報を格納したレコード.
+   *
+   * @param nodeSelectionView 可視性が変更されたノード選択ビュー
+   * @param isVisible {@code nodeSelectionView} が表示されたとき true
+   */
+  record VisibilityChangedEvent(BhNodeSelectionView nodeSelectionView, boolean isVisible) {}
 }

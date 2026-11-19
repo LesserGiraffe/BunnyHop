@@ -111,9 +111,18 @@ public class WorkspaceSetController {
     Region region = view.getRegion();
     workspaceSetViewBase.getChildren().add(region);
     region.toFront();
-    //タブの高さ分移動したときもノード選択ビューの高さを再計算する
+    // タブの高さ分移動したときもノード選択ビューの高さを再計算する
     region.translateYProperty().addListener((observable, oldValue, newValue) -> 
         region.setMaxHeight(workspaceSetTab.getHeight() - newValue.doubleValue()));
+  }
+
+  /**
+   * ノード選択ビューを取り除く.
+   *
+   * @param view 取り除くノード選択ビュー
+   */
+  public void removeNodeSelectionView(BhNodeSelectionView view) {
+    workspaceSetViewBase.getChildren().remove(view.getRegion());
   }
 
   /**

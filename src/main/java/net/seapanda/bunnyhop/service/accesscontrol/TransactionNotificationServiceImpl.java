@@ -25,6 +25,8 @@ import net.seapanda.bunnyhop.linter.model.CompileErrorChecker;
 import net.seapanda.bunnyhop.node.model.service.DerivativeCache;
 import net.seapanda.bunnyhop.service.undo.UndoRedoAgent;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
+import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
+import net.seapanda.bunnyhop.utility.event.SimpleConsumerInvoker;
 
 /**
  * {@link TransactionNotificationService} の実装クラス.
@@ -68,7 +70,7 @@ public class TransactionNotificationServiceImpl implements TransactionNotificati
   public TransactionContext begin() {
     lock.writeLock().lock();
     if (lock.getWriteHoldCount() == 1) {
-      context = new TransactionContext(new UserOperation());
+      context = new TransactionContext(this, new UserOperation(), new SimpleConsumerInvoker<>());
     }
     return context;
   }
@@ -77,17 +79,46 @@ public class TransactionNotificationServiceImpl implements TransactionNotificati
   public void end(ExclusionId... ids) {
     synchronized (this) {
       currentExclusionIds.removeAll(Set.of(ids));
+      if (lock.getWriteHoldCount() == 1) {
+        invokeOnTransactionEnding();
+      }
     }
-    end();
+    endImpl();
   }
 
   @Override
   public void end() {
     if (lock.getWriteHoldCount() == 1) {
-      cache.clearAll();
-      reporter.check(context.userOpe());
-      undoRedoAgent.pushUndoCommand(context.userOpe());
+      invokeOnTransactionEnding();
     }
-    lock.writeLock().unlock();
+    endImpl();
+  }
+
+  private void endImpl() {
+    try {
+      // トランザクション終了直前のイベントハンドラで begin が呼ばれるとトランザクションが延長される.
+      // それを考慮して, ここでもロック回数の検査を行う.
+      if (lock.getWriteHoldCount() == 1) {
+        cache.clearAll();
+        reporter.check(context.userOpe());
+        undoRedoAgent.pushUndoCommand(context.userOpe());
+      }
+    } finally {
+      lock.writeLock().unlock();
+    }
+  }
+
+  /** トランザクション終了直前に実行するイベントハンドラを呼び出す. */
+  private void invokeOnTransactionEnding() {
+    ConsumerInvoker<TransactionContext> onTransactionEnding = context.onTransactionEnding;
+    context = new TransactionContext(this, context.userOpe(), new SimpleConsumerInvoker<>());
+    onTransactionEnding.invoke(context);
+  }
+
+  @Override
+  public Set<ExclusionId> getCurrentExclusionIds() {
+    synchronized (this) {
+      return new HashSet<>(currentExclusionIds);
+    }
   }
 }

@@ -16,21 +16,28 @@
 
 package net.seapanda.bunnyhop.node.control;
 
-import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeSelection.PRE_RENDERING;
-import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeSelection.PRIVATE_TEMPLATE;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Css.Class.PRIVATE_NODE_TEMPLATE;
 
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.SequencedSet;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import net.seapanda.bunnyhop.node.model.BhNode;
-import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory;
+import net.seapanda.bunnyhop.node.model.factory.MvcType;
 import net.seapanda.bunnyhop.node.model.traverse.CallbackInvoker;
-import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionViewProxy;
+import net.seapanda.bunnyhop.nodeselection.control.BhNodeSelectionViewManager;
+import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionView;
+import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionViewFactory;
+import net.seapanda.bunnyhop.service.LogManager;
+import net.seapanda.bunnyhop.service.accesscontrol.ExclusionId;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionContext;
 import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
+import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 
 /**
  * ノード固有のテンプレートノードを作成するボタンのコントローラ.
@@ -38,14 +45,13 @@ import net.seapanda.bunnyhop.service.undo.UserOperation;
  * @author K.Koike
  */
 public class PrivateTemplateButtonController {
-  
-  /** 最後にテンプレートノードを作成したノード. */
-  private static BhNode currentProducerNode = null;
-
   private final BhNode node;
-  private final TransactionNotificationService service;
-  private final BhNodeSelectionViewProxy proxy;
-  private SequencedSet<BhNode> templateNodes;
+  private final Button button;
+  private final BhNodeSelectionViewManager nodeSelViewManager;
+  private final BhNodeSelectionViewFactory nodeSelViewFactory;
+  private final SequencedSet<BhNode> templateNodes = new LinkedHashSet<>();
+  /** {@link #node} のコンパニオンノードのビューを格納するノード選択ビュー. */
+  private BhNodeSelectionView nodeSelView;
 
   /**
    * コンストラクタ.
@@ -53,64 +59,45 @@ public class PrivateTemplateButtonController {
    * @param node このノードの固有のテンプレートノードを作成する
    * @param button 管理するビュー
    * @param service モデルへのアクセスの通知先となるオブジェクト
-   * @param proxy ボタン押下時に操作するノード選択ビューのプロキシオブジェクト
+   * @param nodeSelViewManager ボタン押下時に操作するノード選択ビューの管理オブジェクト
    */
   public PrivateTemplateButtonController(
       BhNode node,
       Button button,
+      BhNodeSelectionViewFactory nodeSelViewFactory,
       TransactionNotificationService service,
-      BhNodeSelectionViewProxy proxy) {
+      BhNodeSelectionViewManager nodeSelViewManager) {
     this.node = node;
-    this.service = service;
-    this.proxy = proxy;
-    button.setOnAction(this::onTemplateCreating);
-    button.addEventFilter(MouseEvent.ANY, this::consumeIfNotAcceptable);
-    button.setOnMouseEntered(event -> prepareTemplateNodes());
-    button.focusedProperty().addListener((obs, oldVal, newVal) -> prepareTemplateNodes());
+    this.button = button;
+    this.nodeSelViewFactory = nodeSelViewFactory;
+    this.nodeSelViewManager = nodeSelViewManager;
+    setEventHandlers();
+    scheduleTemplateNodeCreation(service);
   }
 
-  /**
-   * ノード固有のテンプレート作成時のイベントハンドラ.
-   *
-   * @param event ボタン押下イベント
-   */
-  private void onTemplateCreating(ActionEvent event) {
-    if (node.isTemplate() || node.isDeleted()) {
+  private void setEventHandlers() {
+    button.setOnAction(this::showOrHideTemplateNodes);
+    button.addEventFilter(MouseEvent.ANY, this::consumeIfNotAcceptable);
+    button.setOnMouseEntered(
+        event ->
+            Optional.ofNullable(nodeSelView).ifPresent(nodeSelViewManager::addNodeSelectionView));
+    button.focusedProperty().addListener(
+        (obs, oldVal, newVal) ->
+            Optional.ofNullable(nodeSelView).ifPresent(nodeSelViewManager::addNodeSelectionView));
+  }
+
+  /** ノード選択ビューの表示/非表示を切り替える. */
+  private void showOrHideTemplateNodes(ActionEvent event) {
+    if (node.isTemplate() || node.isDeleted() || nodeSelView == null) {
       return;
     }
-    try {
-      service.begin();
-      if (currentProducerNode == node && isPrivateTemplateShowed()) {
-        proxy.hideCurrentView();
-        return;
-      }
-      UserOperation userOpe = new UserOperation();
-      proxy.clearNodeTrees(PRE_RENDERING, userOpe);
-      proxy.clearNodeTrees(PRIVATE_TEMPLATE, userOpe);
-      proxy.hideCurrentView();
-      prepareTemplateNodes();
-      templateNodes.forEach(
-          template -> proxy.addNodeTree(PRIVATE_TEMPLATE, template, userOpe));
-      proxy.show(PRIVATE_TEMPLATE);
-      setCurrentProducerNode(node, userOpe);
-    } finally {
-      event.consume();
-      service.end();
+    if (isThisNodeSelViewShowed()) {
+      nodeSelViewManager.hideCurrentView();
+      return;
     }
-  }
-
-  /** テンプレートノード作成時のコールバックを呼び出す. */
-  private void invokeOnCreatedAsTemplate(BhNode templateNode, UserOperation userOpe) {
-    CallbackInvoker.CallbackRegistry registry = CallbackInvoker.newCallbackRegistry()
-        .setForAllNodes(bhNode -> bhNode.getEventInvoker().onCreatedAsTemplate(userOpe));
-    CallbackInvoker.invoke(registry, templateNode);
-  }
-
-  /** 最後にノード固有のテンプレートノードを作成したノードを設定する. */
-  private void setCurrentProducerNode(BhNode node, UserOperation userOpe) {
-    BhNode oldCurrentProducerNode = currentProducerNode;
-    currentProducerNode = node;
-    userOpe.pushCmd(ope -> setCurrentProducerNode(oldCurrentProducerNode, ope));
+    nodeSelViewManager.addNodeSelectionView(nodeSelView);
+    nodeSelViewManager.show(nodeSelView.getCategoryName());
+    event.consume();
   }
 
   /** 受付不能なマウスイベントを consume する. */
@@ -123,22 +110,87 @@ public class PrivateTemplateButtonController {
     }
   }
 
-  /** ノード固有のテンプレートノードを作成し, プリレンダリングした後 {@link #templateNodes} に格納する. */
-  private void prepareTemplateNodes() {
-    if (node.isTemplate() || templateNodes != null) {
-      return;
-    }
-    var userOpe = new UserOperation();
-    templateNodes = new LinkedHashSet<>(
-        node.createCompanionNodes(BhNodeFactory.MvcType.TEMPLATE, userOpe));
-    proxy.clearNodeTrees(PRE_RENDERING, userOpe);
-    templateNodes.forEach(templateNode -> proxy.addNodeTree(PRE_RENDERING, templateNode, userOpe));
-    // ノード選択ビューに追加してからイベントハンドラを呼ぶ
-    templateNodes.forEach(templateNode -> invokeOnCreatedAsTemplate(templateNode, userOpe));
+  /** 現在 {@link #nodeSelView} が表示されているか調べる. */
+  private boolean isThisNodeSelViewShowed() {
+    return nodeSelViewManager.getCurrentNodeSelectionView()
+        .map(view -> nodeSelView == view)
+        .orElse(false);
   }
 
-  /** 現在表示されているノード選択ビューがノード固有のテンプレートを表示するためのものであるか調べる. */
-  private boolean isPrivateTemplateShowed() {
-    return proxy.getCurrentCategoryName().map(PRIVATE_TEMPLATE::equals).orElse(false);
+  /** トランザクションの終わりに, テンプレートノードの作成を実行するようにする. */
+  private void scheduleTemplateNodeCreation(TransactionNotificationService service) {
+    if (node.isTemplate()) {
+      return;
+    }
+    if (!service.getCurrentExclusionIds().contains(ExclusionId.NODE_MANIPULATION)) {
+      throw new AssertionError("Private template nodes must be created while %s is enabled."
+        .formatted(ExclusionId.NODE_MANIPULATION));
+    }
+
+    TransactionContext context = service.begin();
+    context.onTransactionEnding().add(ctx -> {
+      ctx.getService().begin(ExclusionId.NODE_MANIPULATION);
+      button.getScene().addPostLayoutPulseListener(new TemplateNodeViewCreator(ctx));
+    });
+    service.end();
+  }
+
+
+  /** レイアウト更新後にテンプレートノードとそれを表示するノード選択ビューを作成するクラス. */
+  private class TemplateNodeViewCreator implements Runnable {
+
+    private final TransactionContext context;
+
+    private TemplateNodeViewCreator(TransactionContext context) {
+      this.context = context;
+    }
+
+    @Override
+    public void run() {
+      Platform.runLater(() -> createTemplateNodeViews(context.userOpe()));
+      button.getScene().removePostLayoutPulseListener(this);
+    }
+
+
+    /** テンプレートノードとそれを表示するノード選択ビューを作成する. */
+    private void createTemplateNodeViews(UserOperation userOpe) {
+      try {
+        nodeSelView = createNodeSelectionView();
+        if (nodeSelView == null) {
+          return;
+        }
+        templateNodes.addAll(node.createCompanionNodes(MvcType.TEMPLATE, userOpe));
+        templateNodes.forEach(node -> {
+          nodeSelView.getWorkspace().addNodeTree(node, userOpe);
+          invokeOnCreatedAsTemplate(node, userOpe);
+        });
+      } finally {
+        context.getService().end(ExclusionId.NODE_MANIPULATION);
+      }
+    }
+
+    /** テンプレートノードを表示するノード選択ビューを作成する. */
+    private BhNodeSelectionView createNodeSelectionView() {
+      try {
+        BhNodeSelectionView view =
+            nodeSelViewFactory.create(node.getInstanceId().toString(), PRIVATE_NODE_TEMPLATE);
+        view.getCallbackRegistry().getOnVisibilityChanged().add(event -> {
+          if (!event.isVisible()) {
+            nodeSelViewManager.removeNodeSelectionView(view);
+          }
+        });
+        return view;
+      } catch (ViewConstructionException e) {
+        LogManager.logger().error("Failed to create a template node selection view", e);
+        return null;
+      }
+    }
+
+    /** テンプレートノード作成時のコールバックを呼び出す. */
+    private void invokeOnCreatedAsTemplate(BhNode templateNode, UserOperation userOpe) {
+      CallbackInvoker.CallbackRegistry registry = CallbackInvoker.newCallbackRegistry()
+          .setForAllNodes(bhNode -> bhNode.getEventInvoker().onCreatedAsTemplate(userOpe));
+      CallbackInvoker.invoke(registry, templateNode);
+    }
   }
 }

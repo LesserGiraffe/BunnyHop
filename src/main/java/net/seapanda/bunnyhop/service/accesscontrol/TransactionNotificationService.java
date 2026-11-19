@@ -17,6 +17,7 @@
 package net.seapanda.bunnyhop.service.accesscontrol;
 
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * アプリケーションにおける 1 つのまとまった処理を規定するための機能を定義したインタフェース. <br>
@@ -44,7 +45,7 @@ public interface TransactionNotificationService {
    * トランザクションの開始をこのオブジェクトに通知する.
    *
    * <p>このメソッドは, {@code ids} に指定した {@link ExclusionId} に関連付けられたトランザクションを開始する.
-   * このメソッドが {@code ids} に関連付けられたトランザクションが既に開始されているとき, このメソッドは失敗する.
+   * {@code ids} に関連付けられたトランザクションが既に開始されているとき, このメソッドは失敗する.
    * このメソッドが失敗したとき {@link #end(ExclusionId...)} は呼ばないこと.
    *
    * @param ids トランザクションに関連付ける {@link ExclusionId}
@@ -65,4 +66,6 @@ public interface TransactionNotificationService {
   /** トランザクションの終了をこのオブジェクトに通知する. */
   void end();
 
+  /** 現在指定されている排他処理の ID を取得する. */
+  Set<ExclusionId> getCurrentExclusionIds();
 }

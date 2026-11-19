@@ -31,7 +31,7 @@ import net.seapanda.bunnyhop.node.model.event.CauseOfDeletion;
 import net.seapanda.bunnyhop.node.model.event.NodeEventInvoker;
 import net.seapanda.bunnyhop.node.model.event.UiEvent;
 import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory;
-import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory.MvcType;
+import net.seapanda.bunnyhop.node.model.factory.MvcType;
 import net.seapanda.bunnyhop.node.model.parameter.BhNodeId;
 import net.seapanda.bunnyhop.node.model.parameter.BhNodeParameters;
 import net.seapanda.bunnyhop.node.model.parameter.BhNodeVersion;
@@ -434,7 +434,7 @@ public abstract class BhNode extends SyntaxTreeNode {
   private void createMvcIfNotHaveView(BhNode node) {
     if (workspace != null && node.getView().isEmpty()) {
       MvcType type = isTemplate ? MvcType.TEMPLATE : MvcType.DEFAULT;
-      factory.setMvc(node, type);
+      factory.constructMvc(node, type);
     }
   }
 

@@ -27,7 +27,7 @@ import net.seapanda.bunnyhop.node.model.Connector;
 import net.seapanda.bunnyhop.node.model.TextNode;
 import net.seapanda.bunnyhop.node.model.TextNode.FormatResult;
 import net.seapanda.bunnyhop.node.model.TextNode.TextOption;
-import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory.MvcType;
+import net.seapanda.bunnyhop.node.model.factory.MvcType;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 
 /**

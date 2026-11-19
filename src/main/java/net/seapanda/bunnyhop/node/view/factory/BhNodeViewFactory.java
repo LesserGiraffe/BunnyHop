@@ -32,9 +32,11 @@ public interface BhNodeViewFactory {
    *
    * @param node この {@link BhNode} に対応する {@link BhNodeView} オブジェクトを作成する
    * @param isTemplate テンプレートノードビューを作成する場合 true
+   * @param componentFactory ノードビューの共通 UI コンポーネントを作成する機能を提供するオブジェクト
    * @return 作成した {@link BhNodeView} オブジェクト
    */
-  BhNodeView createViewOf(BhNode node, boolean isTemplate) throws ViewConstructionException;
+  BhNodeView createView(BhNode node, boolean isTemplate, NodeViewComponentFactory componentFactory)
+      throws ViewConstructionException;
 
   /**
    * 疑似ビュー (= モデルを持たないビュー) を表す文字列から {@link BhNodeView} を作成する.
@@ -43,6 +45,6 @@ public interface BhNodeViewFactory {
    * @param isTemplate テンプレートノードビューを作成する場合 true
    * @return 作成した {@link BhNodeView} オブジェクト
    */
-  BhNodeView createViewOf(String definition, boolean isTemplate)
+  BhNodeView createView(String definition, boolean isTemplate)
       throws ViewConstructionException;
 }

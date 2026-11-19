@@ -23,7 +23,8 @@ import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.view.component.PrivateTemplateButton;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleFactory;
-import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionViewProxy;
+import net.seapanda.bunnyhop.nodeselection.control.BhNodeSelectionViewManager;
+import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionViewFactory;
 import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 
@@ -36,28 +37,32 @@ public class PrivateTemplateButtonFactoryImpl implements PrivateTemplateButtonFa
   
   private final Path buttonFilePath;
   private final BhNodeViewStyleFactory viewStyleFactory;
+  private final BhNodeSelectionViewFactory nodeSelViewFactory;
   private final TransactionNotificationService service;
-  private final BhNodeSelectionViewProxy proxy;
+  private final BhNodeSelectionViewManager nodeSelViewManager;
 
   /** コンストラクタ. */
   public PrivateTemplateButtonFactoryImpl(
       Path buttonFilePath,
       BhNodeViewStyleFactory viewStyleFactory,
+      BhNodeSelectionViewFactory nodeSelViewFactory,
       TransactionNotificationService service,
-      BhNodeSelectionViewProxy proxy) {
+      BhNodeSelectionViewManager nodeSelViewManager) {
     this.buttonFilePath = buttonFilePath;
     this.viewStyleFactory = viewStyleFactory;
+    this.nodeSelViewFactory = nodeSelViewFactory;
     this.service = service;
-    this.proxy = proxy;
+    this.nodeSelViewManager = nodeSelViewManager;
   }
 
   @Override
-  public Button createButtonOf(BhNode node) throws ViewConstructionException {
+  public Button create(BhNode node) throws ViewConstructionException {
     BhNodeViewStyle style = viewStyleFactory.canCreateStyleOf(node.getStyleId())
         ? viewStyleFactory.createStyleOf(node.getStyleId())
         : new BhNodeViewStyle();
     var button = new PrivateTemplateButton(buttonFilePath, style.commonPart.privateTemplate);
-    new PrivateTemplateButtonController(node, button, service, proxy);
+    new PrivateTemplateButtonController(
+        node, button, nodeSelViewFactory, service, nodeSelViewManager);
     return button;
   }
 }

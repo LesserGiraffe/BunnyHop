@@ -103,6 +103,7 @@ import net.seapanda.bunnyhop.node.model.event.CommonDataSupplier;
 import net.seapanda.bunnyhop.node.model.event.ScriptConnectorEventInvokerImpl;
 import net.seapanda.bunnyhop.node.model.event.ScriptNodeEventInvokerImpl;
 import net.seapanda.bunnyhop.node.model.factory.BhNodeFactoryImpl;
+import net.seapanda.bunnyhop.node.model.factory.BhNodeMvcBuilderImpl;
 import net.seapanda.bunnyhop.node.model.factory.BhNodeRepository;
 import net.seapanda.bunnyhop.node.model.factory.ModelGenerator;
 import net.seapanda.bunnyhop.node.model.factory.XmlBhNodeRepository;
@@ -112,9 +113,10 @@ import net.seapanda.bunnyhop.node.view.factory.PrivateTemplateButtonFactoryImpl;
 import net.seapanda.bunnyhop.node.view.service.BhNodeViewSupervisor;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleFactory;
 import net.seapanda.bunnyhop.node.view.style.JsonBhNodeViewStyleFactory;
-import net.seapanda.bunnyhop.nodeselection.control.BhNodeSelectionViewProxyImpl;
+import net.seapanda.bunnyhop.nodeselection.control.BhNodeSelectionViewManagerImpl;
 import net.seapanda.bunnyhop.nodeselection.model.JsonBhNodeCategoryTree;
 import net.seapanda.bunnyhop.nodeselection.view.BhNodeCategoryBuilder;
+import net.seapanda.bunnyhop.nodeselection.view.FxmlBhNodeSelectionViewFactory;
 import net.seapanda.bunnyhop.runtime.api.message.BhProgramEvent;
 import net.seapanda.bunnyhop.service.FileCollector;
 import net.seapanda.bunnyhop.service.KeyCodeConverter;
@@ -217,26 +219,28 @@ public class AppMain extends Application {
       final var mediator =
           new TransactionNotificationServiceImpl(derivativeCache, compileErrChecker, undoRedoAgent);
       final var wssCtrl = new WorkspaceSetController(wss, mediator);
-      final var nodeSelViewProxy = new BhNodeSelectionViewProxyImpl(
-          nodeSelectionViewFile,
+      final var nodeSelViewProxy = new BhNodeSelectionViewManagerImpl(
           wssCtrl::addNodeSelectionView,
+          wssCtrl::removeNodeSelectionView,
           settings.ui.currentNodeSelectionViewZoomLevel);
       final var scriptRepository = new BhScriptRepositoryImpl(scriptDirs);
       final var viewStyleFactory = new JsonBhNodeViewStyleFactory(viewStyleDir);
+      final var nodeSelViewFactory = new FxmlBhNodeSelectionViewFactory(nodeSelectionViewFile);
       final var buttonFactory = new PrivateTemplateButtonFactoryImpl(
-          btnFile, viewStyleFactory, mediator, nodeSelViewProxy);
-      final var nodeViewFactory = new BhNodeViewFactoryImpl(viewStyleFactory, buttonFactory);
+          btnFile, viewStyleFactory, nodeSelViewFactory, mediator, nodeSelViewProxy);
+      final var nodeViewFactory = new BhNodeViewFactoryImpl(viewStyleFactory);
       final var nodeRepository = new XmlBhNodeRepository(scriptRepository);
       final var trashCanCtrl = new TrashCanController();
-      final var nodeFactory = new BhNodeFactoryImpl(
-          nodeRepository,
+      final var mvcBuilder = new BhNodeMvcBuilderImpl(
           nodeViewFactory,
+          buttonFactory,
           mediator,
           trashCanCtrl,
           wss,
           nodeSelViewProxy,
           nodeViewSuperVisor,
           settings);
+      final var nodeFactory = new BhNodeFactoryImpl(nodeRepository, mvcBuilder);
       final var nodeTextDb = new JsonTextDatabase(nodeLanguageFile);
       final var commonDataSupplier =
           new CommonDataSupplier(scriptRepository, nodeFactory, nodeTextDb);
@@ -327,6 +331,7 @@ public class AppMain extends Application {
           nodeFactory,
           wsFactory,
           debugViewFactory,
+          nodeSelViewFactory,
           debugUtil,
           undoRedoAgent,
           nodeSelViewProxy,

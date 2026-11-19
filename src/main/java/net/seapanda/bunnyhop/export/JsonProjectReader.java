@@ -36,7 +36,7 @@ import net.seapanda.bunnyhop.node.model.ConnectiveNode;
 import net.seapanda.bunnyhop.node.model.Connector;
 import net.seapanda.bunnyhop.node.model.TextNode;
 import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory;
-import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory.MvcType;
+import net.seapanda.bunnyhop.node.model.factory.MvcType;
 import net.seapanda.bunnyhop.node.model.parameter.BhNodeId;
 import net.seapanda.bunnyhop.node.model.parameter.BhNodeVersion;
 import net.seapanda.bunnyhop.node.model.parameter.ConnectorId;
@@ -199,7 +199,7 @@ public class JsonProjectReader {
     for (BhNodeImage nodeImage : wsImage.getRootNodes()) {
       BhNode root = createBhNode(nodeImage);
       if (root != null) {
-        nodeFactory.setMvc(root, MvcType.DEFAULT);
+        nodeFactory.constructMvc(root, MvcType.DEFAULT);
         BhNodePlacer.moveToWs(ws, root, nodeImage.pos.x, nodeImage.pos.y, userOpe);
       }
     }

@@ -16,7 +16,6 @@
 
 package net.seapanda.bunnyhop.node.view.factory;
 
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.SequencedSet;
 import java.util.regex.Matcher;
@@ -52,37 +51,33 @@ public class BhNodeViewFactoryImpl implements BhNodeViewFactory {
       Pattern.compile("\\{((?:\\\\\\{|\\\\}|[^{}])*)}");
 
   private final BhNodeViewStyleFactory nodeStyleFactory;
-  private final PrivateTemplateButtonFactory buttonFactory;
 
   /**
    * コンストラクタ.
    *
    * @param nodeStyleFactory ノードビューのスタイルを作成するのに使用するオブジェクト
-   * @param buttonFactory プライベートテンプレートボタンを作成するためのオブジェクト
    */
   public BhNodeViewFactoryImpl(
-      BhNodeViewStyleFactory nodeStyleFactory,
-      PrivateTemplateButtonFactory buttonFactory) {
+      BhNodeViewStyleFactory nodeStyleFactory) {
     this.nodeStyleFactory = nodeStyleFactory;
-    this.buttonFactory = buttonFactory;
   }
-
   @Override
-  public BhNodeView createViewOf(BhNode node, boolean isTemplate)
+  public BhNodeView createView(
+      BhNode node, boolean isTemplate, NodeViewComponentFactory componentFactory)
       throws ViewConstructionException {
     return switch (node) {
-      case TextNode textNode -> createViewOf(textNode, isTemplate);
-      case ConnectiveNode connectiveNode -> createViewOf(connectiveNode, isTemplate);
+      case TextNode textNode -> createView(textNode, isTemplate, componentFactory);
+      case ConnectiveNode connNode -> createView(connNode, isTemplate, componentFactory);
       default -> throw new ViewConstructionException("Invalid BhNode type");
     };
   }
 
   @Override
-  public BhNodeView createViewOf(String definition, boolean isTemplate)
+  public BhNodeView createView(String definition, boolean isTemplate)
       throws ViewConstructionException {
     Matcher matcher = contents.matcher(definition);
     List<String> specifiers = matcher.results().map(
-        result -> {  
+        result -> {
           String tmp = escapeLbrace.matcher(result.group(1)).replaceAll("{");
           return escapeRbrace.matcher(tmp).replaceAll("}");
         }).toList();
@@ -91,12 +86,13 @@ public class BhNodeViewFactoryImpl implements BhNodeViewFactory {
     return createModellessNodeView(styleId, specifiers.get(1), isTemplate);
   }
 
-  private BhNodeView createViewOf(TextNode node, boolean isTemplate)
+  private BhNodeView createView(
+      TextNode node, boolean isTemplate, NodeViewComponentFactory componentFactory)
       throws ViewConstructionException {
     BhNodeViewStyle style = nodeStyleFactory.canCreateStyleOf(node.getStyleId())
         ? nodeStyleFactory.createStyleOf(node.getStyleId())
         : new BhNodeViewStyle();
-    SequencedSet<Node> components = createComponents(node);
+    SequencedSet<Node> components = componentFactory.create(node);
 
     return switch (style.component) {
       case TEXT_FIELD -> new TextFieldNodeView(node, style, components, isTemplate);
@@ -109,23 +105,14 @@ public class BhNodeViewFactoryImpl implements BhNodeViewFactory {
     };
   }
 
-  private BhNodeView createViewOf(ConnectiveNode node, boolean isTemplate)
+  private BhNodeView createView(
+      ConnectiveNode node, boolean isTemplate, NodeViewComponentFactory componentFactory)
       throws ViewConstructionException {
     BhNodeViewStyle style = nodeStyleFactory.canCreateStyleOf(node.getStyleId())
         ? nodeStyleFactory.createStyleOf(node.getStyleId())
         : new BhNodeViewStyle();
-    SequencedSet<Node> components = createComponents(node);
+    SequencedSet<Node> components = componentFactory.create(node);
     return new ConnectiveNodeView(node, style, components, isTemplate, this);
-  }
-
-  /** {@link BhNodeView} に追加する GUI コンポーネントを作成する. */
-  private SequencedSet<Node> createComponents(BhNode node)
-      throws ViewConstructionException {
-    SequencedSet<Node> components = new LinkedHashSet<>();
-    if (node.hasCompanionNodes()) {
-      components.add(buttonFactory.createButtonOf(node));
-    }
-    return components;
   }
 
   /**

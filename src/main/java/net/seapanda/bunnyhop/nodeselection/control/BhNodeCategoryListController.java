@@ -23,14 +23,15 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.Region;
-import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory;
+import net.seapanda.bunnyhop.node.model.factory.MvcType;
 import net.seapanda.bunnyhop.node.model.parameter.BhNodeId;
 import net.seapanda.bunnyhop.node.model.traverse.CallbackInvoker;
 import net.seapanda.bunnyhop.nodeselection.model.BhNodeCategory;
 import net.seapanda.bunnyhop.nodeselection.view.BhNodeCategoryView;
-import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionViewProxy;
+import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionView;
+import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionViewFactory;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.ui.view.Rem;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
@@ -49,26 +50,30 @@ public class BhNodeCategoryListController {
   /** カテゴリ名と対応する {@link TreeItem} のマップ. */
   private final Map<String, TreeItem<BhNodeCategory>> nameToCategory = new HashMap<>();
   private final TreeItem<BhNodeCategory> root;
-  private final BhNodeSelectionViewProxy proxy;
-  private final BhNodeFactory factory;
+  private final BhNodeSelectionViewManager nodeSelViewManager;
+  private final BhNodeSelectionViewFactory nodeSelViewFactory;
+  private final BhNodeFactory nodeFactory;
   private final ReadOnlyInteger currentNodeSelectionViewZoomLevel;
 
   /**
    * コンストラクタ.
    *
    * @param root BhNode の一覧を格納した木のルート要素
-   * @param proxy ノード選択ビューを操作するためのオブジェクト
-   * @param factory ノード選択ビューに表示するテンプレートノードを作成するためのファクトリ
+   * @param nodeSelViewManager ノード選択ビューを操作するためのオブジェクト
+   * @param nodeSelViewFactory ノード選択ビューを作成するためのファクトリ
+   * @param nodeFactory ノード選択ビューに表示するテンプレートノードを作成するためのファクトリ
    * @param currentNodeSelectionViewZoomLevel ノード選択ビューの現在のズームレベル
    */
   public BhNodeCategoryListController(
       TreeItem<BhNodeCategory> root,
-      BhNodeSelectionViewProxy proxy,
-      BhNodeFactory factory,
+      BhNodeSelectionViewManager nodeSelViewManager,
+      BhNodeSelectionViewFactory nodeSelViewFactory,
+      BhNodeFactory nodeFactory,
       ReadOnlyInteger currentNodeSelectionViewZoomLevel) {
     this.root = root;
-    this.proxy = proxy;
-    this.factory = factory;
+    this.nodeSelViewManager = nodeSelViewManager;
+    this.nodeSelViewFactory = nodeSelViewFactory;
+    this.nodeFactory = nodeFactory;
     this.currentNodeSelectionViewZoomLevel = currentNodeSelectionViewZoomLevel;
     collectCategories(root);
   }
@@ -78,25 +83,23 @@ public class BhNodeCategoryListController {
   public void initialize() throws ViewConstructionException {
     categoryTree.setRoot(root);
     categoryTree.setShowRoot(false);
-    categoryTree.setCellFactory(templates -> new BhNodeCategoryView(proxy));
+    categoryTree.setCellFactory(templates -> new BhNodeCategoryView(nodeSelViewManager));
     nodeCategoryListViewBase.setMinWidth(Region.USE_PREF_SIZE);
     setEventHandlers();
-    buildNodeSelView();
-    registerPrivateTemplateView();
-    registerPreRenderingView();
-    proxy.zoom(currentNodeSelectionViewZoomLevel.get());
+    buildNodeSelViews();
+    nodeSelViewManager.zoom(currentNodeSelectionViewZoomLevel.get());
   }
 
   /** イベントハンドラをセットする. */
   private void setEventHandlers() {
-    proxy.getCallbackRegistry().getOnCurrentCategoryChanged()
+    nodeSelViewManager.getCallbackRegistry().getOnCurrentCategoryChanged()
         .add(event -> selectViewItem(event.newVal()));
 
     categoryTree.getSelectionModel().selectedItemProperty().addListener(
         (obs, oldVal, newVal) -> {
             String categoryName = (newVal == null || newVal.getValue() == null)
                 ? null : newVal.getValue().name;
-            proxy.show(categoryName);
+            nodeSelViewManager.show(categoryName);
         });
 
     nodeCategoryListViewBase.widthProperty().addListener(
@@ -129,9 +132,11 @@ public class BhNodeCategoryListController {
   }
 
   /** ノード選択ビューを作成する. */
-  private void buildNodeSelView() throws ViewConstructionException {
+  private void buildNodeSelViews() throws ViewConstructionException {
     for (TreeItem<BhNodeCategory> category : nameToCategory.values()) {
-      proxy.addNodeSelectionView(category.getValue().name, category.getValue().getCssClass());
+      BhNodeSelectionView view = nodeSelViewFactory.create(
+          category.getValue().name, category.getValue().getCssClass());
+      nodeSelViewManager.addNodeSelectionView(view);
       addBhNodes(category.getValue());
     }
   }
@@ -144,25 +149,14 @@ public class BhNodeCategoryListController {
   private void addBhNodes(BhNodeCategory category) {
     UserOperation userOpe = new UserOperation();
     for (BhNodeId id : category.getNodeIds()) {
-      BhNode node = factory.create(id, BhNodeFactory.MvcType.TEMPLATE, userOpe);
+      BhNode node = nodeFactory.create(id, MvcType.TEMPLATE, userOpe);
       // ノード選択ビューにテンプレートノードを追加
-      proxy.addNodeTree(category.name, node, userOpe);
+      nodeSelViewManager.getNodeSelectionView(category.name)
+          .ifPresent(view -> view.getWorkspace().addNodeTree(node, userOpe));
       // ノード選択ビューに追加してからイベントハンドラを呼ぶ
       CallbackInvoker.CallbackRegistry registry = CallbackInvoker.newCallbackRegistry()
           .setForAllNodes(bhNode -> bhNode.getEventInvoker().onCreatedAsTemplate(userOpe));
       CallbackInvoker.invoke(registry, node);
     }
-  }
-
-  /** コンパニオンノード用の選択ビューを登録する. */
-  private void registerPrivateTemplateView() throws ViewConstructionException {
-    proxy.addNodeSelectionView(
-        BhConstants.NodeSelection.PRIVATE_TEMPLATE,
-        BhConstants.Css.Class.PRIVATE_NODE_TEMPLATE);
-  }
-
-  /** ノードをプリレンダリングするためのビューを登録する. */
-  private void registerPreRenderingView() throws ViewConstructionException {
-    proxy.addNodeSelectionView(BhConstants.NodeSelection.PRE_RENDERING, "");
   }
 }

@@ -39,8 +39,10 @@ import net.seapanda.bunnyhop.node.view.BhNodeView.SizeChangedEvent;
 import net.seapanda.bunnyhop.node.view.style.ConnectorOrientation;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
+import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
+import net.seapanda.bunnyhop.utility.event.SimpleConsumerInvoker;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
-import net.seapanda.bunnyhop.utility.reference.WritableInteger;
+import net.seapanda.bunnyhop.workspace.model.Workspace;
 
 /**
  * テンプレートノードを表示するビュー.
@@ -55,30 +57,31 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
 
   private final SequencedSet<BhNodeView> rootNodeViews = new LinkedHashSet<>();
   private final SequencedSet<BhNodeView> nodeViews = new LinkedHashSet<>();
-  private int zoomLevel = 0;
+  private final Workspace ws;
   private final String categoryName;
-  private final WritableInteger currentNodeSelectionViewZoomLevel;
+  private final CallbackRegistryImpl cbRegistry = new CallbackRegistryImpl();
   private final Consumer<? super SizeChangedEvent> onNodeSizeChanged =
       event -> requestArrangementIfVisible();
+
   /** ノードの整列を要求されている状態かどうかのフラグ. */
   private boolean isArrangementRequested = false;
 
   /**
-   * GUI コンポーネントを初期化する.
+   * GUI コンポーネントを初期化し, 各種イベントハンドラをセットする.
    *
    * @param filePath ノード選択ビューが定義された fxml ファイルのパス
    * @param categoryName このビューに関連付けられたカテゴリ名
+   * @param ws テンプレートノードを保持するワークスペース.
    * @param cssClass ビューに適用する css クラス名
-   * @param currentNodeSelectionViewZoomLevel 現在のノード選択ビューのズームレベル
    */
   public FxmlBhNodeSelectionView(
       Path filePath,
       String categoryName,
-      String cssClass,
-      WritableInteger currentNodeSelectionViewZoomLevel)
+      Workspace ws,
+      String cssClass)
       throws ViewConstructionException {
+    this.ws = ws;
     this.categoryName = categoryName;
-    this.currentNodeSelectionViewZoomLevel = currentNodeSelectionViewZoomLevel;
     try {
       FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
       loader.setController(this);
@@ -95,9 +98,50 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
     nodeSelectionView.getStyleClass().add(cssClass);
     nodeSelectionViewWrapper.setMaxSize(USE_PREF_SIZE, USE_PREF_SIZE);
     nodeSelectionViewWrapper.setMinSize(USE_PREF_SIZE, USE_PREF_SIZE);
-    visibleProperty().addListener((observable, oldVal, newVal) -> arrange());
+    setEventHandlers();
     hide();
   }
+
+  private void setEventHandlers() {
+    Workspace.CallbackRegistry registry = ws.getCallbackRegistry();
+    registry.getOnNodeAdded().add(event -> event.node().getView().ifPresent(this::addNodeView));
+    registry.getOnNodeRemoved().add(
+        event -> event.node().getView().ifPresent(this::removeNodeView));
+    registry.getOnRootNodeAdded().add(
+        event -> event.node().getView().ifPresent(this::specifyNodeViewAsRoot));
+    registry.getOnRootNodeRemoved().add(
+        event -> event.node().getView().ifPresent(this::specifyNodeViewAsNotRoot));
+
+    visibleProperty().addListener((observable, oldVal, newVal) -> {
+      arrange();
+      cbRegistry.onVisibilityChangedInvoker.invoke(new VisibilityChangedEvent(this, newVal));
+    });
+  }
+
+  /**
+   * このノード選択ビューに対し {@code view} をルートとして指定する.
+   *
+   * @param view ルートとして指定するビュー
+   */
+  private void specifyNodeViewAsRoot(BhNodeView view) {
+    if (!nodeViews.contains(view)) {
+      return;
+    }
+    rootNodeViews.remove(view);
+    rootNodeViews.addLast(view);
+    view.getArrangement().arrange();
+    view.getGeometry().setTreeZposition(0);
+  }
+
+  /**
+   * このノード選択ビューに対し {@code view} を非ルートノードとして指定する.
+   *
+   * @param view 非ルートとして指定するビュー
+   */
+  private void specifyNodeViewAsNotRoot(BhNodeView view) {
+    rootNodeViews.remove(view);
+  }
+
 
   @Override
   public Region getRegion() {
@@ -110,19 +154,8 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
   }
 
   @Override
-  public void specifyNodeViewAsRoot(BhNodeView view) {
-    if (!nodeViews.contains(view)) {
-      return;
-    }
-    rootNodeViews.remove(view);
-    rootNodeViews.addLast(view);
-    view.getArrangement().arrange();
-    view.getGeometry().setTreeZposition(0);
-  }
-
-  @Override
-  public void specifyNodeViewAsNotRoot(BhNodeView view) {
-    rootNodeViews.remove(view);
+  public Workspace getWorkspace() {
+    return ws;
   }
 
   @Override
@@ -133,6 +166,7 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
     nodeViews.add(view);
     view.getTreeControl().addToTree(nodeSelectionView);
     view.getCallbackRegistry().getOnSizeChanged().add(onNodeSizeChanged);
+    cbRegistry.onNodeAddedInvoker.invoke(new NodeAddedEvent(this, view));
   }
 
   @Override
@@ -144,6 +178,7 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
     nodeViews.remove(view);
     view.getTreeControl().removeFromTree();
     view.getCallbackRegistry().getOnSizeChanged().remove(onNodeSizeChanged);
+    cbRegistry.onNodeRemovedInvoker.invoke(new NodeRemovedEvent(this, view));
   }
 
   @Override
@@ -152,19 +187,12 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
   }
 
   @Override
-  public void zoom(boolean zoomIn) {
-    int level = zoomIn ? zoomLevel + 1 : zoomLevel - 1;
-    zoom(level);
-  }
-
-  @Override
   public void zoom(int level) {
-    zoomLevel = Math.clamp(level, BhConstants.Ui.MIN_ZOOM_LEVEL, BhConstants.Ui.MAX_ZOOM_LEVEL);
-    double mag = Math.pow(BhConstants.Ui.ZOOM_MAGNIFICATION, zoomLevel);
+    level = Math.clamp(level, BhConstants.Ui.MIN_ZOOM_LEVEL, BhConstants.Ui.MAX_ZOOM_LEVEL);
+    double mag = Math.pow(BhConstants.Ui.ZOOM_MAGNIFICATION, level);
     Scale scale = new Scale(mag, mag);
     nodeSelectionView.getTransforms().set(0, scale);
     adjustWrapperSize(nodeSelectionView.getWidth(), nodeSelectionView.getHeight());
-    currentNodeSelectionViewZoomLevel.set(zoomLevel);
   }
 
   @Override
@@ -246,7 +274,6 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
   @Override
   public void show() {
     setVisible(true);
-    currentNodeSelectionViewZoomLevel.set(zoomLevel);
   }
 
   @Override
@@ -259,10 +286,47 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
     return visibleProperty().get();
   }
 
+  @Override
+  public CallbackRegistry getCallbackRegistry() {
+    return cbRegistry;
+  }
+
   /** パディング情報を保持するレコード. */
   private record Padding(double left, double right, double top, double bottom) {
     Padding(javafx.geometry.Insets insets) {
       this(insets.getLeft(), insets.getRight(), insets.getTop(), insets.getBottom());
+    }
+  }
+
+  /** {@link FxmlBhNodeSelectionView} に対してイベントハンドラを追加または削除する機能を提供するクラス. */
+  static class CallbackRegistryImpl implements CallbackRegistry {
+
+    /** 関連するノード選択ビューにノードビューが追加されたときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<NodeAddedEvent> onNodeAddedInvoker =
+        new SimpleConsumerInvoker<>();
+
+    /** 関連するノード選択ビューからノードビューが削除されたときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<NodeRemovedEvent> onNodeRemovedInvoker =
+        new SimpleConsumerInvoker<>();
+
+    /** 関連するノード選択ビューの可視性が変更されたときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<VisibilityChangedEvent> onVisibilityChangedInvoker =
+        new SimpleConsumerInvoker<>();
+
+
+    @Override
+    public ConsumerInvoker<NodeAddedEvent>.Registry getOnNodeAdded() {
+      return onNodeAddedInvoker.getRegistry();
+    }
+
+    @Override
+    public ConsumerInvoker<NodeRemovedEvent>.Registry getOnNodeRemoved() {
+      return onNodeRemovedInvoker.getRegistry();
+    }
+
+    @Override
+    public ConsumerInvoker<VisibilityChangedEvent>.Registry getOnVisibilityChanged() {
+      return onVisibilityChangedInvoker.getRegistry();
     }
   }
 }

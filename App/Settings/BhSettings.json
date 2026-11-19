@@ -14,10 +14,10 @@
   "ui": {
     "trackNodeInCurrentWorkspace": false,
     "trackNodeInInactiveWorkspace": true,
-    "currentNodeSelectionViewZoomLevel": -1,
+    "currentNodeSelectionViewZoomLevel": -4,
     "currentWorkspaceZoomLevel": -1,
-    "nodeSelectionSplitPos": -1.0,
-    "notificationSplitPos": 0.8,
+    "nodeSelectionSplitPos": 0.8904619970193741,
+    "notificationSplitPos": 0.7291666666666666,
     "notificationViewShowed": true
   },
   "search": {
@@ -35,8 +35,8 @@
   "mainWindow": {
     "width": 1360,
     "height": 762,
-    "posX": 280,
-    "posY": 90,
+    "posX": 245,
+    "posY": 142,
     "maximized": false
   },
   "debugWindow": {

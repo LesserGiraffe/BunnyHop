@@ -20,6 +20,7 @@ import javafx.css.PseudoClass;
 import javafx.scene.control.TreeCell;
 import javafx.scene.input.MouseEvent;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
+import net.seapanda.bunnyhop.nodeselection.control.BhNodeSelectionViewManager;
 import net.seapanda.bunnyhop.nodeselection.model.BhNodeCategory;
 
 /**
@@ -34,16 +35,16 @@ public class BhNodeCategoryView extends TreeCell<BhNodeCategory> {
   private BhNodeCategory model;
 
   /** コンストラクタ. */
-  public BhNodeCategoryView(BhNodeSelectionViewProxy proxy) {
+  public BhNodeCategoryView(BhNodeSelectionViewManager nodeSelViewManager) {
     selectedProperty().addListener((obs, oldVal, newVal) -> onSelected(newVal));
 
     addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
       String categoryName = (model == null) ? null : model.name;
-      boolean isModelSelected = proxy.getCurrentCategoryName()
-          .map(category -> category.equals(categoryName))
+      boolean isModelSelected = nodeSelViewManager.getCurrentNodeSelectionView()
+          .map(view -> view.getCategoryName().equals(categoryName))
           .orElse(false);
       if (isModelSelected) {
-        proxy.hideCurrentView();
+        nodeSelViewManager.hideCurrentView();
         event.consume();
       }
     });

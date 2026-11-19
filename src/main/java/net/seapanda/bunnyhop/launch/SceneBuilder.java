@@ -58,8 +58,9 @@ import net.seapanda.bunnyhop.linter.model.CompileErrorNodeCache;
 import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
 import net.seapanda.bunnyhop.nodeselection.control.BhNodeCategoryListController;
+import net.seapanda.bunnyhop.nodeselection.control.BhNodeSelectionViewManager;
 import net.seapanda.bunnyhop.nodeselection.model.BhNodeCategory;
-import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionViewProxy;
+import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionViewFactory;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
 import net.seapanda.bunnyhop.service.message.BhMessageService;
@@ -106,9 +107,10 @@ public class SceneBuilder {
   private final BhNodeFactory nodeFactory;
   private final WorkspaceFactory wsFactory;
   private final DebugViewFactory debugViewFactory;
+  private final BhNodeSelectionViewFactory nodeSelViewFactory;
   private final DebugUtil debugUtil;
   private final UndoRedoAgent undoRedoAgent;
-  private final BhNodeSelectionViewProxy nodeSelProxy;
+  private final BhNodeSelectionViewManager nodeSelViewManager;
   private final LocalBhProgramLauncher localCtrl;
   private final RemoteBhProgramLauncher remoteCtrl;
   private final CopyAndPaste copyAndPaste;
@@ -145,9 +147,10 @@ public class SceneBuilder {
       BhNodeFactory nodeFactory,
       WorkspaceFactory wsFactory,
       DebugViewFactory debugViewFactory,
+      BhNodeSelectionViewFactory nodeSelViewFactory,
       DebugUtil debugUtil,
       UndoRedoAgent undoRedoAgent,
-      BhNodeSelectionViewProxy nodeSelProxy,
+      BhNodeSelectionViewManager nodeSelViewManager,
       LocalBhProgramLauncher localCtrl,
       RemoteBhProgramLauncher remoteCtrl,
       ProjectImporter importer,
@@ -175,9 +178,10 @@ public class SceneBuilder {
     this.nodeFactory = nodeFactory;
     this.wsFactory = wsFactory;
     this.debugViewFactory = debugViewFactory;
+    this.nodeSelViewFactory = nodeSelViewFactory;
     this.debugUtil = debugUtil;
     this.undoRedoAgent = undoRedoAgent;
-    this.nodeSelProxy = nodeSelProxy;
+    this.nodeSelViewManager = nodeSelViewManager;
     this.localCtrl = localCtrl;
     this.remoteCtrl = remoteCtrl;
     this.copyAndPaste = copyAndPaste;
@@ -258,7 +262,8 @@ public class SceneBuilder {
     if (type == BhNodeCategoryListController.class) {
       return new BhNodeCategoryListController(
           nodeCategoryRoot,
-          nodeSelProxy,
+          nodeSelViewManager,
+          nodeSelViewFactory,
           nodeFactory,
           settings.ui.currentNodeSelectionViewZoomLevel);
     }
@@ -283,7 +288,7 @@ public class SceneBuilder {
           notifService,
           wsFactory,
           undoRedoAgent,
-          nodeSelProxy,
+          nodeSelViewManager,
           localCtrl,
           remoteCtrl,
           copyAndPaste,

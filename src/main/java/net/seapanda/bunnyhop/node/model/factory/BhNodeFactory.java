@@ -59,18 +59,9 @@ public interface BhNodeFactory {
    *         {@code type} に {@code MvcType.NONE} を指定した場合も null.
    *         既に MVC 構造が構築されている場合, 何もせずに既存のビューを返す.
    */
-  BhNodeView setMvc(BhNode node, MvcType type);
+  BhNodeView constructMvc(BhNode node, MvcType type);
 
   /** ノード ID が {@code id} である {@link BhNode} を作れるか調べる. */
   boolean canCreate(BhNodeId id);
 
-  /** MVC 構造のタイプ. */
-  enum MvcType {
-    /** MVC 構造を持たない. */
-    NONE,
-    /** ワークスペース上で操作可能なノード用の MVC 構造. */
-    DEFAULT,
-    /** テンプレートノード用の MVC 構造. */
-    TEMPLATE,
-  }
 }

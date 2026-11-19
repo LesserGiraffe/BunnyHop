@@ -337,10 +337,6 @@ public class BhConstants {
   public static class NodeSelection {
     public static final String KEY_CSS_CLASS = "cssClass";
     public static final String KEY_CONTENTS = "contents";
-    /** ノード固有のノード選択ビューのカテゴリ名. */
-    public static final String PRIVATE_TEMPLATE = "privateTemplate";
-    /** ノードを前もって描画しておくためのビュー. */
-    public static final String PRE_RENDERING = "preRendering";
   }
 
   /** UI コンポーネントの ID. */
@@ -348,9 +344,7 @@ public class BhConstants {
     public static final String WS_SCROLL_PANE = "wsScrollPane";
     public static final String WORKSPACE_SET_TAB = "workspaceSetTab";
     public static final String BH_RUNTIME_ERR_MSG = "bhRuntimeErrMsg";
-    public static final String VERTICAL_SPLIT_PANE = "verticalSplitPane";
-    public static final String HORIZONTAL_SPLIT_PANE = "horizontalSplitPane";
-  }
+ }
 
   /** CSS ファイルで使用されるキーワード. */
   public static class Css {

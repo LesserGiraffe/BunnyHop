@@ -34,7 +34,7 @@ import net.seapanda.bunnyhop.node.model.TextNode;
 import net.seapanda.bunnyhop.node.model.TextNode.FormatResult;
 import net.seapanda.bunnyhop.node.model.TextNode.TextOption;
 import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory;
-import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory.MvcType;
+import net.seapanda.bunnyhop.node.model.factory.MvcType;
 import net.seapanda.bunnyhop.node.model.parameter.BhNodeId;
 import net.seapanda.bunnyhop.node.model.service.BhNodePlacer;
 import net.seapanda.bunnyhop.service.LogManager;
@@ -336,14 +336,13 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
       return new ArrayList<>();
     }
     Map<String, Object> nameToObj = new HashMap<>();
-    nameToObj.put(BhConstants.JsIdName.BH_USER_OPE, userOpe);
     try (Context cx = Context.enter()) {
       ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
       List<BhNode> companionNodes = ((Collection<?>) defined.script().exec(cx, scope)).stream()
           .filter(elem -> elem instanceof BhNode)
           .map(elem -> (BhNode) elem)
           .collect(Collectors.toCollection(ArrayList::new));
-      companionNodes.forEach(node -> factory.setMvc(node, type));
+      companionNodes.forEach(node -> factory.constructMvc(node, type));
       return companionNodes;
     } catch (Exception e) {
       LogManager.logger().error(e, "'%s' must return a collection of BhNode(s).", defined.name());

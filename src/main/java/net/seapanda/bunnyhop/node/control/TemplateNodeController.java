@@ -21,12 +21,12 @@ import java.util.Optional;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import net.seapanda.bunnyhop.node.model.BhNode;
-import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory;
-import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory.MvcType;
+import net.seapanda.bunnyhop.node.model.factory.BhNodeMvcBuilder;
+import net.seapanda.bunnyhop.node.model.factory.MvcType;
 import net.seapanda.bunnyhop.node.model.service.BhNodePlacer;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.BhNodeView.MouseEventInfo;
-import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionViewProxy;
+import net.seapanda.bunnyhop.nodeselection.control.BhNodeSelectionViewManager;
 import net.seapanda.bunnyhop.service.accesscontrol.ExclusionId;
 import net.seapanda.bunnyhop.service.accesscontrol.TransactionContext;
 import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
@@ -46,9 +46,9 @@ public class TemplateNodeController implements BhNodeController {
   private final BhNodeView view;
   private final TransactionNotificationService notifService;
   private final MouseCtrlLock mouseCtrlLock = new MouseCtrlLock(MouseButton.PRIMARY);
-  private final BhNodeFactory factory;
+  private final BhNodeMvcBuilder mvcBuilder;
   private final WorkspaceSet wss;
-  private final BhNodeSelectionViewProxy nodeSelectionViewProxy;
+  private final BhNodeSelectionViewManager nodeSelViewManager;
   private DndEventInfo ddInfo = new DndEventInfo();
 
   /**
@@ -56,30 +56,30 @@ public class TemplateNodeController implements BhNodeController {
    *
    * @param model 管理するモデル
    * @param view 管理するビュー
-   * @param factory ノード生成用オブジェクト
+   * @param mvcBuilder ノード生成用オブジェクト
    * @param service モデルへのアクセスの通知先となるオブジェクト
    * @param wss アプリケーション固有のワークスペースセット
-   * @param proxy ノード選択ビュー
+   * @param nodeSelViewManager ノード選択ビューを操作するためのオブジェクト
    */
   public TemplateNodeController(
       BhNode model,
       BhNodeView view,
-      BhNodeFactory factory,
+      BhNodeMvcBuilder mvcBuilder,
       TransactionNotificationService service,
       WorkspaceSet wss,
-      BhNodeSelectionViewProxy proxy) {
+      BhNodeSelectionViewManager nodeSelViewManager) {
     Objects.requireNonNull(model);
     Objects.requireNonNull(view);
-    Objects.requireNonNull(factory);
+    Objects.requireNonNull(mvcBuilder);
     Objects.requireNonNull(service);
     Objects.requireNonNull(wss);
-    Objects.requireNonNull(proxy);
+    Objects.requireNonNull(nodeSelViewManager);
     this.model = model;
     this.view = view;
-    this.factory = factory;
+    this.mvcBuilder = mvcBuilder;
     this.notifService = service;
     this.wss = wss;
-    this.nodeSelectionViewProxy = proxy;
+    this.nodeSelViewManager = nodeSelViewManager;
     model.setView(view);
     view.setController(this);
     setEventHandlers();
@@ -109,8 +109,7 @@ public class TemplateNodeController implements BhNodeController {
       }
       Workspace currentWs = wss.getCurrentWorkspace();
       BhNode newNode = model.findRootNode().copy(context.userOpe());
-      factory.setMvc(model, MvcType.DEFAULT);
-      ddInfo.currentView = factory.setMvc(newNode, MvcType.DEFAULT);
+      ddInfo.currentView = mvcBuilder.build(newNode, MvcType.DEFAULT);
       if (currentWs == null || ddInfo.currentView == null) {
         terminateDnd(info);
         return;
@@ -119,7 +118,7 @@ public class TemplateNodeController implements BhNodeController {
       Vec2D position = calcClickPosition(event, currentWs);
       BhNodePlacer.moveToWs(currentWs, newNode, position.x, position.y, context.userOpe());
       ddInfo.currentView.getCallbackRegistry().forward(info);
-      nodeSelectionViewProxy.hideCurrentView();
+      nodeSelViewManager.hideCurrentView();
     } catch (Throwable e) {
       terminateDnd(info);
       throw e;

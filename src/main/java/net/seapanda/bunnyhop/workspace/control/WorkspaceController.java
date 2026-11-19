@@ -33,7 +33,7 @@ import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectType;
-import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionViewProxy;
+import net.seapanda.bunnyhop.nodeselection.control.BhNodeSelectionViewManager;
 import net.seapanda.bunnyhop.service.accesscontrol.TransactionContext;
 import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
 import net.seapanda.bunnyhop.service.message.MessageService;
@@ -59,7 +59,7 @@ public class WorkspaceController {
   /** モデルへのアクセスの通知先となるオブジェクト. */
   private final TransactionNotificationService notifService;
   private final MouseCtrlLock mouseCtrlLock = new MouseCtrlLock(MouseButton.PRIMARY);
-  private final BhNodeSelectionViewProxy nodeSelectionViewProxy;
+  private final BhNodeSelectionViewManager nodeSelViewManager;
   private final VisualEffectManager effectManager;
   private final MessageService msgService;
   private DndEventInfo ddInfo = new DndEventInfo();
@@ -71,7 +71,7 @@ public class WorkspaceController {
    * @param view 操作対象のするビュー
    * @param nodeShifterView 操作対象のノードシフタビュー
    * @param notifService モデルへのアクセスの通知先となるオブジェクト
-   * @param proxy ノード選択ビューのプロキシオブジェクト
+   * @param nodeSelViewManager ノード選択ビューのプロキシオブジェクト
    * @param msgService アプリケーションユーザにメッセージを出力するためのオブジェクト.
    * @param visualEffectManager ノードに視覚効果を設定するためのオブジェクト
    */
@@ -80,20 +80,20 @@ public class WorkspaceController {
       WorkspaceView view,
       NodeShifterView nodeShifterView,
       TransactionNotificationService notifService,
-      BhNodeSelectionViewProxy proxy,
+      BhNodeSelectionViewManager nodeSelViewManager,
       MessageService msgService,
       VisualEffectManager visualEffectManager) {
     Objects.requireNonNull(model);
     Objects.requireNonNull(view);
     Objects.requireNonNull(nodeShifterView);
     Objects.requireNonNull(notifService);
-    Objects.requireNonNull(proxy);
+    Objects.requireNonNull(nodeSelViewManager);
     Objects.requireNonNull(visualEffectManager);
     Objects.requireNonNull(msgService);
     this.model = model;
     this.view = view;
     this.notifService = notifService;
-    this.nodeSelectionViewProxy = proxy;
+    this.nodeSelViewManager = nodeSelViewManager;
     this.effectManager = visualEffectManager;
     this.msgService = msgService;
     model.setView(view);
@@ -129,7 +129,7 @@ public class WorkspaceController {
       ddInfo.context = notifService.begin();
       ddInfo.isDndFinished = false;
       if (!event.isShiftDown()) {
-        nodeSelectionViewProxy.hideCurrentView();
+        nodeSelViewManager.hideCurrentView();
         model.getSelectedNodes().forEach(node -> node.deselect(ddInfo.context.userOpe()));
       }
       disableVisualEffects();

@@ -18,7 +18,7 @@ package net.seapanda.bunnyhop.workspace.model.factory;
 
 import java.nio.file.Path;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
-import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionViewProxy;
+import net.seapanda.bunnyhop.nodeselection.control.BhNodeSelectionViewManager;
 import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
 import net.seapanda.bunnyhop.service.message.MessageService;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
@@ -39,7 +39,7 @@ public class WorkspaceFactoryImpl implements WorkspaceFactory {
   
   private final Path nodeShifterViewPath;
   private final TransactionNotificationService notifService;
-  private final BhNodeSelectionViewProxy nodeSelectionViewProxy;
+  private final BhNodeSelectionViewManager nodeSelectionViewManager;
   private final Path workspaceViewFilePath;
   private final MessageService msgService;
   private final VisualEffectManager effectManager;
@@ -50,14 +50,14 @@ public class WorkspaceFactoryImpl implements WorkspaceFactory {
       Path workspaceViewFilePath,
       Path nodeShifterViewPath,
       TransactionNotificationService notifService,
-      BhNodeSelectionViewProxy proxy,
+      BhNodeSelectionViewManager nodeSelViewManager,
       MessageService msgService,
       VisualEffectManager visualEffectManager,
       WritableInteger currentWorkspaceZoomLevel) {
     this.workspaceViewFilePath = workspaceViewFilePath;
     this.nodeShifterViewPath = nodeShifterViewPath;
     this.notifService = notifService;
-    this.nodeSelectionViewProxy = proxy;
+    this.nodeSelectionViewManager = nodeSelViewManager;
     this.msgService = msgService;
     this.effectManager = visualEffectManager;
     this.currentWorkspaceZoomLevel = currentWorkspaceZoomLevel;
@@ -78,7 +78,7 @@ public class WorkspaceFactoryImpl implements WorkspaceFactory {
         view,
         new NodeShifterView(nodeShifterViewPath),
         notifService,
-        nodeSelectionViewProxy,
+        nodeSelectionViewManager,
         msgService,
         effectManager);
     return view;
