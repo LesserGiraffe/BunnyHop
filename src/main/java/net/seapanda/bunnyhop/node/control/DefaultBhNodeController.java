@@ -49,9 +49,9 @@ import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.BhNodeView.MouseEventInfo;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
 import net.seapanda.bunnyhop.node.view.service.BhNodeLocation;
-import net.seapanda.bunnyhop.service.accesscontrol.ExclusionId;
+import net.seapanda.bunnyhop.service.accesscontrol.ExclusiveTask;
 import net.seapanda.bunnyhop.service.accesscontrol.TransactionContext;
-import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionManager;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.ui.control.MouseCtrlLock;
 import net.seapanda.bunnyhop.ui.model.NodeManipulationMode;
@@ -69,7 +69,7 @@ public class DefaultBhNodeController implements BhNodeController {
 
   private final BhNode model;
   private final BhNodeView view;
-  private final TransactionNotificationService notifService;
+  private final TransactionManager txnManager;
   private final TrashCan trashCan;
   private final VisualEffectManager effectManager;
   private final BhSettings settings;
@@ -83,26 +83,26 @@ public class DefaultBhNodeController implements BhNodeController {
    *
    * @param model 管理するモデル
    * @param view 管理するビュー
-   * @param service モデルへのアクセスの通知先となるオブジェクト
+   * @param txnManager トランザクションを管理するオブジェクト
    * @param trashCan ゴミ箱のビューを操作するためのオブジェクト
    * @param settings BunnyHop の設定情報
    */
   public DefaultBhNodeController(
       BhNode model,
       BhNodeView view,
-      TransactionNotificationService service,
+      TransactionManager txnManager,
       TrashCan trashCan,
       VisualEffectManager  visualEffectManager,
       BhSettings settings) {
     Objects.requireNonNull(model);
     Objects.requireNonNull(view);
-    Objects.requireNonNull(service);
+    Objects.requireNonNull(txnManager);
     Objects.requireNonNull(trashCan);
     Objects.requireNonNull(visualEffectManager);
     Objects.requireNonNull(settings);
     this.model = model;
     this.view = view;
-    this.notifService = service;
+    this.txnManager = txnManager;
     this.trashCan = trashCan;
     this.effectManager = visualEffectManager;
     this.settings = settings;
@@ -431,9 +431,9 @@ public class DefaultBhNodeController implements BhNodeController {
   private void terminateDnd(MouseEventInfo info) {
     trashCan.close();
     mouseCtrlLock.unlock();
+    endTransaction(info, ddInfo.context);
     ddInfo = new DndEventInfo();
     commonEventInfo = new CommonEventInfo(false, false, false);
-    endTransaction(info);
   }
 
   /** {@link #view} を最前面に移動させる. */
@@ -555,22 +555,27 @@ public class DefaultBhNodeController implements BhNodeController {
     info.setUserData(commonEventInfo);
   }
 
-  /** {@link TransactionNotificationService} にトランザクションの開始を通知する. */
+  /**
+   * トランザクションを開始する.
+   *
+   * @return トランザクションに紐づくコンテキスト.
+   *         既にノード操作が行われていてトランザクションを開始できなかった場合は null.
+   */
   private TransactionContext beginTransaction(MouseEventInfo info) {
-    if (info.src == null) {
-      return notifService.begin(ExclusionId.NODE_MANIPULATION).orElse(null);
-    } else {
-      return notifService.begin();
+    TransactionContext context = txnManager.begin();
+    if (info.src == null && !context.lockTasks(ExclusiveTask.NODE_TREE_MODIFICATION)) {
+      txnManager.end();
+      return null;
     }
+    return context;
   }
 
-  /** {@link TransactionNotificationService} にトランザクションの終了を通知する. */
-  private void endTransaction(MouseEventInfo info) {
+  /** トランザクションを終了する. */
+  private void endTransaction(MouseEventInfo info, TransactionContext context) {
     if (info.src == null) {
-      notifService.end(ExclusionId.NODE_MANIPULATION);
-    } else {
-      notifService.end();
+      context.releaseTasks(ExclusiveTask.NODE_TREE_MODIFICATION);
     }
+    txnManager.end();
   }
 
   /** 現在のノード操作モードがノードの移動をサポートするモードか調べる. */
@@ -591,8 +596,8 @@ public class DefaultBhNodeController implements BhNodeController {
   }
 
   @Override
-  public TransactionNotificationService getNotificationService() {
-    return notifService;
+  public TransactionManager getTransactionManager() {
+    return txnManager;
   }
 
   /**

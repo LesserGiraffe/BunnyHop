@@ -20,7 +20,7 @@ import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.TextNode;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.LabelNodeView;
-import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionManager;
 
 /**
  * {@link LabelNodeView} のコントローラ.
@@ -31,7 +31,7 @@ public class LabelNodeController implements BhNodeController {
 
   private final TextNode model;
   private final LabelNodeView view;
-  private final TransactionNotificationService notifService;
+  private final TransactionManager txnManager;
 
   /** コンストラクタ. */
   public LabelNodeController(BhNodeController controller) {
@@ -47,7 +47,7 @@ public class LabelNodeController implements BhNodeController {
       throw new IllegalStateException(
           "The view is not %s".formatted(LabelNodeView.class.getSimpleName()));
     }
-    notifService = controller.getNotificationService();
+    txnManager = controller.getTransactionManager();
     node.getCallbackRegistry().getOnTextChanged().add(event -> nodeView.setText(event.newText()));
     setInitStr();
   }
@@ -72,7 +72,7 @@ public class LabelNodeController implements BhNodeController {
   }
 
   @Override
-  public TransactionNotificationService getNotificationService() {
-    return notifService;
+  public TransactionManager getTransactionManager() {
+    return txnManager;
   }  
 }

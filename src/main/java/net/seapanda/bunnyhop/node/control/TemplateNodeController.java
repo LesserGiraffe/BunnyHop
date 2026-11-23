@@ -27,9 +27,9 @@ import net.seapanda.bunnyhop.node.model.service.BhNodePlacer;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.BhNodeView.MouseEventInfo;
 import net.seapanda.bunnyhop.nodeselection.control.BhNodeSelectionViewManager;
-import net.seapanda.bunnyhop.service.accesscontrol.ExclusionId;
+import net.seapanda.bunnyhop.service.accesscontrol.ExclusiveTask;
 import net.seapanda.bunnyhop.service.accesscontrol.TransactionContext;
-import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionManager;
 import net.seapanda.bunnyhop.ui.control.MouseCtrlLock;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.workspace.model.Workspace;
@@ -44,7 +44,7 @@ public class TemplateNodeController implements BhNodeController {
 
   private final BhNode model;
   private final BhNodeView view;
-  private final TransactionNotificationService notifService;
+  private final TransactionManager txnManager;
   private final MouseCtrlLock mouseCtrlLock = new MouseCtrlLock(MouseButton.PRIMARY);
   private final BhNodeMvcBuilder mvcBuilder;
   private final WorkspaceSet wss;
@@ -57,7 +57,7 @@ public class TemplateNodeController implements BhNodeController {
    * @param model 管理するモデル
    * @param view 管理するビュー
    * @param mvcBuilder ノード生成用オブジェクト
-   * @param service モデルへのアクセスの通知先となるオブジェクト
+   * @param txnManager トランザクションを管理するオブジェクト
    * @param wss アプリケーション固有のワークスペースセット
    * @param nodeSelViewManager ノード選択ビューを操作するためのオブジェクト
    */
@@ -65,19 +65,19 @@ public class TemplateNodeController implements BhNodeController {
       BhNode model,
       BhNodeView view,
       BhNodeMvcBuilder mvcBuilder,
-      TransactionNotificationService service,
+      TransactionManager txnManager,
       WorkspaceSet wss,
       BhNodeSelectionViewManager nodeSelViewManager) {
     Objects.requireNonNull(model);
     Objects.requireNonNull(view);
     Objects.requireNonNull(mvcBuilder);
-    Objects.requireNonNull(service);
+    Objects.requireNonNull(txnManager);
     Objects.requireNonNull(wss);
     Objects.requireNonNull(nodeSelViewManager);
     this.model = model;
     this.view = view;
     this.mvcBuilder = mvcBuilder;
-    this.notifService = service;
+    this.txnManager = txnManager;
     this.wss = wss;
     this.nodeSelViewManager = nodeSelViewManager;
     model.setView(view);
@@ -102,13 +102,13 @@ public class TemplateNodeController implements BhNodeController {
       if (!mouseCtrlLock.tryLock(event.getButton())) {
         return;
       }
-      TransactionContext context = beginTransaction(info);
-      if (context == null) {
+      ddInfo.context = beginTransaction(info);
+      if (ddInfo.context == null) {
         mouseCtrlLock.unlock();
         return;
       }
       Workspace currentWs = wss.getCurrentWorkspace();
-      BhNode newNode = model.findRootNode().copy(context.userOpe());
+      BhNode newNode = model.findRootNode().copy(ddInfo.context.userOpe());
       ddInfo.currentView = mvcBuilder.build(newNode, MvcType.DEFAULT);
       if (currentWs == null || ddInfo.currentView == null) {
         terminateDnd(info);
@@ -116,7 +116,7 @@ public class TemplateNodeController implements BhNodeController {
       }
 
       Vec2D position = calcClickPosition(event, currentWs);
-      BhNodePlacer.moveToWs(currentWs, newNode, position.x, position.y, context.userOpe());
+      BhNodePlacer.moveToWs(currentWs, newNode, position.x, position.y, ddInfo.context.userOpe());
       ddInfo.currentView.getCallbackRegistry().forward(info);
       nodeSelViewManager.hideCurrentView();
     } catch (Throwable e) {
@@ -197,26 +197,26 @@ public class TemplateNodeController implements BhNodeController {
   /** D&D を終えたときの処理. */
   private void terminateDnd(MouseEventInfo info) {
     mouseCtrlLock.unlock();
+    endTransaction(info, ddInfo.context);
     ddInfo = new DndEventInfo();
-    endTransaction(info);
   }
 
-  /** {@link TransactionNotificationService} にトランザクションの開始を通知する. */
+  /** トランザクションを開始する. */
   private TransactionContext beginTransaction(MouseEventInfo info) {
-    if (info.src == null) {
-      return notifService.begin(ExclusionId.NODE_MANIPULATION).orElse(null);
-    } else {
-      return notifService.begin();
+    TransactionContext context = txnManager.begin();
+    if (info.src == null && !context.lockTasks(ExclusiveTask.NODE_TREE_MODIFICATION)) {
+      txnManager.end();
+      return null;
     }
+    return context;
   }
 
-  /** {@link TransactionNotificationService} にトランザクションの終了を通知する. */
-  private void endTransaction(MouseEventInfo info) {
+  /** トランザクションを終了する. */
+  private void endTransaction(MouseEventInfo info, TransactionContext context) {
     if (info.src == null) {
-      notifService.end(ExclusionId.NODE_MANIPULATION);
-    } else {
-      notifService.end();
+      context.releaseTasks(ExclusiveTask.NODE_TREE_MODIFICATION);
     }
+    txnManager.end();
   }
 
   @Override
@@ -230,8 +230,8 @@ public class TemplateNodeController implements BhNodeController {
   }
 
   @Override
-  public TransactionNotificationService getNotificationService() {
-    return notifService;
+  public TransactionManager getTransactionManager() {
+    return txnManager;
   }
 
   /**
@@ -240,5 +240,7 @@ public class TemplateNodeController implements BhNodeController {
   private static class DndEventInfo {
     /** 現在 テンプレートの BhNodeView 上で発生したマウスイベントを送っているワークスペース上の view. */
     private BhNodeView currentView = null;
+    /** ノードの作成に伴うコンテキスト. */
+    private TransactionContext context;
   }
 }

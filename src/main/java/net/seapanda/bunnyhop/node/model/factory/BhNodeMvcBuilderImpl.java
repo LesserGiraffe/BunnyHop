@@ -48,7 +48,7 @@ import net.seapanda.bunnyhop.node.view.factory.NodeViewComponentFactory;
 import net.seapanda.bunnyhop.node.view.factory.PrivateTemplateButtonFactory;
 import net.seapanda.bunnyhop.nodeselection.control.BhNodeSelectionViewManager;
 import net.seapanda.bunnyhop.service.LogManager;
-import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionManager;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.utility.reference.ReadOnlyBoolean;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
@@ -62,7 +62,7 @@ import net.seapanda.bunnyhop.workspace.view.TrashCan;
 public class BhNodeMvcBuilderImpl implements BhNodeMvcBuilder {
 
   private final BhNodeViewFactory viewFactory;
-  private final TransactionNotificationService notifService;
+  private final TransactionManager txnManager;
   private final TrashCan trashCan;
   private final WorkspaceSet wss;
   private final BhNodeSelectionViewManager nodeSelViewManager;
@@ -74,14 +74,14 @@ public class BhNodeMvcBuilderImpl implements BhNodeMvcBuilder {
   public BhNodeMvcBuilderImpl(
       BhNodeViewFactory viewFactory,
       PrivateTemplateButtonFactory buttonFactory,
-      TransactionNotificationService notifService,
+      TransactionManager txnManager,
       TrashCan trashCan,
       WorkspaceSet wss,
       BhNodeSelectionViewManager nodeSelViewManager,
       VisualEffectManager visualEffectManager,
       BhSettings settings) {
     this.viewFactory = viewFactory;
-    this.notifService = notifService;
+    this.txnManager = txnManager;
     this.trashCan = trashCan;
     this.wss = wss;
     this.nodeSelViewManager = nodeSelViewManager;
@@ -203,9 +203,9 @@ public class BhNodeMvcBuilderImpl implements BhNodeMvcBuilder {
     private BhNodeController createBaseController(BhNode node, BhNodeView nodeView) {
       return type == MvcType.DEFAULT
           ? new DefaultBhNodeController(
-              node, nodeView, notifService, trashCan, effectManager, settings)
+              node, nodeView, txnManager, trashCan, effectManager, settings)
           : new TemplateNodeController(
-              node, nodeView, BhNodeMvcBuilderImpl.this, notifService, wss, nodeSelViewManager);
+              node, nodeView, BhNodeMvcBuilderImpl.this, txnManager, wss, nodeSelViewManager);
     }
   }
 

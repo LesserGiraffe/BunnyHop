@@ -25,7 +25,7 @@ import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.ComboBoxNodeView;
 import net.seapanda.bunnyhop.node.view.component.SelectableItem;
 import net.seapanda.bunnyhop.service.accesscontrol.TransactionContext;
-import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionManager;
 import net.seapanda.bunnyhop.utility.reference.ReadOnlyBoolean;
 
 /**
@@ -37,7 +37,7 @@ public class ComboBoxNodeController implements BhNodeController {
 
   private final TextNode model;
   private final ComboBoxNodeView view;
-  private final TransactionNotificationService notifService;
+  private final TransactionManager txnManager;
   private final ReadOnlyBoolean textChangeUndoEnabled;
 
   /** コンストラクタ. */
@@ -57,7 +57,7 @@ public class ComboBoxNodeController implements BhNodeController {
       throw new IllegalStateException(
           "The view is not %s".formatted(ComboBoxNodeView.class.getSimpleName()));
     }
-    notifService = controller.getNotificationService();
+    txnManager = controller.getTransactionManager();
 
     setEventHandlers();
   }
@@ -105,7 +105,7 @@ public class ComboBoxNodeController implements BhNodeController {
    */
   private void setModelText(String text) {
     try {
-      TransactionContext context = notifService.begin();
+      TransactionContext context = txnManager.begin();
       if (textChangeUndoEnabled.get()) {
         model.setText(text, context.userOpe());
         model.assignContentsToDerivatives(context.userOpe());
@@ -114,7 +114,7 @@ public class ComboBoxNodeController implements BhNodeController {
         model.assignContentsToDerivatives();
       }
     } finally {
-      notifService.end();
+      txnManager.end();
     }
   }
 
@@ -141,7 +141,7 @@ public class ComboBoxNodeController implements BhNodeController {
   }
 
   @Override
-  public TransactionNotificationService getNotificationService() {
-    return notifService;
+  public TransactionManager getTransactionManager() {
+    return txnManager;
   }  
 }

@@ -19,7 +19,7 @@ package net.seapanda.bunnyhop.node.control;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.ConnectiveNodeView;
-import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionManager;
 
 /**
  * {@link ConnectiveNodeView} のコントローラ.
@@ -46,7 +46,7 @@ public class ConnectiveNodeController implements BhNodeController {
   }
 
   @Override
-  public TransactionNotificationService getNotificationService() {
-    return wrapped.getNotificationService();
+  public TransactionManager getTransactionManager() {
+    return wrapped.getTransactionManager();
   }  
 }

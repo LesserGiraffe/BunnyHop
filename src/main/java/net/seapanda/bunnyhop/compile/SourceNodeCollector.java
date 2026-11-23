@@ -18,7 +18,6 @@ package net.seapanda.bunnyhop.compile;
 
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.Optional;
 import java.util.SequencedCollection;
 import java.util.SequencedSet;
 import java.util.Set;
@@ -26,6 +25,7 @@ import java.util.stream.Collectors;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import net.seapanda.bunnyhop.common.text.TextDefs;
+import net.seapanda.bunnyhop.compiler.api.CompileError;
 import net.seapanda.bunnyhop.compiler.api.SourceSet;
 import net.seapanda.bunnyhop.linter.model.CompileErrorNodeCache;
 import net.seapanda.bunnyhop.node.model.BhNode;
@@ -80,10 +80,12 @@ public class SourceNodeCollector {
    * 返されるノードは, ワークスペースに存在するノードのディープコピー.
    *
    * @return コンパイル対象の全ノードとプログラム開始時に実行されるノードのセット
+   * @throws CompileError 実行可能なノードが存在しなかった場合.
+   *                      コンパイルエラーを起こしているノードが存在する場合.
    */
-  public Optional<SourceSet> collect() {
+  public SourceSet collect() throws CompileError {
     if (compileErrorNodesExit()) {
-      return Optional.empty();
+      throw new CompileError("One or more nodes have compile errors.");
     }
     BhNode selectedEntryPoint = findSelectedEntryPoint(orderedSelectedNode);
     Set<BhNode> rootNodes = collectRootNodes(wss);
@@ -95,11 +97,11 @@ public class SourceNodeCollector {
           TextDefs.Compile.InformSelectNodeToExecute.title.get(),
           null,
           TextDefs.Compile.InformSelectNodeToExecute.body.get());
-      return Optional.empty();
+      throw new CompileError("No executable node is selected.");
     }
     NodeInstanceId selectedEntryPointId =
         (selectedEntryPoint == null) ? null : selectedEntryPoint.getInstanceId();
-    return Optional.of(new SourceSetSnapshot(selectedEntryPointId, rootNodes));
+    return new SourceSetSnapshot(selectedEntryPointId, rootNodes);
   }
 
   /**

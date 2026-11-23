@@ -54,7 +54,7 @@ import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.TextNodeView;
 import net.seapanda.bunnyhop.service.accesscontrol.TransactionContext;
-import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionManager;
 import net.seapanda.bunnyhop.ui.view.Rem;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
@@ -115,8 +115,8 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
   private int workspaceSizeLevel = 0;
   /** 最前面の Z 位置. */
   private double frontZpos = 0;
-  /** モデルへのアクセスの通知先となるオブジェクト. */
-  private final TransactionNotificationService notifService;
+  /** トランザクションを管理するオブジェクト. */
+  private final TransactionManager txnManager;
   /** 現在のワークスペースの拡大・縮小レベル. */
   private final WritableInteger currentWorkspaceZoomLevel;
   private final CallbackRegistryImpl cbRegistry = new CallbackRegistryImpl();
@@ -127,20 +127,20 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
    * @param workspace 管理するモデル.
    * @param size ワークスペースの初期サイズ
    * @param filePath ワークスペースビューが定義された fxml ファイルのパス
-   * @param service モデルへのアクセスの通知先となるオブジェクト
+   * @param txnManager トランザクションを管理するオブジェクト
    * @param currentWorkspaceZoomLevel 現在のワークスペースの拡大・縮小レベル
    */
   public FxmlWorkspaceView(
       Workspace workspace,
       Vec2D size,
       Path filePath,
-      TransactionNotificationService service,
+      TransactionManager txnManager,
       WritableInteger currentWorkspaceZoomLevel)
       throws ViewConstructionException {
     Objects.requireNonNull(workspace);
     this.workspace = workspace;
     minPaneSize = new Vec2D(size);
-    this.notifService = service;
+    this.txnManager = txnManager;
     this.currentWorkspaceZoomLevel = currentWorkspaceZoomLevel;
     configureGuiComponents(filePath);
     setEventHandlers();
@@ -249,11 +249,11 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
 
   /** ワークスペース名を {@link #tabNameTextField} のテキストに変更する. */
   private void changeWsName() {
-    TransactionContext context = notifService.begin();
+    TransactionContext context = txnManager.begin();
     try {
       workspace.setName(tabNameTextField.getText(), context.userOpe());
     } finally {
-      notifService.end();
+      txnManager.end();
     }
   }
 

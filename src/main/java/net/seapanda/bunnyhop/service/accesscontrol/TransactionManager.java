@@ -16,9 +16,6 @@
 
 package net.seapanda.bunnyhop.service.accesscontrol;
 
-import java.util.Optional;
-import java.util.Set;
-
 /**
  * アプリケーションにおける 1 つのまとまった処理を規定するための機能を定義したインタフェース. <br>
  *
@@ -26,46 +23,26 @@ import java.util.Set;
  * このインタフェースの実装クラスは異なるスレッドの「トランザクション」が同時に実行されないことを保証すること.
  *
  *<p>
- * {@link #begin()} と {@link #end()} は対で呼ぶこと. <br>
- * {@link #begin(ExclusionId...)} が成功した場合 {@link #end(ExclusionId...)} を同じパラメータを指定して呼ぶこと. <br>
+ * {@link #begin()} と {@link #end()} は対で呼ぶこと.
  *
  * <pre>-- スレッドと処理の設計方針 --
  * モデルを変更する可能性のある処理は必ず UI スレッドで行う.
  * これは, モデルの変更に伴って起きる UI 要素の変更をモデルの変更と不可分に行うためである.
  * UI スレッドで行うべきではない重い処理は Future パターンなどを用いて別のスレッドで行い, UI スレッドを適宜開放する.
- * その際, 異なるスレッドに分割した処理と排他的に実行しなければならない処理が存在しないか注意する.
  * UI スレッド以外はモデルの参照のみ行う.
  * </pre>
  *
  * @author K.Koike
  */
-public interface TransactionNotificationService {
+public interface TransactionManager {
 
   /**
-   * トランザクションの開始をこのオブジェクトに通知する.
+   * トランザクションを開始する.
    *
-   * <p>このメソッドは, {@code ids} に指定した {@link ExclusionId} に関連付けられたトランザクションを開始する.
-   * {@code ids} に関連付けられたトランザクションが既に開始されているとき, このメソッドは失敗する.
-   * このメソッドが失敗したとき {@link #end(ExclusionId...)} は呼ばないこと.
-   *
-   * @param ids トランザクションに関連付ける {@link ExclusionId}
-   * @return トランザクションに紐づく情報を格納したオブジェクト.  失敗した場合は empty.
+   * @return トランザクションに紐づく情報を格納したオブジェクト
    */
-  Optional<TransactionContext> begin(ExclusionId... ids);
-
-  /** トランザクションの開始をこのオブジェクトに通知する. */
   TransactionContext begin();
 
-  /**
-   * トランザクションの終了をこのオブジェクトに通知する.
-   *
-   * @param ids トランザクションとの関連付けを解除する {@link ExclusionId}
-   */
-  void end(ExclusionId... ids);
-
-  /** トランザクションの終了をこのオブジェクトに通知する. */
+  /** トランザクションを終了する. */
   void end();
-
-  /** 現在指定されている排他処理の ID を取得する. */
-  Set<ExclusionId> getCurrentExclusionIds();
 }

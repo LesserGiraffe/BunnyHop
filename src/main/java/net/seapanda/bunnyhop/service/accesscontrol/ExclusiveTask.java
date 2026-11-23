@@ -17,11 +17,11 @@
 package net.seapanda.bunnyhop.service.accesscontrol;
 
 /**
- * アプリケーション全体で排他的に実行すべき処理を指定するための ID.
+ * アプリケーション全体で排他的に実行すべき処理を規定した列挙型.
  *
  * @author K.Koike
  */
-public enum ExclusionId {
-  /** ノードの構造 (親子関係やオリジナル - 派生関係) の変更に関連する処理の ID. */
-  NODE_MANIPULATION,
+public enum ExclusiveTask {
+  /** ノードツリーの構造に対して排他的なアクセスを要する処理. */
+  NODE_TREE_MODIFICATION,
 }

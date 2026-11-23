@@ -35,7 +35,7 @@ import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectType;
 import net.seapanda.bunnyhop.nodeselection.control.BhNodeSelectionViewManager;
 import net.seapanda.bunnyhop.service.accesscontrol.TransactionContext;
-import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionManager;
 import net.seapanda.bunnyhop.service.message.MessageService;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.ui.control.MouseCtrlLock;
@@ -56,8 +56,8 @@ public class WorkspaceController {
 
   private final Workspace model;
   private final WorkspaceView view;
-  /** モデルへのアクセスの通知先となるオブジェクト. */
-  private final TransactionNotificationService notifService;
+  /** トランザクションを管理するオブジェクト. */
+  private final TransactionManager txnManager;
   private final MouseCtrlLock mouseCtrlLock = new MouseCtrlLock(MouseButton.PRIMARY);
   private final BhNodeSelectionViewManager nodeSelViewManager;
   private final VisualEffectManager effectManager;
@@ -70,7 +70,7 @@ public class WorkspaceController {
    * @param model 操作対象のモデル
    * @param view 操作対象のするビュー
    * @param nodeShifterView 操作対象のノードシフタビュー
-   * @param notifService モデルへのアクセスの通知先となるオブジェクト
+   * @param txnManager トランザクションを管理するオブジェクト
    * @param nodeSelViewManager ノード選択ビューのプロキシオブジェクト
    * @param msgService アプリケーションユーザにメッセージを出力するためのオブジェクト.
    * @param visualEffectManager ノードに視覚効果を設定するためのオブジェクト
@@ -79,26 +79,26 @@ public class WorkspaceController {
       Workspace model,
       WorkspaceView view,
       NodeShifterView nodeShifterView,
-      TransactionNotificationService notifService,
+      TransactionManager txnManager,
       BhNodeSelectionViewManager nodeSelViewManager,
       MessageService msgService,
       VisualEffectManager visualEffectManager) {
     Objects.requireNonNull(model);
     Objects.requireNonNull(view);
     Objects.requireNonNull(nodeShifterView);
-    Objects.requireNonNull(notifService);
+    Objects.requireNonNull(txnManager);
     Objects.requireNonNull(nodeSelViewManager);
     Objects.requireNonNull(visualEffectManager);
     Objects.requireNonNull(msgService);
     this.model = model;
     this.view = view;
-    this.notifService = notifService;
+    this.txnManager = txnManager;
     this.nodeSelViewManager = nodeSelViewManager;
     this.effectManager = visualEffectManager;
     this.msgService = msgService;
     model.setView(view);
     view.addNodeShifterView(nodeShifterView);
-    new NodeShifterController(nodeShifterView, model, notifService);
+    new NodeShifterController(nodeShifterView, model, txnManager);
     setViewEventHandlers();
     setWorkspaceEventHandlers();
   }
@@ -126,7 +126,7 @@ public class WorkspaceController {
       if (!mouseCtrlLock.tryLock(event.getButton())) {
         return;
       }
-      ddInfo.context = notifService.begin();
+      ddInfo.context = txnManager.begin();
       ddInfo.isDndFinished = false;
       if (!event.isShiftDown()) {
         nodeSelViewManager.hideCurrentView();
@@ -251,7 +251,7 @@ public class WorkspaceController {
   private void terminateDnd() {
     mouseCtrlLock.unlock();
     ddInfo = new DndEventInfo();
-    notifService.end();
+    txnManager.end();
   }
 
   /** ワークスペースビューの削除命令を受けた時の処理. */
@@ -275,14 +275,14 @@ public class WorkspaceController {
 
   /** ワークスペースビュー削除時の処理. */
   private void onClosed() {
-    TransactionContext context = notifService.begin();
+    TransactionContext context = txnManager.begin();
     try {
       WorkspaceSet wss = model.getWorkspaceSet();
       if (wss != null) {
         wss.removeWorkspace(model, context.userOpe());
       }
     } finally {
-      notifService.end();
+      txnManager.end();
     }
   }
 

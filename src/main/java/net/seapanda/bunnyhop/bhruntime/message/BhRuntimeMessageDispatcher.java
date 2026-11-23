@@ -33,7 +33,7 @@ import net.seapanda.bunnyhop.runtime.api.message.simulator.BhSimulatorCmd;
 import net.seapanda.bunnyhop.runtime.api.message.simulator.StringBhSimulatorCmd;
 import net.seapanda.bunnyhop.runtime.api.message.simulator.StringBhSimulatorResp;
 import net.seapanda.bunnyhop.runtime.api.message.thread.BhThreadContext;
-import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionManager;
 import net.seapanda.bunnyhop.simulator.api.SimulatorCmdProcessor;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
 
@@ -50,8 +50,8 @@ public class BhRuntimeMessageDispatcher {
   private final DebugMessageProcessor debugMsgProcessor;
   /** {@link BhSimulatorCmd} を処理するオブジェクト. */
   private final SimulatorCmdProcessor simCmdProcessor;
-  /** モデルへのアクセスの通知先となるオブジェクト. */
-  private final TransactionNotificationService notifService;
+  /** トランザクションを管理するオブジェクト. */
+  private final TransactionManager txnManager;
 
   /**
    * コンストラクタ.
@@ -64,11 +64,11 @@ public class BhRuntimeMessageDispatcher {
       DebugMessageProcessor debugMsgProcessor,
       SimulatorCmdProcessor simCmdProcessor,
       BhRuntimeController runtimeCtrl,
-      TransactionNotificationService notifService) {
+      TransactionManager txnManager) {
     this.ioMsgProcessor = ioMessageProcessor;
     this.debugMsgProcessor = debugMsgProcessor;
     this.simCmdProcessor = simCmdProcessor;
-    this.notifService = notifService;
+    this.txnManager = txnManager;
     runtimeCtrl.getCallbackRegistry().getOnMsgCarrierRenewed()
         .add(event -> replaceMsgCarrier(event.oldCarrier(), event.newCarrier()));
   }
@@ -98,11 +98,11 @@ public class BhRuntimeMessageDispatcher {
   private synchronized void dispatchNotifAsync(
       BhRuntimeMessageCarrier carrier, BhRuntimeNotification notif) {
     ViewUtil.runSafe(() -> {
-      notifService.begin();
+      txnManager.begin();
       try {
         dispatchNotif(carrier, notif);
       } finally {
-        notifService.end();
+        txnManager.end();
       }
     });
   }
@@ -132,11 +132,11 @@ public class BhRuntimeMessageDispatcher {
   /** {@code resp} を適切なクラスへと渡す. */
   private synchronized void dispatchRespAsync(BhRuntimeResponse response) {
     ViewUtil.runSafe(() -> {
-      notifService.begin();
+      txnManager.begin();
       try {
         dispatchResp(response);
       } finally {
-        notifService.end();
+        txnManager.end();
       }
     });
   }

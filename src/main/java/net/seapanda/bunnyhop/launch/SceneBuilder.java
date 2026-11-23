@@ -62,7 +62,7 @@ import net.seapanda.bunnyhop.nodeselection.control.BhNodeSelectionViewManager;
 import net.seapanda.bunnyhop.nodeselection.model.BhNodeCategory;
 import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionViewFactory;
 import net.seapanda.bunnyhop.service.LogManager;
-import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionManager;
 import net.seapanda.bunnyhop.service.message.BhMessageService;
 import net.seapanda.bunnyhop.service.undo.UndoRedoAgent;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
@@ -103,7 +103,7 @@ public class SceneBuilder {
   private final Stage stage;
   private final WorkspaceSet wss;
   private final TreeItem<BhNodeCategory> nodeCategoryRoot;
-  private final TransactionNotificationService notifService;
+  private final TransactionManager txnManager;
   private final BhNodeFactory nodeFactory;
   private final WorkspaceFactory wsFactory;
   private final DebugViewFactory debugViewFactory;
@@ -143,7 +143,7 @@ public class SceneBuilder {
       Stage stage,
       WorkspaceSet wss,
       TreeItem<BhNodeCategory> nodeCategoryRoot,
-      TransactionNotificationService notifService,
+      TransactionManager txnManager,
       BhNodeFactory nodeFactory,
       WorkspaceFactory wsFactory,
       DebugViewFactory debugViewFactory,
@@ -174,7 +174,7 @@ public class SceneBuilder {
     this.stage = stage;
     this.wss = wss;
     this.nodeCategoryRoot = nodeCategoryRoot;
-    this.notifService = notifService;
+    this.txnManager = txnManager;
     this.nodeFactory = nodeFactory;
     this.wsFactory = wsFactory;
     this.debugViewFactory = debugViewFactory;
@@ -201,7 +201,7 @@ public class SceneBuilder {
     this.wssCtrl = wssCtrl;
     this.debugWindowCtrl = new DebugWindowController(debugger);
     this.menuBarCtrl = new MenuBarController(
-        wss, notifService, undoRedoAgent, importer, exporter, msgService, settings);
+        wss, txnManager, undoRedoAgent, importer, exporter, msgService, settings);
     this.msgViewCtrl = new MessageViewController(settings.search.maxResultsInMainMessage);
 
     VBox root;
@@ -285,7 +285,7 @@ public class SceneBuilder {
     if (type == MenuViewController.class) {
       return new MenuViewController(
           wssCtrl,
-          notifService,
+          txnManager,
           wsFactory,
           undoRedoAgent,
           nodeSelViewManager,

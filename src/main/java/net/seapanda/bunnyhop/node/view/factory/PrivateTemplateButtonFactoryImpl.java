@@ -25,7 +25,7 @@ import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleFactory;
 import net.seapanda.bunnyhop.nodeselection.control.BhNodeSelectionViewManager;
 import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionViewFactory;
-import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionManager;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 
 /**
@@ -38,7 +38,7 @@ public class PrivateTemplateButtonFactoryImpl implements PrivateTemplateButtonFa
   private final Path buttonFilePath;
   private final BhNodeViewStyleFactory viewStyleFactory;
   private final BhNodeSelectionViewFactory nodeSelViewFactory;
-  private final TransactionNotificationService service;
+  private final TransactionManager txnManager;
   private final BhNodeSelectionViewManager nodeSelViewManager;
 
   /** コンストラクタ. */
@@ -46,12 +46,12 @@ public class PrivateTemplateButtonFactoryImpl implements PrivateTemplateButtonFa
       Path buttonFilePath,
       BhNodeViewStyleFactory viewStyleFactory,
       BhNodeSelectionViewFactory nodeSelViewFactory,
-      TransactionNotificationService service,
+      TransactionManager txnManager,
       BhNodeSelectionViewManager nodeSelViewManager) {
     this.buttonFilePath = buttonFilePath;
     this.viewStyleFactory = viewStyleFactory;
     this.nodeSelViewFactory = nodeSelViewFactory;
-    this.service = service;
+    this.txnManager = txnManager;
     this.nodeSelViewManager = nodeSelViewManager;
   }
 
@@ -62,7 +62,7 @@ public class PrivateTemplateButtonFactoryImpl implements PrivateTemplateButtonFa
         : new BhNodeViewStyle();
     var button = new PrivateTemplateButton(buttonFilePath, style.commonPart.privateTemplate);
     new PrivateTemplateButtonController(
-        node, button, nodeSelViewFactory, service, nodeSelViewManager);
+        node, button, nodeSelViewFactory, txnManager, nodeSelViewManager);
     return button;
   }
 }

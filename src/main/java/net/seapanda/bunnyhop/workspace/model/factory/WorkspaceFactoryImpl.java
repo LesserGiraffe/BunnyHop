@@ -19,7 +19,7 @@ package net.seapanda.bunnyhop.workspace.model.factory;
 import java.nio.file.Path;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
 import net.seapanda.bunnyhop.nodeselection.control.BhNodeSelectionViewManager;
-import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionManager;
 import net.seapanda.bunnyhop.service.message.MessageService;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
@@ -38,7 +38,7 @@ import net.seapanda.bunnyhop.workspace.view.WorkspaceView;
 public class WorkspaceFactoryImpl implements WorkspaceFactory {
   
   private final Path nodeShifterViewPath;
-  private final TransactionNotificationService notifService;
+  private final TransactionManager txnManager;
   private final BhNodeSelectionViewManager nodeSelectionViewManager;
   private final Path workspaceViewFilePath;
   private final MessageService msgService;
@@ -49,14 +49,14 @@ public class WorkspaceFactoryImpl implements WorkspaceFactory {
   public WorkspaceFactoryImpl(
       Path workspaceViewFilePath,
       Path nodeShifterViewPath,
-      TransactionNotificationService notifService,
+      TransactionManager txnManager,
       BhNodeSelectionViewManager nodeSelViewManager,
       MessageService msgService,
       VisualEffectManager visualEffectManager,
       WritableInteger currentWorkspaceZoomLevel) {
     this.workspaceViewFilePath = workspaceViewFilePath;
     this.nodeShifterViewPath = nodeShifterViewPath;
-    this.notifService = notifService;
+    this.txnManager = txnManager;
     this.nodeSelectionViewManager = nodeSelViewManager;
     this.msgService = msgService;
     this.effectManager = visualEffectManager;
@@ -71,13 +71,13 @@ public class WorkspaceFactoryImpl implements WorkspaceFactory {
   @Override
   public WorkspaceView setMvc(Workspace ws, Vec2D size) throws ViewConstructionException {
     WorkspaceView view = new FxmlWorkspaceView(
-            ws, size, workspaceViewFilePath, notifService, currentWorkspaceZoomLevel);
+            ws, size, workspaceViewFilePath, txnManager, currentWorkspaceZoomLevel);
     view.zoom(currentWorkspaceZoomLevel.get());
     new WorkspaceController(
         ws,
         view,
         new NodeShifterView(nodeShifterViewPath),
-        notifService,
+        txnManager,
         nodeSelectionViewManager,
         msgService,
         effectManager);

@@ -21,7 +21,7 @@ import net.seapanda.bunnyhop.node.model.TextNode;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.TextInputNodeView;
 import net.seapanda.bunnyhop.service.accesscontrol.TransactionContext;
-import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionManager;
 import net.seapanda.bunnyhop.utility.reference.ReadOnlyBoolean;
 
 /**
@@ -33,7 +33,7 @@ public class TextInputNodeController implements BhNodeController {
 
   private final TextNode model;
   private final TextInputNodeView view;
-  private final TransactionNotificationService notifService;
+  private final TransactionManager txnManager;
   private final ReadOnlyBoolean textChangeUndoEnabled;
 
   /** コンストラクタ. */
@@ -53,7 +53,7 @@ public class TextInputNodeController implements BhNodeController {
       throw new IllegalStateException(
           "The view is not %s".formatted(TextInputNodeView.class.getSimpleName()));
     }
-    notifService = controller.getNotificationService();
+    txnManager = controller.getTransactionManager();
     setEventHandlers();
   }
 
@@ -83,7 +83,7 @@ public class TextInputNodeController implements BhNodeController {
    */
   private void setModelText(String text) {
     try {
-      TransactionContext context = notifService.begin();
+      TransactionContext context = txnManager.begin();
       if (textChangeUndoEnabled.get()) {
         model.setText(text, context.userOpe());
         model.assignContentsToDerivatives(context.userOpe());
@@ -92,7 +92,7 @@ public class TextInputNodeController implements BhNodeController {
         model.assignContentsToDerivatives();
       }
     } finally {
-      notifService.end();
+      txnManager.end();
     }
   }
 
@@ -107,7 +107,7 @@ public class TextInputNodeController implements BhNodeController {
   }
 
   @Override
-  public TransactionNotificationService getNotificationService() {
-    return notifService;
+  public TransactionManager getTransactionManager() {
+    return txnManager;
   }
 }

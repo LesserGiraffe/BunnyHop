@@ -121,7 +121,7 @@ import net.seapanda.bunnyhop.runtime.api.message.BhProgramEvent;
 import net.seapanda.bunnyhop.service.FileCollector;
 import net.seapanda.bunnyhop.service.KeyCodeConverter;
 import net.seapanda.bunnyhop.service.LogManager;
-import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationServiceImpl;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionManagerImpl;
 import net.seapanda.bunnyhop.service.message.BhMessageService;
 import net.seapanda.bunnyhop.service.message.MessageService;
 import net.seapanda.bunnyhop.service.script.BhScriptRepositoryImpl;
@@ -217,7 +217,7 @@ public class AppMain extends Application {
       final var derivativeCache = new DerivativeCache();
       final var nodeViewSuperVisor = new BhNodeViewSupervisor(wss);
       final var mediator =
-          new TransactionNotificationServiceImpl(derivativeCache, compileErrChecker, undoRedoAgent);
+          new TransactionManagerImpl(derivativeCache, compileErrChecker, undoRedoAgent);
       final var wssCtrl = new WorkspaceSetController(wss, mediator);
       final var nodeSelViewProxy = new BhNodeSelectionViewManagerImpl(
           wssCtrl::addNodeSelectionView,

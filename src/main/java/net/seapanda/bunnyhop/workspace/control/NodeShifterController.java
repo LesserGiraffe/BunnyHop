@@ -25,7 +25,7 @@ import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.service.accesscontrol.TransactionContext;
-import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionManager;
 import net.seapanda.bunnyhop.ui.control.MouseCtrlLock;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
@@ -43,8 +43,8 @@ public class NodeShifterController {
   private final NodeShifterView view;
   /** {@code view} が存在するワークスぺース. */
   private final Workspace ws;
-  /** モデルへのアクセスの通知先となるオブジェクト. */
-  private final TransactionNotificationService notifService;
+  /** トランザクションを管理するオブジェクト. */
+  private final TransactionManager txnManager;
   private final MouseCtrlLock mouseCtrlLock = new MouseCtrlLock();
   private DndEventInfo ddInfo = new DndEventInfo();
 
@@ -53,13 +53,13 @@ public class NodeShifterController {
    *
    * @param view 管理するノードシフタのビュー
    * @param ws view があるワークスペース
-   * @param service モデルへのアクセスの通知先となるオブジェクト
+   * @param txnManager トランザクションを管理するオブジェクト
    */
   public NodeShifterController(
-      NodeShifterView view, Workspace ws, TransactionNotificationService service) {
+      NodeShifterView view, Workspace ws, TransactionManager txnManager) {
     this.view = view;
     this.ws = ws;
-    this.notifService = service;
+    this.txnManager = txnManager;
     setEventHandlers();
   }
 
@@ -92,7 +92,7 @@ public class NodeShifterController {
         event.consume();
         return;
       }
-      ddInfo.context = notifService.begin();
+      ddInfo.context = txnManager.begin();
       ddInfo.isDndFinished = false;
       view.setPseudoClassState(true, BhConstants.Css.Pseudo.SELECTED);
       Point2D pos = view.sceneToLocal(event.getSceneX(), event.getSceneY());
@@ -202,7 +202,7 @@ public class NodeShifterController {
   private void terminateDnd() {
     mouseCtrlLock.unlock();
     ddInfo = new DndEventInfo();
-    notifService.end();
+    txnManager.end();
   }
 
   private static class DndEventInfo {

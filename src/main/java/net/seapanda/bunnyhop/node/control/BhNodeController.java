@@ -18,7 +18,7 @@ package net.seapanda.bunnyhop.node.control;
 
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
-import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionManager;
 
 /**
  * {@link BhNode} のコントローラクラスが持つメソッドを規定したインタフェース.
@@ -33,6 +33,6 @@ public interface BhNodeController {
   /** このコントローラが管理するビューを返す. */
   BhNodeView getView();
 
-  /** モデルへのアクセスの通知先となるオブジェクトを取得する. */
-  TransactionNotificationService getNotificationService();
+  /** トランザクションを管理するオブジェクトを取得する. */
+  TransactionManager getTransactionManager();
 }

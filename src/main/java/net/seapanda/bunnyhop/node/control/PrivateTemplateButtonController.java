@@ -17,6 +17,7 @@
 package net.seapanda.bunnyhop.node.control;
 
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Css.Class.PRIVATE_NODE_TEMPLATE;
+import static net.seapanda.bunnyhop.service.accesscontrol.ExclusiveTask.NODE_TREE_MODIFICATION;
 
 import java.util.LinkedHashSet;
 import java.util.Optional;
@@ -33,9 +34,8 @@ import net.seapanda.bunnyhop.nodeselection.control.BhNodeSelectionViewManager;
 import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionView;
 import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionViewFactory;
 import net.seapanda.bunnyhop.service.LogManager;
-import net.seapanda.bunnyhop.service.accesscontrol.ExclusionId;
 import net.seapanda.bunnyhop.service.accesscontrol.TransactionContext;
-import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionManager;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 
@@ -58,21 +58,21 @@ public class PrivateTemplateButtonController {
    *
    * @param node このノードの固有のテンプレートノードを作成する
    * @param button 管理するビュー
-   * @param service モデルへのアクセスの通知先となるオブジェクト
+   * @param txnManager トランザクションを管理するオブジェクト
    * @param nodeSelViewManager ボタン押下時に操作するノード選択ビューの管理オブジェクト
    */
   public PrivateTemplateButtonController(
       BhNode node,
       Button button,
       BhNodeSelectionViewFactory nodeSelViewFactory,
-      TransactionNotificationService service,
+      TransactionManager txnManager,
       BhNodeSelectionViewManager nodeSelViewManager) {
     this.node = node;
     this.button = button;
     this.nodeSelViewFactory = nodeSelViewFactory;
     this.nodeSelViewManager = nodeSelViewManager;
     setEventHandlers();
-    scheduleTemplateNodeCreation(service);
+    scheduleTemplateNodeCreation(txnManager);
   }
 
   private void setEventHandlers() {
@@ -117,22 +117,21 @@ public class PrivateTemplateButtonController {
         .orElse(false);
   }
 
-  /** トランザクションの終わりに, テンプレートノードの作成を実行するようにする. */
-  private void scheduleTemplateNodeCreation(TransactionNotificationService service) {
+  /**
+   * トランザクションの終わりに, テンプレートノードの作成を実行するようにする.
+   */
+  private void scheduleTemplateNodeCreation(TransactionManager txnManager) {
     if (node.isTemplate()) {
       return;
     }
-    if (!service.getCurrentExclusionIds().contains(ExclusionId.NODE_MANIPULATION)) {
-      throw new AssertionError("Private template nodes must be created while %s is enabled."
-        .formatted(ExclusionId.NODE_MANIPULATION));
-    }
-
-    TransactionContext context = service.begin();
+    TransactionContext context = txnManager.begin();
     context.onTransactionEnding().add(ctx -> {
-      ctx.getService().begin(ExclusionId.NODE_MANIPULATION);
-      button.getScene().addPostLayoutPulseListener(new TemplateNodeViewCreator(ctx));
+      txnManager.begin();
+      if (ctx.lockTasks(NODE_TREE_MODIFICATION)) {
+        button.getScene().addPostLayoutPulseListener(new TemplateNodeViewCreator(ctx));
+      }
     });
-    service.end();
+    txnManager.end();
   }
 
 
@@ -151,7 +150,6 @@ public class PrivateTemplateButtonController {
       button.getScene().removePostLayoutPulseListener(this);
     }
 
-
     /** テンプレートノードとそれを表示するノード選択ビューを作成する. */
     private void createTemplateNodeViews(UserOperation userOpe) {
       try {
@@ -165,7 +163,8 @@ public class PrivateTemplateButtonController {
           invokeOnCreatedAsTemplate(node, userOpe);
         });
       } finally {
-        context.getService().end(ExclusionId.NODE_MANIPULATION);
+        context.releaseTasks(NODE_TREE_MODIFICATION);
+        context.manager().end();
       }
     }
 

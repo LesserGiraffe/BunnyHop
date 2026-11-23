@@ -359,7 +359,7 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
     }
     boolean success = currentDestInfo.transceiver().halt(timeout);
     currentDestInfo = null;
-    cbRegistry.onConnCondChanged.invoke(new ConnectionEvent(this, true));
+    cbRegistry.onConnCondChanged.invoke(new ConnectionEvent(this, false));
     return success;
   }
 
