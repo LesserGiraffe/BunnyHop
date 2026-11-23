@@ -19,6 +19,7 @@ package net.seapanda.bunnyhop.node.model.event;
 import java.util.Map;
 import java.util.Objects;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
+import net.seapanda.bunnyhop.node.model.derivative.DerivativeBuilder;
 import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.node.model.service.BhNodePlacer;
 import net.seapanda.bunnyhop.service.LogManager;
@@ -88,6 +89,7 @@ public class CommonDataSupplier {
     ScriptableObject scope = cx.initStandardObjects();
     Map.of(
         BhConstants.JsIdName.BH_NODE_FACTORY, factory,
+        BhConstants.JsIdName.BH_DERIVATIVE_BUILDER, new DerivativeBuilder(),
         BhConstants.JsIdName.BH_NODE_PLACER, new BhNodePlacer(),
         BhConstants.JsIdName.BH_TEXT_DB, textDb)
         .forEach((key, val) -> scope.put(key, scope, Context.javaToJS(val, scope)));

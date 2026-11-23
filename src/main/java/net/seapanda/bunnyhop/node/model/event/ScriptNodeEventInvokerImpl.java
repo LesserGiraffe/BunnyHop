@@ -33,6 +33,7 @@ import net.seapanda.bunnyhop.node.model.Connector;
 import net.seapanda.bunnyhop.node.model.TextNode;
 import net.seapanda.bunnyhop.node.model.TextNode.FormatResult;
 import net.seapanda.bunnyhop.node.model.TextNode.TextOption;
+import net.seapanda.bunnyhop.node.model.derivative.DerivativeBuilder;
 import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.node.model.factory.MvcType;
 import net.seapanda.bunnyhop.node.model.parameter.BhNodeId;
@@ -458,6 +459,7 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     allNameToObj.put(BhConstants.JsIdName.BH_NODE_PLACER, nodePlacer);
     allNameToObj.put(BhConstants.JsIdName.BH_UTIL, supplier.getCommonObj());
     allNameToObj.put(BhConstants.JsIdName.BH_NODE_FACTORY, factory);
+    allNameToObj.put(BhConstants.JsIdName.BH_DERIVATIVE_BUILDER, new DerivativeBuilder());
     allNameToObj.put(BhConstants.JsIdName.BH_TEXT_DB, textDb);
     if (userOpe != null) {
       allNameToObj.put(BhConstants.JsIdName.BH_USER_OPE, userOpe);

@@ -1,14 +1,5 @@
 (function() {
 
-  let BhNodeId = net.seapanda.bunnyhop.node.model.parameter.BhNodeId;
-  let DerivativeBuilder = net.seapanda.bunnyhop.node.model.derivative.DerivativeBuilder;
-  let DerivationId = net.seapanda.bunnyhop.node.model.parameter.DerivationId;
-  let MvcType = net.seapanda.bunnyhop.node.model.factory.MvcType;
-  let bhUtility = {
-    'bhNodeFactory': bhNodeFactory,
-    'bhNodePlacer': bhNodePlacer
-  };
-
   /**
    * nodeA の外部末尾ノードのシンボル名が symbolName であった場合, nodeA の外部末尾ノードと nodeB を入れ替える.
    * nodeA の外部末尾ノードは入れ替え後, 削除される.
@@ -25,15 +16,15 @@
 
   /**
    * 引数で指定したノードを作成し, ワークスペースに追加する
-   * @param bhNodeId 作成するノードのID
+   * @param bhNodeId 作成するノードの ID
    * @param workspace ノードを追加するワークスペース
    * @param pos 追加時のワークスペース上の位置
    * @param bhUserOpe undo / redo 用コマンドオブジェクト
    * @return 新規作成したノード
    */
   function addNewNodeToWS(bhNodeId, workspace, pos, bhUserOpe) {
-    let newNode = createBhNode(bhNodeId, bhUserOpe)    
-    bhNodeFactory.constructMvc(newNode, MvcType.DEFAULT);
+    let newNode = createBhNode(bhNodeId, bhUserOpe);
+    bhNodeFactory.constructMvc(newNode);
     bhNodePlacer.moveToWs(workspace, newNode, pos.x, pos.y, bhUserOpe);
     return newNode;
   }
@@ -91,7 +82,7 @@
   function moveNodeToAncestor(
       node, ancestorSearchStart, nodesToExclude, symbolsToExclude, userOpe) {
     // Java のリストに対して, Array.prototype.includes は定義されていないので, 代わりに indexOf を使う.
-    // indexOf は Java のリストに対しても呼び出すことができる.
+    // indexOf は Java のリストに対しても呼び出せる.
     if (node === null
         || nodesToExclude.indexOf(node) >= 0
         || symbolsToExclude.indexOf(String(node.getSymbolName())) >= 0) {
@@ -178,7 +169,7 @@
    * @return node の派生ノード
    */
   function buildDerivative(node, derivationId, userOpe) {
-    return DerivativeBuilder.build(node, DerivationId.of(derivationId), userOpe);
+    return bhDerivativeBuilder.build(node, derivationId, userOpe);
   }
   
   /**
@@ -187,19 +178,18 @@
    * @param bhUserOpe undo / redo 用コマンドオブジェクト
    */
   function createBhNode(nodeId, bhUserOpe) {
-    return bhNodeFactory.create(BhNodeId.of(nodeId), bhUserOpe);
+    return bhNodeFactory.create(nodeId, bhUserOpe);
   }
 
   /**
    * defaultNodeId で指定したノードをデフォルトノードとして作成して, コネクタに接続する.
    *
-   * <p>デフォルトノード指定されたノードをコネクタに接続すると, そのコネクタのデフォルトノードはそのノードの ID になる.
    * @param connector デフォルトノードを変更するコネクタ
    * @param defaultNodeId connector に設定するデフォルトノードの ID
    * @param bhUserOpe undo / redo 用コマンドオブジェクト
    */
   function changeDefaultNode(connector, defaultNodeId, bhUserOpe) {
-    let defaultNode = bhNodeFactory.create(BhNodeId.of(defaultNodeId), bhUserOpe);
+    let defaultNode = bhNodeFactory.create(defaultNodeId, bhUserOpe);
     defaultNode.setDefault(true);
     connector.getConnectedNode().replace(defaultNode, bhUserOpe);
   }
@@ -284,20 +274,21 @@
     }
   }
 
-  bhUtility['connectToOuterEnd'] = connectToOuterEnd;
-  bhUtility['addNewNodeToWS'] = addNewNodeToWS;
-  bhUtility['replaceDescendant'] = replaceDescendant;
-  bhUtility['moveDescendant'] = moveDescendant;
-  bhUtility['isPrimitiveTypeExp'] = isPrimitiveTypeExp;
-  bhUtility['isListTypeExp'] = isListTypeExp;
-  bhUtility['moveNodeToAncestor'] = moveNodeToAncestor;
-  bhUtility['buildDerivative'] = buildDerivative;
-  bhUtility['createBhNode'] = createBhNode;
-  bhUtility['changeDefaultNode'] = changeDefaultNode;
-  bhUtility['findOuterNotSelected'] = findOuterNotSelected;
-  bhUtility['findNodeWhoseParentIsNotSelected'] = findNodeWhoseParentIsNotSelected;
-  bhUtility['selectToOutermost'] = selectToOutermost;
-  bhUtility['getPosition'] = getPosition;
-  bhUtility['collectDerivationFamily'] = collectDerivationFamily;
-  return bhUtility;
+  return {
+    'connectToOuterEnd' : connectToOuterEnd,
+    'addNewNodeToWS' : addNewNodeToWS,
+    'replaceDescendant' : replaceDescendant,
+    'moveDescendant' : moveDescendant,
+    'isPrimitiveTypeExp' : isPrimitiveTypeExp,
+    'isListTypeExp' : isListTypeExp,
+    'moveNodeToAncestor' : moveNodeToAncestor,
+    'buildDerivative' : buildDerivative,
+    'createBhNode' : createBhNode,
+    'changeDefaultNode' : changeDefaultNode,
+    'findOuterNotSelected' : findOuterNotSelected,
+    'findNodeWhoseParentIsNotSelected' : findNodeWhoseParentIsNotSelected,
+    'selectToOutermost' : selectToOutermost,
+    'getPosition' : getPosition,
+    'collectDerivationFamily' : collectDerivationFamily
+  };
 })();

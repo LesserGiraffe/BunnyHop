@@ -34,7 +34,6 @@ public interface BhNodeMvcBuilder {
    *             {@link MvcType#NONE} を指定した場合, 何もしない.
    * @return 引数で指定したノードに対応する {@link BhNodeView}.
    *         View の作成に失敗した場合 null.
-   *         {@code type} に {@link MvcType#NONE} を指定した場合も null.
    */
   BhNodeView build(BhNode node, MvcType type);
 }

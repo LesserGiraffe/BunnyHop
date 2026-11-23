@@ -31,12 +31,19 @@ public interface BhNodeFactory {
   /**
    * ノード ID から {@link BhNode} を新しく作る.
    *
+   * <p>MVC 構造は構築しない.
+   *
    * @param id 作成したいノードの ID
    * @param userOpe undo 用コマンドオブジェクト
    * @return {@code id} で指定した {@link BhNode} のオブジェクト.  
    *         {@code id} に対応するノードが見つからなかった場合は null.
    */
   BhNode create(BhNodeId id, UserOperation userOpe);
+
+  /** 外部スクリプトから使用するためのメソッド. */
+  default BhNode create(String id, UserOperation userOpe) {
+    return create(BhNodeId.of(id), userOpe);
+  }
 
   /**
    * ノード ID から {@link BhNode} を新しく作る.
@@ -56,12 +63,14 @@ public interface BhNodeFactory {
    * @param type 作成する MVC 構造のタイプ
    * @return 引数で指定したノードに対応する {@link BhNodeView}.
    *         View の作成に失敗した場合 null.
-   *         {@code type} に {@code MvcType.NONE} を指定した場合も null.
-   *         既に MVC 構造が構築されている場合, 何もせずに既存のビューを返す.
    */
   BhNodeView constructMvc(BhNode node, MvcType type);
 
+  /** 外部スクリプトから使用するためのメソッド. */
+  default BhNodeView constructMvc(BhNode node) {
+    return constructMvc(node, MvcType.DEFAULT);
+  }
+
   /** ノード ID が {@code id} である {@link BhNode} を作れるか調べる. */
   boolean canCreate(BhNodeId id);
-
 }

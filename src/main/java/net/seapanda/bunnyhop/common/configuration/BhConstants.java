@@ -255,6 +255,7 @@ public class BhConstants {
     public static final String BH_USER_OPE = "bhUserOpe";
     public static final String BH_UTIL = "bhUtil";
     public static final String BH_NODE_FACTORY = "bhNodeFactory";
+    public static final String BH_DERIVATIVE_BUILDER = "bhDerivativeBuilder";
     public static final String BH_TARGET_NODES = "bhTargetNodes";
     public static final String BH_CAUSE_OF_DELETION = "bhCauseOfDeletion";
     public static final String BH_IS_WHOLE_TEXT_FORMATTED = "bhIsWholeTextFormatted";

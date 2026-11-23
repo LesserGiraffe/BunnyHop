@@ -3,7 +3,7 @@ let dervIdVar = 'dervIdVar';
 
 /** 代入ノード作成 */
 function genAssignStat() {
-  let listDeclToLiteral = {
+  let varDeclToLiteral = {
     'NumVarDecl'   : 'idNumLiteralExp',
     'StrVarDecl'   : 'idStrLiteralExp',
     'BoolVarDecl'  : 'idBoolLiteralExp',
@@ -17,7 +17,7 @@ function genAssignStat() {
   let leftVar = assignStat.findDescendantOf('*', 'LeftVar', '*');
   leftVar.replace(variable, bhUserOpe);
   let rightExpCnctr = assignStat.findDescendantOf('*', 'RightExp');
-  bhUtil.changeDefaultNode(rightExpCnctr, listDeclToLiteral[bhThis.getSymbolName()], bhUserOpe);
+  bhUtil.changeDefaultNode(rightExpCnctr, varDeclToLiteral[bhThis.getSymbolName()], bhUserOpe);
   return assignStat;
 }
 

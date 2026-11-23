@@ -93,7 +93,7 @@ public class BhNodeMvcBuilderImpl implements BhNodeMvcBuilder {
   @Override
   public BhNodeView build(BhNode node, MvcType type) {
     if (type == MvcType.NONE) {
-      return null;
+      return node.getView().orElse(null);
     }
     var builder = this.new Builder(type);
     node.accept(builder);

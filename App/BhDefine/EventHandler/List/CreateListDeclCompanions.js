@@ -1,5 +1,5 @@
 let listDeclName = String(bhThis.getSymbolName());
-let dervIdIdVar = 'dervIdVar';
+let dervIdVar = 'dervIdVar';
 
 let listDeclToGetExp = {
   'NumListDecl'   : 'idNumListGetExp',
@@ -61,7 +61,7 @@ function genAnyListControlNode(listCtrlNodeId, listCnctrName, argNameToSymbolMap
   }
   let listCtrlNode = bhUtil.createBhNode(listCtrlNodeId, bhUserOpe);
   let arg = listCtrlNode.findDescendantOf('*', listCnctrName, '*');
-  let newNode = bhUtil.buildDerivative(bhThis, dervIdIdVar, bhUserOpe);
+  let newNode = bhUtil.buildDerivative(bhThis, dervIdVar, bhUserOpe);
   arg.replace(newNode, bhUserOpe);
 
   if (argNameToSymbolMap === undefined) {
@@ -77,7 +77,7 @@ function genAnyListControlNode(listCtrlNodeId, listCnctrName, argNameToSymbolMap
 
 (function() {
   let templates = [
-    bhUtil.buildDerivative(bhThis, dervIdIdVar, bhUserOpe),
+    bhUtil.buildDerivative(bhThis, dervIdVar, bhUserOpe),
     genAnyListControlNode(listDeclToPlaySoundListStat[listDeclName], 'Arg0'),
     genAnyListControlNode('idAnyListToStrExp', 'Arg0'),
     genAnyListControlNode('idAnyListLengthExp', 'Arg0'),

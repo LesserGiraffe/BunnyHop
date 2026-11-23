@@ -35,16 +35,19 @@ public class DerivativeBuilder implements BhNodeWalker {
   /** 現在処理中の {@link BhNode} の親がトップにくるスタック. */
   private final Deque<BhNode> parentStack = new LinkedList<>();
   /** undo 用コマンドオブジェクト. */
-  final UserOperation userOpe;
+  private final UserOperation userOpe;
   private DerivationId derivationId;
 
   /**
-   * {@code node} の {@code derivationId} に対応する派生ノードを作成する.
+   * {@code node} に対応する派生ノードツリーを作成する.
    *
-   * @param node このノードの派生ノードを作成する
-   * @param derivationId この派生先 ID に対応する派生ノードを作成する.  {@code node} に対して, この派生先 ID が定義されていること.
+   * <p>{@code node} の子ノード以下についても, 定義されている派生先 ID に対応する派生ノードを再帰的に作成する.
+   *
+   * @param node 派生ノードツリーの作成元となるノード
+   * @param derivationId {@code node} に対応する派生ノードの派生先 ID
    * @param userOpe undo 用コマンドオブジェクト
-   * @return 作成した派生ノードツリーのトップノード
+   * @return 作成した派生ノードツリーのトップノード.
+   *         {@code node} に {@code derivationId} に対応する派生ノードが定義されていない場合は null.
    */
   public static BhNode build(BhNode node, DerivationId derivationId, UserOperation userOpe) {
     var builder = new DerivativeBuilder(derivationId, userOpe);
@@ -52,9 +55,20 @@ public class DerivativeBuilder implements BhNodeWalker {
     return builder.parentStack.peekLast();
   }
 
+  /** 外部スクリプトから使用するためのメソッド. */
+  public static BhNode build(BhNode node, String derivationId, UserOperation userOpe) {
+    return build(node, DerivationId.of(derivationId), userOpe);
+  }
+
   private DerivativeBuilder(DerivationId derivationId, UserOperation userOpe) {
     this.derivationId = derivationId;
     this.userOpe = userOpe;
+  }
+
+  /** 外部スクリプトに渡すためのオブジェクトを作成する用. */
+  public DerivativeBuilder() {
+    userOpe = new UserOperation();
+    derivationId = DerivationId.NONE;
   }
 
   /**

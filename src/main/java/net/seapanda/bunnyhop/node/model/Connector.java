@@ -212,7 +212,7 @@ public class Connector extends SyntaxTreeNode {
    * このコネクタに指定されたデフォルトノードを新しく作成する.
    * MVC 構造は構築しない.
    */
-  public BhNode createDefaultNode(UserOperation userOpe) {
+  BhNode createDefaultNode(UserOperation userOpe) {
     BhNode defaultNode;
     if (!params.restoreLastDefaultNode()) {
       defaultNode = factory.create(getDefaultNodeId(), userOpe);
