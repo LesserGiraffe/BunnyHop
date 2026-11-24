@@ -47,6 +47,7 @@ import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.Undefined;
 
 /**
  * ローカル環境で動作する BhRuntime 操作を行うクラス.
@@ -286,7 +287,7 @@ public class RmiLocalBhRuntimeController implements LocalBhRuntimeController {
       Scriptable scope = cx.initStandardObjects();
       scope.put(JAVA_PATH, scope, Context.javaToJS(Utility.javaPath, scope));
       scope.put(EXEC_PATH, scope, Context.javaToJS(Utility.execPath, scope));
-      var result = (List<?>) localStartScript.exec(cx, scope);
+      var result = (List<?>) localStartScript.exec(cx, scope, Undefined.SCRIPTABLE_UNDEFINED);
       String[] cmd = result.stream().map(Object::toString).toList().toArray(new String[0]);
       return Optional.of(cmd);
     } catch (Exception e) {

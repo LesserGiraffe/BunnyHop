@@ -17,6 +17,8 @@
 package net.seapanda.bunnyhop.node.model.event;
 
 
+import static org.mozilla.javascript.Undefined.SCRIPTABLE_UNDEFINED;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -96,7 +98,7 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     nameToObj.put(BhConstants.JsIdName.BH_REPLACED_OLD_NODE, oldReplaced);
     try (Context cx = Context.enter()) {
       ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
-      defined.script().exec(cx, scope);
+      defined.script().exec(cx, scope, SCRIPTABLE_UNDEFINED);
     } catch (Exception e) {
       LogManager.logger().error(defined.name(), e);
     }
@@ -119,7 +121,7 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     nameToObj.put(BhConstants.JsIdName.BH_REPLACED_NEW_NODE, newReplaced);
     try (Context cx = Context.enter()) {
       ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
-      defined.script().exec(cx, scope);
+      defined.script().exec(cx, scope, SCRIPTABLE_UNDEFINED);
     } catch (Exception e) {
       LogManager.logger().error(defined.name(), e);
     }
@@ -142,7 +144,7 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     nameToObj.put(BhConstants.JsIdName.BH_PARENT_CONNECTOR, parentCnctr);
     try (Context cx = Context.enter()) {
       ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
-      defined.script().exec(cx, scope);
+      defined.script().exec(cx, scope, SCRIPTABLE_UNDEFINED);
     } catch (Exception e) {
       LogManager.logger().error(defined.name(), e);
     }
@@ -163,7 +165,7 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     nameToObj.put(BhConstants.JsIdName.BH_CAUSE_OF_DELETION, causeOfDeletion);
     try (Context cx = Context.enter()) {
       ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
-      return (Boolean) defined.script().exec(cx, scope);
+      return (Boolean) defined.script().exec(cx, scope, SCRIPTABLE_UNDEFINED);
     } catch (Exception e) {
       LogManager.logger().error(defined.name(), e);
     }
@@ -181,7 +183,7 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     nameToObj.put(BhConstants.JsIdName.BH_TARGET_NODES, new ArrayList<>(nodesToCut));
     try (Context cx = Context.enter()) {
       ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
-      return (Boolean) defined.script().exec(cx, scope);
+      return (Boolean) defined.script().exec(cx, scope, SCRIPTABLE_UNDEFINED);
     } catch (Exception e) {
       LogManager.logger().error(e, "'%s' must return a boolean value.", defined.name());
     }
@@ -201,7 +203,7 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     nameToObj.put(BhConstants.JsIdName.BH_TARGET_NODES, new ArrayList<>(nodesToCopy));
     try (Context cx = Context.enter()) {
       ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
-      Function copyCheckFunc = (Function) defined.script().exec(cx, scope);
+      Function copyCheckFunc = (Function) defined.script().exec(cx, scope, SCRIPTABLE_UNDEFINED);
       if (copyCheckFunc == null) {
         throw new Exception();
       }
@@ -241,7 +243,7 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     Map<String, Object> nameToObj = new HashMap<>();
     try (Context cx = Context.enter()) {
       ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
-      defined.script().exec(cx, scope);
+      defined.script().exec(cx, scope, SCRIPTABLE_UNDEFINED);
     } catch (Exception e) {
       LogManager.logger().error(defined.name(), e);
     }
@@ -257,7 +259,7 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     nameToObj.put(BhConstants.JsIdName.BH_UI_EVENT, event);
     try (Context cx = Context.enter()) {
       ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
-      defined.script().exec(cx, scope);
+      defined.script().exec(cx, scope, SCRIPTABLE_UNDEFINED);
     } catch (Exception e) {
       LogManager.logger().error(defined.name(), e);
     }
@@ -280,7 +282,7 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     nameToObj.put(BhConstants.JsIdName.BH_TEXT, text);
     try (Context cx = Context.enter()) {
       ScriptableObject scope = createScriptScope(cx, target, nameToObj);
-      return (Boolean) defined.script().exec(cx, scope);
+      return (Boolean) defined.script().exec(cx, scope, SCRIPTABLE_UNDEFINED);
     } catch (Exception e) {
       LogManager.logger().error(e, "'%s' must return a boolean value.\n%s", defined.name());
     }
@@ -298,7 +300,7 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     nameToObj.put(BhConstants.JsIdName.BH_ADDED_TEXT, addedText);
     try (Context cx = Context.enter()) {
       ScriptableObject scope = createScriptScope(cx, target, nameToObj);
-      NativeObject jsObj = (NativeObject) defined.script().exec(cx, scope);
+      NativeObject jsObj = (NativeObject) defined.script().exec(cx, scope, SCRIPTABLE_UNDEFINED);
       Boolean isWholeFormatted =
           (Boolean) jsObj.get(BhConstants.JsIdName.BH_IS_WHOLE_TEXT_FORMATTED);
       String formattedText = (String) jsObj.get(BhConstants.JsIdName.BH_FORMATTED_TEXT);
@@ -317,7 +319,7 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     }
     try (Context cx = Context.enter()) {
       ScriptableObject scope = createScriptScope(cx, target, new HashMap<>());
-      List<?> contents = (List<?>) defined.script().exec(cx, scope);
+      List<?> contents = (List<?>) defined.script().exec(cx, scope, SCRIPTABLE_UNDEFINED);
       var options = new ArrayList<TextOption>();
       for (Object content : contents) {
         List<?> modelAndView = (List<?>) content;
@@ -339,7 +341,8 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     Map<String, Object> nameToObj = new HashMap<>();
     try (Context cx = Context.enter()) {
       ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
-      List<BhNode> companionNodes = ((Collection<?>) defined.script().exec(cx, scope)).stream()
+      List<BhNode> companionNodes =
+          ((Collection<?>) defined.script().exec(cx, scope, SCRIPTABLE_UNDEFINED)).stream()
           .filter(elem -> elem instanceof BhNode)
           .map(elem -> (BhNode) elem)
           .collect(Collectors.toCollection(ArrayList::new));
@@ -359,7 +362,7 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     }
     try (Context cx = Context.enter()) {
       ScriptableObject scope = createScriptScope(cx, target, new HashMap<>());
-      return ((Collection<?>) defined.script().exec(cx, scope)).stream()
+      return ((Collection<?>) defined.script().exec(cx, scope, SCRIPTABLE_UNDEFINED)).stream()
           .map(Object::toString)
           .collect(Collectors.toCollection(ArrayList::new));
     } catch (Exception e) {
@@ -376,7 +379,7 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     }
     try (Context cx = Context.enter()) {
       ScriptableObject scope = createScriptScope(cx, target, new HashMap<>());
-      return (String) defined.script().exec(cx, scope);
+      return (String) defined.script().exec(cx, scope, SCRIPTABLE_UNDEFINED);
     } catch (Exception e) {
       LogManager.logger().error(e, "'%s' must return a string value.", defined.name());
     }
@@ -391,7 +394,7 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     }
     try (Context cx = Context.enter()) {
       ScriptableObject scope = createScriptScope(cx, target, new HashMap<>());
-      return Optional.of((String) defined.script().exec(cx, scope));
+      return Optional.of((String) defined.script().exec(cx, scope, SCRIPTABLE_UNDEFINED));
     } catch (Exception e) {
       LogManager.logger().error(e, "'%s' must return a string value.", defined.name());
     }
@@ -406,7 +409,7 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     }
     try (Context cx = Context.enter()) {
       ScriptableObject scope = createScriptScope(cx, target, new HashMap<>());
-      return ((Collection<?>) defined.script().exec(cx, scope)).stream()
+      return ((Collection<?>) defined.script().exec(cx, scope, SCRIPTABLE_UNDEFINED)).stream()
           .filter(obj -> obj instanceof BhNode)
           .map(obj -> (BhNode) obj)
           .collect(Collectors.toCollection(ArrayList::new));
@@ -425,7 +428,8 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     try (Context cx = Context.enter()) {
       ScriptableObject scope = createScriptScope(cx, target, new HashMap<>());
       // 外部スクリプトが null を返した場合 null が返る.
-      return (BhNode) Context.jsToJava(defined.script().exec(cx, scope), BhNode.class);
+      Object jumpTarget = defined.script().exec(cx, scope, SCRIPTABLE_UNDEFINED);
+      return (BhNode) Context.jsToJava(jumpTarget, BhNode.class);
     } catch (Exception e) {
       LogManager.logger().error(e, "'%s' must return a BhNode or null.", defined.name());
     }

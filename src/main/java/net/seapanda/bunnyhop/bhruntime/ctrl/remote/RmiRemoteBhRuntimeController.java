@@ -20,6 +20,7 @@ import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.G
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.GEN_REMOTE_DEST_PATH_JS;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.GEN_REMOTE_KILL_CMD_JS;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.GEN_REMOTE_START_CMD_JS;
+import static org.mozilla.javascript.Undefined.SCRIPTABLE_UNDEFINED;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
@@ -412,7 +413,8 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
     try (Context cx = Context.enter()) {
       Scriptable scope = cx.initStandardObjects();
       scope.put(BhConstants.JsIdName.IP_ADDR, scope, Context.javaToJS(host, scope));
-      return Optional.ofNullable((String) scripts.start().exec(cx, scope));
+      var cmd = (String) scripts.start().exec(cx, scope, SCRIPTABLE_UNDEFINED);
+      return Optional.ofNullable(cmd);
     } catch (Exception e) {
       LogManager.logger().error(
           e, "Failed to generate BhProgram start command  (%s).", GEN_REMOTE_START_CMD_JS);
@@ -427,7 +429,8 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
    */
   private Optional<String> genKillCmd() {
     try (Context cx = Context.enter()) {
-      return Optional.ofNullable((String) scripts.kill().exec(cx, cx.initStandardObjects()));
+      var cmd = (String) scripts.kill().exec(cx, cx.initStandardObjects(), SCRIPTABLE_UNDEFINED);
+      return Optional.ofNullable(cmd);
     } catch (Exception e) {
       LogManager.logger().error(
           e, "Failed to generate BhProgram kill command  (%s).", GEN_REMOTE_KILL_CMD_JS);
@@ -445,7 +448,8 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
     try (Context cx = Context.enter()) {
       Scriptable scope = cx.initStandardObjects();
       scope.put(BhConstants.JsIdName.UNAME, scope, Context.javaToJS(userName, scope));
-      return Optional.ofNullable((String) scripts.destPath().exec(cx, scope));
+      var path = (String) scripts.destPath().exec(cx, scope, SCRIPTABLE_UNDEFINED);
+      return Optional.ofNullable(path);
     } catch (Exception e) {
       LogManager.logger().error(
           "Failed to generate the destination path to which BhProgram should be copied.", e);
@@ -460,7 +464,8 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
    */
   private Optional<String> genGetRuntimePortCmd() {
     try (Context cx = Context.enter()) {
-      return Optional.ofNullable((String) scripts.getPort().exec(cx, cx.initStandardObjects()));
+      var cmd = (String) scripts.getPort().exec(cx, cx.initStandardObjects(), SCRIPTABLE_UNDEFINED);
+      return Optional.ofNullable(cmd);
     } catch (Exception e) {
       LogManager.logger().error(
           e, "Failed to generate Get BhRuntime Port command  (%s).", GEN_GET_PORT_CMD_JS);

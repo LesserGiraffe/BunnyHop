@@ -29,6 +29,7 @@ import net.seapanda.bunnyhop.service.script.BhScriptRepository;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.Undefined;
 
 /**
  * 外部スクリプトに定義されたコネクタのイベントハンドラを呼び出す機能を提供するクラス.
@@ -71,7 +72,7 @@ public class ScriptConnectorEventInvokerImpl implements ScriptConnectorEventInvo
     nameToObj.put(JsIdName.BH_NODE_TO_CONNECT, node);
     try (Context cx = Context.enter()) {
       ScriptableObject scriptScope = createScriptScope(cx, target, nameToObj);
-      return (Boolean) defined.script().exec(cx, scriptScope);
+      return (Boolean) defined.script().exec(cx, scriptScope, Undefined.SCRIPTABLE_UNDEFINED);
     } catch (Exception e) {
       LogManager.logger().error(e, "'%s' must return a boolean value.", defined.name());
     }

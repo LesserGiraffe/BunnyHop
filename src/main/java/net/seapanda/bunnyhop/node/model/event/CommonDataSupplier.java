@@ -28,6 +28,7 @@ import net.seapanda.bunnyhop.utility.textdb.TextDatabase;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.Undefined;
 
 /**
  * 外部スクリプトが共通で使うデータを提供するクラス.
@@ -77,7 +78,7 @@ public class CommonDataSupplier {
     }
     try (Context cx = Context.enter()) {
       Object jsObj = repository.getScript(BhConstants.Path.File.BH_UTILITY_JS)
-            .exec(cx, createScriptScope(cx));
+            .exec(cx, createScriptScope(cx), Undefined.SCRIPTABLE_UNDEFINED);
       return (jsObj instanceof NativeObject) ? jsObj : new NativeObject();
     } catch (Exception e) {
       LogManager.logger().error(e, "Failed to execute %s", BhConstants.Path.File.BH_UTILITY_JS);

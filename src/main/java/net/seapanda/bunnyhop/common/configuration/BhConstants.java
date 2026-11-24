@@ -419,7 +419,7 @@ public class BhConstants {
       public static final int HALT_TRANSCEIVER = 5000;
       /** リモートの BhRuntime 終了待ちのタイムアウト時間 (ms). */
       public static final int REMOTE_TERMINATE = 6000;
-      /** リモートの BhRuntime の起動待ちのタイムアウト時間 (ms). */
+      /** ローカルの BhRuntime の起動待ちのタイムアウト時間 (ms). */
       public static final int LOCAL_START = 5000;
       /** アプリケーション終了時にリモートの BhRuntime の終了処理を開始するまでの待ち時間 (ms). */
       public static final int REMOTE_END_ON_EXIT = 3000;
