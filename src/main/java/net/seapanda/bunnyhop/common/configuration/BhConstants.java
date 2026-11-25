@@ -153,8 +153,6 @@ public class BhConstants {
       public static final String TEMPLATE_NODE_LIST_JSON = "TemplateNodeList.json";
       /** 外部スクリプトが共通で使用するメソッドを定義したファイルの名前. */
       public static final String BH_UTILITY_JS = "BhUtility.js";
-      /** BunnyHop が作成した BhProgram のスクリプト名. */
-      public static final String APP_FILE_NAME_JS = "BhAppScript.js";
       /** リモートの BhProgram 実行環境をスタートさせるコマンドを生成するスクリプト名. */
       public static final String GEN_REMOTE_START_CMD_JS = "GenerateRemoteStartCmd.js";
       /** リモートの BhProgram 実行環境を終わらせるコマンドを生成するスクリプト名. */

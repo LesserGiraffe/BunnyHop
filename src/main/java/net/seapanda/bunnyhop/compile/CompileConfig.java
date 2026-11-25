@@ -52,28 +52,37 @@ public class CompileConfig {
   @SerializedName("mainRoutine")
   private final String mainRoutineName;
 
+  /** 出力ファイルのパス. */
+  @SerializedName("outFile")
+  private String outputFilePath;
+
   /** コンストラクタ (デシリアライズ用). */
   private CompileConfig() {
     id = "";
     libPaths = new ArrayList<>();
     extensionPaths = new ArrayList<>();
     mainRoutineName = "_bhMain";
+    outputFilePath = "";
   }
 
   public String getId() {
     return id;
   }
 
-  public List<String> getLibPaths() {
-    return libPaths;
+  public List<Path> getLibPaths() {
+    return libPaths.stream().map(Path::of).toList();
   }
 
-  public List<String> getExtensionPaths() {
-    return extensionPaths;
+  public List<Path> getExtensionPaths() {
+    return extensionPaths.stream().map(Path::of).toList();
   }
 
   public String getMainRoutineName() {
     return mainRoutineName;
+  }
+
+  public Path getOutputFilePath() {
+    return Path.of(outputFilePath);
   }
 
   /**
@@ -110,10 +119,16 @@ public class CompileConfig {
     try (var jr = gson.newJsonReader(new FileReader(configFilePath.toString()))) {
       data = gson.fromJson(jr, Data.class);
     }
-    data.configurations.forEach(config -> config.libPaths =
-        resolvePathList(config.libPaths, configFilePath.getParent(), language));
-    data.configurations.forEach(config -> config.extensionPaths =
-        resolvePathList(config.extensionPaths, configFilePath.getParent(), language));
+    Path basePath = configFilePath.getParent();
+    data.configurations.forEach(config ->
+        config.libPaths = resolvePathList(config.libPaths, basePath, language));
+
+    data.configurations.forEach(config ->
+        config.extensionPaths = resolvePathList(config.extensionPaths, basePath, language));
+
+    data.configurations.forEach(config ->
+        config.outputFilePath =
+            resolvePathList(List.of(config.outputFilePath), basePath, language).getFirst());
 
     return data.configurations.stream()
       .collect(Collectors.toMap(CompileConfig::getId, Function.identity()));

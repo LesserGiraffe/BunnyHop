@@ -16,12 +16,9 @@
 
 package net.seapanda.bunnyhop.bhruntime.launch;
 
-import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir;
-import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File;
 import static net.seapanda.bunnyhop.runtime.api.message.BhProgramEvent.Name.PROGRAM_START;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Optional;
 import javafx.scene.control.Alert;
 import net.seapanda.bunnyhop.bhruntime.ctrl.remote.RemoteBhRuntimeController;
@@ -33,7 +30,6 @@ import net.seapanda.bunnyhop.compiler.api.CompileOption;
 import net.seapanda.bunnyhop.compiler.api.SourceSet;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.message.MessageService;
-import net.seapanda.bunnyhop.utility.Utility;
 
 /**
  * BhProgram の起動とその実行環境の制御用オブジェクトを取得する機能を提供するクラス.
@@ -80,7 +76,7 @@ public class RemoteBhProgramLauncherImpl implements RemoteBhProgramLauncher {
     CompileOption option = CompileOption.builder()
         .libPaths(compileConfig.getLibPaths())
         .extensionPaths(compileConfig.getExtensionPaths())
-        .outFile(Paths.get(Utility.execPath, Dir.COMPILED, File.APP_FILE_NAME_JS))
+        .outFile(compileConfig.getOutputFilePath())
         .mainRoutineLaunchEvent(PROGRAM_START.toString())
         .mainRoutineName(compileConfig.getMainRoutineName())
         .build();

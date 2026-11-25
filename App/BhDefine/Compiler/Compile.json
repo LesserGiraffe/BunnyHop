@@ -11,7 +11,8 @@
         "./Libs/Common.js",
         "./Libs/LocalCommon.js",
         "./Libs/Extension.js"
-      ]
+      ],
+      "outFile" : "../../Compiled/BhAppScript.js"
     },
 
     {
@@ -25,7 +26,8 @@
         "./Libs/Common.js",
         "./Libs/RemoteCommon.js",
         "./Libs/Extension.js"
-      ]
+      ],
+      "outFile" : "../../Compiled/BhAppScript.js"
     }
   ]
 }
